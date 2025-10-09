@@ -1,0 +1,98 @@
+/*==============================================================================
+
+ * Template Name: Dizital - Marketing Agency Html Template
+ * Author: Maantheme - (https://themeforest.net/user/maan_theme)
+ * Description: Marketing Agency Html Template
+ * Version: 1.0
+ * Copyright 2021 maan_theme
+
+==============================================================================*/
+
+@import url('https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700');
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 17px;
+}
+
+.doc_main_title {
+	padding: 50px 0;
+	border-bottom: 1px solid #ddd;
+	margin-bottom: 50px;
+}
+
+.doc_main_title i {
+	display: block;
+	margin-bottom: 10px;
+	font-style: inherit;
+	font-size: 24px;
+	color: #777;
+}
+
+.documentation_menu {
+	position: fixed;
+	width: 25%;
+	background-color: #fff;
+	height: 100%;
+	-webkit-box-shadow: 0 0 25px #ddd;
+	box-shadow: 0 0 25px #ddd;
+	padding-top: 15px;
+	overflow-y: scroll;
+}
+
+.documentation_menu h3 {
+	padding-left: 20px;
+	border-bottom: 2px solid;
+	padding-bottom: 10px;
+}
+
+.documentation_menu li a {
+	color: #333;
+	padding: 8px 22px;
+	display: block;
+	-webkit-transition: .3s;
+	-o-transition: .3s;
+	transition: .3s;
+	font-weight: 500;
+}
+
+.documentation_menu li.active a,
+.documentation_menu li a.active {
+	color: #fff;
+}
+
+.documentation_menu li a:hover {
+	color: #fff;
+    background-color: #f4831f;
+    text-decoration: none;
+}
+
+.active{
+    background-color: #f4831f;
+}
+
+.documentation_content{
+    width: 75%;
+    float: right;
+}
+pre{
+    background-color: #f8f8f8;
+    padding: 25px 0;
+    border: 1px solid #ddd;
+}
+.bg-red{
+    background-color: #bf2340;
+    color: #fff;
+    padding: 1px;
+}
+
+.template_info p{
+    margin-bottom: 0;
+}
+
+img{
+	box-shadow: 2px 1px 13px #999;
+}
+
+
+

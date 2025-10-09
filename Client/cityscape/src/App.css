@@ -1,0 +1,128 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@700&display=swap');
+
+
+
+
+h2, h5 {
+  font-family: 'Playfair Display', serif;
+  color: #0b2545;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  font-size: 2.75rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+h5 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #3a5068;
+}
+
+
+
+
+.btn-primary {
+  background: linear-gradient(45deg, #0b2545, #344e86);
+  border: none;
+  color: white;
+  padding: 0.65rem 1.75rem;
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 30px;
+  box-shadow: 0 8px 18px rgb(11 37 69 / 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(45deg, #344e86, #0b2545);
+  box-shadow: 0 12px 30px rgb(11 37 69 / 0.5);
+}
+
+.btn-outline-primary {
+  color: #0b2545;
+  border: 2px solid #0b2545;
+  background: transparent;
+  padding: 0.6rem 1.7rem;
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 30px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-outline-primary:hover {
+  background: #0b2545;
+  color: #fff;
+  box-shadow: 0 8px 20px rgb(11 37 69 / 0.4);
+}
+
+img {
+  border-radius: 16px;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  cursor: default;
+}
+
+/* img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 28px rgba(11, 37, 69, 0.2);
+} */
+
+.Toastify__toast-container--top-right {
+	top: 120px;
+}
+
+
+:root {
+  --primary-color: #1a73e8; /* A vibrant blue */
+  --secondary-color: #4a4a4a; /* A dark gray for text */
+  --light-bg-color: #f5f8fa; /* A very light gray for background */
+  --card-bg-color: #ffffff; /* White for cards */
+  --border-color: #e6e6e6;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+body {
+  background-color: var(--light-bg-color);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Custom icon and feature styles */
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+.feature-item:last-child {
+  border-bottom: none;
+}
+.feature-icon-box {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--light-bg-color);
+  border-radius: 8px;
+  color: var(--primary-color);
+  font-size: 20px;
+}
+.feature-label {
+  font-weight: 600;
+  color: var(--secondary-color);
+}
+.feature-value {
+  color: #8c8c8c;
+}
+
+
+
