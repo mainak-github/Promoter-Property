@@ -1,8 +1,7 @@
 const path = require('path');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const fs = require('fs');
-const { User, BrokerProfile } = require('../../../models');
-
+const { query } = require('../../config/db');
 
 exports.createBroker = async (req, res) => {
   try {
@@ -23,22 +22,18 @@ exports.createBroker = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Step 1: Create the user
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      role: 'broker'
-    });
+    // Step 1: Create user
+    const userResult = await query(
+      'INSERT INTO Users (name, email, password, role, createdAt, updatedAt) VALUES (?, ?, ?, "broker", NOW(), NOW())',
+      [name, email, hashedPassword]
+    );
+    const userId = userResult.insertId;
 
-    // Safe name for folder
-    const safeName = name.replace(/\s+/g, '_') + `_${user.id}`;
+    // Folder for broker files
+    const safeName = name.replace(/\s+/g, '_') + `_${userId}`;
     const brokerFolderPath = path.join('uploads', 'brokers', safeName);
-
-    // Ensure directory exists
     fs.mkdirSync(brokerFolderPath, { recursive: true });
 
-    // Move files to broker folder and set paths
     let agreementFilePath = null;
     let profilePhotoPath = null;
 
@@ -56,9 +51,25 @@ exports.createBroker = async (req, res) => {
       profilePhotoPath = destPath;
     }
 
+    const validApprovalStatus = ['pending', 'approved', 'rejected'].includes(approval_status) ? approval_status : 'pending';
+
     // Step 2: Create broker profile
-    const brokerProfile = await BrokerProfile.create({
-      userId: user.id,
+    const profileResult = await query(
+      `INSERT INTO BrokerProfiles (
+        userId, fullName, mobileNumber, companyName, companyRegNo, gstId, brokerRegNo,
+        agreementFile, address, profilePhoto, memberId, approval_status, created_by, createdAt, updatedAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+      [
+        userId, name, mobileNumber || null, companyName || null, companyRegNo || null,
+        gstId || null, brokerRegNo || null, agreementFilePath, address || null,
+        profilePhotoPath, memberId || null, validApprovalStatus, created_by || null
+      ]
+    );
+
+    const user = { id: userId, name, email, role: 'broker' };
+    const brokerProfile = {
+      id: profileResult.insertId,
+      userId,
       fullName: name,
       mobileNumber,
       companyName,
@@ -69,46 +80,33 @@ exports.createBroker = async (req, res) => {
       address,
       profilePhoto: profilePhotoPath,
       memberId,
-      approval_status: ['pending', 'approved', 'rejected'].includes(approval_status) ? approval_status : 'pending',
+      approval_status: validApprovalStatus,
       created_by
-    });
+    };
 
     return res.status(201).json({ user, brokerProfile });
-
   } catch (err) {
     console.error('Error creating broker:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
-
-
 exports.listBrokers = async (req, res) => {
   try {
-    const brokers = await BrokerProfile.findAll({
-      // where: { role: 'broker' },
-      // include: [{ model: BrokerProfile, as: 'brokerProfile' }]
-    });
-    res.status(200).json({ message: 'Brokers fetched successfully', brokers: brokers });
-    console.log('Brokers fetched successfully', brokers);
+    const brokers = await query('SELECT * FROM BrokerProfiles');
+    res.status(200).json({ message: 'Brokers fetched successfully', brokers });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch brokers' });
   }
 };
 
 exports.brokerDetails = async (req, res) => {
- 
   try {
-    const broker = await BrokerProfile.findAll({
-      where: {id: req.params.id },
-     
-    });
-   if (!broker) {
+    const broker = await query('SELECT * FROM BrokerProfiles WHERE id = ?', [req.params.id]);
+    if (broker.length === 0) {
       return res.status(404).json({ message: 'Broker not found' });
     }
-    console.log('Brokers fetched successfully', broker);
-    res.status(200).json({ message: 'Broker fetched successfully', broker: broker });
-
+    res.status(200).json({ message: 'Broker fetched successfully', broker });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch broker' });
   }
@@ -117,15 +115,12 @@ exports.brokerDetails = async (req, res) => {
 exports.deactivateBroker = async (req, res) => {
   try {
     const { id } = req.params;
-
-    const user = await User.findByPk(id);
-    if (!user || user.role !== 'broker') {
+    const users = await query("SELECT * FROM Users WHERE id = ? AND role = 'broker'", [id]);
+    if (users.length === 0) {
       return res.status(404).json({ message: 'Broker not found' });
     }
 
-    user.active = false; // assuming you have an `active` field
-    await user.save();
-
+    await query('UPDATE Users SET active = false, updatedAt = NOW() WHERE id = ?', [id]);
     res.json({ message: 'Broker deactivated' });
   } catch (err) {
     res.status(500).json({ error: 'Could not deactivate broker' });
@@ -143,26 +138,24 @@ exports.updateBroker = async (req, res) => {
       gstId,
       brokerRegNo,
       address,
-      memberId,
+      memberId
     } = req.body;
 
-    // Step 1: Update User name
-    await User.update({ fullName }, { where: { id: id } });
+    if (fullName) {
+      await query('UPDATE Users SET name = ?, updatedAt = NOW() WHERE id = ?', [fullName, id]);
+    }
 
-    // Step 2: Fetch existing broker profile
-    const broker = await BrokerProfile.findOne({ where: { id } });
-    if (!broker) return res.status(404).json({ error: 'Broker not found' });
+    const brokers = await query('SELECT * FROM BrokerProfiles WHERE id = ?', [id]);
+    if (brokers.length === 0) return res.status(404).json({ error: 'Broker not found' });
 
-    // Build safe folder name
-    const safeName = fullName.replace(/\s+/g, '_') + `_${id}`;
+    const broker = brokers[0];
+    const safeName = (fullName || broker.fullName || 'broker').replace(/\s+/g, '_') + `_${id}`;
     const brokerFolderPath = path.join('uploads', 'brokers', safeName);
     fs.mkdirSync(brokerFolderPath, { recursive: true });
 
-    // File replacements
     let agreementFilePath = broker.agreementFile;
     let profilePhotoPath = broker.profilePhoto;
 
-    // Replace agreementFile if uploaded
     if (req.files?.agreementFile?.[0]) {
       if (agreementFilePath && fs.existsSync(agreementFilePath)) {
         fs.unlinkSync(agreementFilePath);
@@ -173,7 +166,6 @@ exports.updateBroker = async (req, res) => {
       agreementFilePath = newPath;
     }
 
-    // Replace profilePhoto if uploaded
     if (req.files?.profilePhoto?.[0]) {
       if (profilePhotoPath && fs.existsSync(profilePhotoPath)) {
         fs.unlinkSync(profilePhotoPath);
@@ -184,22 +176,24 @@ exports.updateBroker = async (req, res) => {
       profilePhotoPath = newPath;
     }
 
-    // Step 3: Update BrokerProfile
-    await BrokerProfile.update({
-      fullName: fullName,
-      mobileNumber,
-      companyName,
-      companyRegNo,
-      gstId,
-      brokerRegNo,
-      address,
-      memberId,
-      agreementFile: agreementFilePath,
-      profilePhoto: profilePhotoPath
-    }, { where: { id } });
+    await query(
+      `UPDATE BrokerProfiles SET
+        fullName = COALESCE(?, fullName),
+        mobileNumber = COALESCE(?, mobileNumber),
+        companyName = COALESCE(?, companyName),
+        companyRegNo = COALESCE(?, companyRegNo),
+        gstId = COALESCE(?, gstId),
+        brokerRegNo = COALESCE(?, brokerRegNo),
+        address = COALESCE(?, address),
+        memberId = COALESCE(?, memberId),
+        agreementFile = ?,
+        profilePhoto = ?,
+        updatedAt = NOW()
+      WHERE id = ?`,
+      [fullName, mobileNumber, companyName, companyRegNo, gstId, brokerRegNo, address, memberId, agreementFilePath, profilePhotoPath, id]
+    );
 
     return res.status(200).json({ message: 'Broker updated successfully' });
-
   } catch (err) {
     console.error('Error updating broker:', err);
     return res.status(500).json({ error: 'Internal server error' });
@@ -210,100 +204,66 @@ exports.deleteBroker = async (req, res) => {
   try {
     const userId = req.params.userId;
 
-    const brokerProfile = await BrokerProfile.findOne({ where: { userId } });
-    if (!brokerProfile) {
+    const brokers = await query('SELECT * FROM BrokerProfiles WHERE userId = ?', [userId]);
+    if (brokers.length === 0) {
       return res.status(404).json({ error: 'Broker profile not found' });
     }
 
-    const user = await User.findByPk(userId);
-    if (!user || user.role !== 'broker') {
+    const users = await query("SELECT * FROM Users WHERE id = ? AND role = 'broker'", [userId]);
+    if (users.length === 0) {
       return res.status(404).json({ error: 'Broker user not found' });
     }
 
-    // Construct folder path
+    const user = users[0];
     const safeName = user.name.replace(/\s+/g, '_') + `_${userId}`;
     const brokerFolder = path.join('uploads', 'brokers', safeName);
 
-    // Delete the broker folder (recursively)
     if (fs.existsSync(brokerFolder)) {
       fs.rmSync(brokerFolder, { recursive: true, force: true });
     }
 
-    // Delete records
-    await BrokerProfile.destroy({ where: { userId } });
-    await User.destroy({ where: { id: userId } });
+    await query('DELETE FROM BrokerProfiles WHERE userId = ?', [userId]);
+    await query('DELETE FROM Users WHERE id = ?', [userId]);
 
     return res.status(200).json({ message: 'Broker deleted successfully' });
-
   } catch (err) {
     console.error('Error deleting broker:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
-
-// ✅ Approve broker
 exports.approveBroker = async (req, res) => {
   try {
     const { id } = req.params;
-
-    const broker = await BrokerProfile.findByPk(id);
-
-    if (!broker) {
+    const brokers = await query('SELECT * FROM BrokerProfiles WHERE id = ?', [id]);
+    if (brokers.length === 0) {
       return res.status(404).json({ message: 'Broker not found' });
     }
 
-    broker.approval_status = 'approved';
-    await broker.save();
+    await query("UPDATE BrokerProfiles SET approval_status = 'approved', updatedAt = NOW() WHERE id = ?", [id]);
+    const updated = await query('SELECT * FROM BrokerProfiles WHERE id = ?', [id]);
 
-    return res.status(200).json({
-      message: 'Broker approved successfully',
-      broker,
-    });
+    return res.status(200).json({ message: 'Broker approved successfully', broker: updated[0] });
   } catch (error) {
     console.error('Error approving broker:', error);
     return res.status(500).json({ message: 'Server error while approving broker' });
   }
 };
 
-
-// ❌ Reject broker
 exports.rejectBroker = async (req, res) => {
   try {
     const { id } = req.params;
-
-    const broker = await BrokerProfile.findByPk(id);
-
-    if (!broker) {
+    const brokers = await query('SELECT * FROM BrokerProfiles WHERE id = ?', [id]);
+    if (brokers.length === 0) {
       return res.status(404).json({ message: 'Broker not found' });
     }
 
-    broker.approval_status = 'rejected';
-    await broker.save();
+    await query("UPDATE BrokerProfiles SET approval_status = 'rejected', updatedAt = NOW() WHERE id = ?", [id]);
+    const updated = await query('SELECT * FROM BrokerProfiles WHERE id = ?', [id]);
 
-    return res.status(200).json({
-      message: 'Broker rejected successfully',
-      broker,
-    });
+    return res.status(200).json({ message: 'Broker rejected successfully', broker: updated[0] });
   } catch (error) {
     console.error('Error rejecting broker:', error);
     return res.status(500).json({ message: 'Server error while rejecting broker' });
-  }
-};
-
-
-// gertbrokerbyId
-// Controller: Get broker by ID
-exports.brokerDetails = async (req, res) => {
-  try {
-    const broker = await BrokerProfile.findOne({ where: { id: req.params.id } });
-
-    if (!broker) {
-      return res.status(404).json({ message: 'Broker not found' });
-    }
-
-    res.status(200).json({ message: 'Broker fetched successfully', broker:broker });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch broker' });
   }
 };

@@ -1,12 +1,13 @@
-
-// controllers/broker/property.controller.js
-const { Property, PropertyImage, Amenity, NearbyFacility, FloorPlan, DeveloperInfo, LayoutMap, sequelize } = require('../../../models');
+const { query, getConnection } = require('../../config/db');
+const { populatePropertyAssociations } = require('../public/property.controller');
 const slugify = require('slugify');
 const path = require('path');
 
 exports.createProperty = async (req, res) => {
-  const t = await sequelize.transaction();
+  const connection = await getConnection();
   try {
+    await connection.beginTransaction();
+
     const {
       title,
       shortDescription,
@@ -43,7 +44,6 @@ exports.createProperty = async (req, res) => {
       nearbyFacilities,
       floorPlans,
       developerInfo,
-      // ============ SEO FIELDS ============
       seoTitle,
       metaDescription,
       metaKeywords,
@@ -54,237 +54,171 @@ exports.createProperty = async (req, res) => {
       canonicalUrl,
       focusKeyword,
       robotsIndex,
-      // ============ END SEO FIELDS ============
     } = req.body;
 
-    // Convert comma-separated bedrooms string to array if needed
     let bedroomsArray = bedrooms;
     if (typeof bedrooms === 'string') {
       bedroomsArray = bedrooms.split(',').map(b => b.trim());
     }
 
-    const slug = slugify(title, { lower: true });
+    const slug = slugify(title || 'property', { lower: true });
+    const coverPhotoPath = req.files?.coverPhoto ? path.relative('uploads', req.files.coverPhoto[0].path) : null;
 
-    // 1. Create Property with SEO fields
-    const property = await Property.create({
-      brokerId: req.user.id,
-      coverPhoto: req.files.coverPhoto ? path.relative('uploads', req.files.coverPhoto[0].path) : null,
-      title,
-      shortDescription,
-      longDescription,
-      priceRange,
-      budgetType,
-      city,
-      suburb,
-      district,
-      state,
-      pincode,
-      road,
-      country,
-      continent,
-      timezone,
-      isoCode,
-      latitude,
-      longitude,
-      googleMapLink,
-      propertyType,
-      status,
-      bedrooms: Array.isArray(bedroomsArray) ? bedroomsArray.join(',') : null,
-      bathrooms: bathrooms ? parseInt(bathrooms) : null,
-      furnishedStatus,
-      parkingAvailable: parkingAvailable === 'true' || parkingAvailable === true,
-      launchDate: launchDate ? new Date(launchDate) : null,
-      completionDate: completionDate ? new Date(completionDate) : null,
-      floorNumber,
-      numberOfTowers,
-      carpetArea,
-      totalArea,
-      facing,
-      approvalStatus: 'pending',
-      slug,
-      // ============ SEO FIELDS ============
-      seoTitle: seoTitle || null,
-      metaDescription: metaDescription || null,
-      metaKeywords: metaKeywords || null,
-      ogTitle: ogTitle || null,
-      ogType: ogType || 'website',
-      ogDescription: ogDescription || null,
-      twitterCard: twitterCard || 'summary_large_image',
-      canonicalUrl: canonicalUrl || null,
-      focusKeyword: focusKeyword || null,
-      robotsIndex: robotsIndex || 'index,follow'
-      // ============ END SEO FIELDS ============
-    }, { transaction: t });
+    const [propResult] = await connection.query(
+      `INSERT INTO Properties (
+        brokerId, coverPhoto, title, shortDescription, longDescription, priceRange, budgetType,
+        city, suburb, district, state, pincode, road, country, continent, timezone, isoCode,
+        latitude, longitude, googleMapLink, propertyType, status, bedrooms, bathrooms,
+        furnishedStatus, parkingAvailable, launchDate, completionDate, floorNumber, numberOfTowers,
+        carpetArea, totalArea, facing, approvalStatus, slug, seoTitle, metaDescription, metaKeywords,
+        ogTitle, ogType, ogDescription, twitterCard, canonicalUrl, focusKeyword, robotsIndex,
+        createdAt, updatedAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+      [
+        req.user.id, coverPhotoPath, title, shortDescription || null, longDescription || null,
+        priceRange || null, budgetType || null, city || null, suburb || null, district || null,
+        state || null, pincode || null, road || null, country || null, continent || null,
+        timezone || null, isoCode || null, latitude || null, longitude || null, googleMapLink || null,
+        propertyType || null, status || null, Array.isArray(bedroomsArray) ? bedroomsArray.join(',') : null,
+        bathrooms ? parseInt(bathrooms) : null, furnishedStatus || null,
+        parkingAvailable === 'true' || parkingAvailable === true,
+        launchDate ? new Date(launchDate) : null, completionDate ? new Date(completionDate) : null,
+        floorNumber || null, numberOfTowers || null, carpetArea || null, totalArea || null,
+        facing || null, slug, seoTitle || null, metaDescription || null, metaKeywords || null,
+        ogTitle || null, ogType || 'website', ogDescription || null, twitterCard || 'summary_large_image',
+        canonicalUrl || null, focusKeyword || null, robotsIndex || 'index,follow'
+      ]
+    );
 
-    // 2. Additional Photos
-    if (req.files.additionalPhotos) {
-      const images = req.files.additionalPhotos.map(file => ({
-        propertyId: property.id,
-        imageUrl: file.path ? path.relative('uploads', file.path) : null
-      }));
-      await PropertyImage.bulkCreate(images, { transaction: t });
+    const propertyId = propResult.insertId;
+
+    // Additional Photos
+    if (req.files?.additionalPhotos) {
+      for (const file of req.files.additionalPhotos) {
+        await connection.query(
+          'INSERT INTO PropertyImages (propertyId, imageUrl, createdAt, updatedAt) VALUES (?, ?, NOW(), NOW())',
+          [propertyId, path.relative('uploads', file.path)]
+        );
+      }
     }
 
-    // 3. Amenities
+    // Amenities
     if (amenities) {
       let amenityNames = [];
-      
       if (typeof amenities === 'string') {
-        amenityNames = amenities.split(',').map(name => name.trim()).filter(name => name);
+        amenityNames = amenities.split(',').map(n => n.trim()).filter(Boolean);
       } else if (Array.isArray(amenities)) {
         amenityNames = amenities;
       }
-      
-      console.log('Amenity names:', amenityNames);
-      
-      if (amenityNames.length > 0) {
-        const amenityInstances = [];
-        
-        // Find or create each amenity
-        for (const name of amenityNames) {
-          const [amenity] = await Amenity.findOrCreate({
-            where: { name: name },
-            defaults: { name: name },
-            transaction: t
-          });
-          amenityInstances.push(amenity);
+
+      for (const name of amenityNames) {
+        const [existing] = await connection.query('SELECT id FROM Amenities WHERE name = ?', [name]);
+        let amenityId;
+        if (existing.length > 0) {
+          amenityId = existing[0].id;
+        } else {
+          const [newAmenity] = await connection.query('INSERT INTO Amenities (name, createdAt, updatedAt) VALUES (?, NOW(), NOW())', [name]);
+          amenityId = newAmenity.insertId;
         }
-        
-        // Associate all amenities with the property
-        await property.setAmenities(amenityInstances, { transaction: t });
-        
-        console.log('✅ Amenities associated:', amenityInstances.map(a => a.name));
+
+        await connection.query(
+          'INSERT IGNORE INTO PropertyAmenities (propertyId, amenityId, createdAt, updatedAt) VALUES (?, ?, NOW(), NOW())',
+          [propertyId, amenityId]
+        ).catch(() => {});
       }
     }
 
-    // 4. Nearby Facilities
+    // Nearby Facilities
     if (nearbyFacilities) {
       const facilitiesArray = typeof nearbyFacilities === 'string' ? JSON.parse(nearbyFacilities) : nearbyFacilities;
       for (const fac of facilitiesArray) {
-        await property.createNearbyFacility({
-          facilityType: fac.facilityType,
-          facilityName: fac.facilityName,
-          distance: fac.distance
-        }, { transaction: t });
+        await connection.query(
+          'INSERT INTO NearbyFacilities (propertyId, facilityType, facilityName, distance, createdAt, updatedAt) VALUES (?, ?, ?, ?, NOW(), NOW())',
+          [propertyId, fac.facilityType, fac.facilityName, fac.distance]
+        );
       }
     }
 
-    // 5. Floor Plans
+    // Floor Plans
     if (floorPlans) {
       const floorPlansArray = Array.isArray(floorPlans) ? floorPlans : JSON.parse(floorPlans);
       for (let i = 0; i < floorPlansArray.length; i++) {
         const fp = floorPlansArray[i];
-        const photo = req.files.floorPlans && req.files.floorPlans[i];
-        await FloorPlan.create({
-          propertyId: property.id,
-          photo: photo ? path.relative('uploads', photo.path) : null,
-          floorName: fp.floorName,
-          towerName: fp.towerName,
-          shortDescription: fp.shortDescription,
-          priceRange: fp.priceRange
-        }, { transaction: t });
+        const photo = req.files?.floorPlans?.[i];
+        await connection.query(
+          'INSERT INTO FloorPlans (propertyId, photo, floorName, towerName, shortDescription, priceRange, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())',
+          [propertyId, photo ? path.relative('uploads', photo.path) : null, fp.floorName, fp.towerName, fp.shortDescription, fp.priceRange]
+        );
       }
     }
 
-    // 6. Developer Info
+    // Developer Info
     if (developerInfo) {
       const devInfo = typeof developerInfo === 'string' ? JSON.parse(developerInfo) : developerInfo;
-      await property.createDeveloperInfo({
-        developerName: devInfo.developerName,
-        developerDescription: devInfo.developerDescription,
-        developerLogo: req.files.developerLogo ? path.relative('uploads', req.files.developerLogo[0].path) : null
-      }, { transaction: t });
+      await connection.query(
+        'INSERT INTO DeveloperInfos (propertyId, developerName, developerDescription, developerLogo, createdAt, updatedAt) VALUES (?, ?, ?, ?, NOW(), NOW())',
+        [propertyId, devInfo.developerName, devInfo.developerDescription, req.files?.developerLogo ? path.relative('uploads', req.files.developerLogo[0].path) : null]
+      );
     }
 
-    // 7. Layout Maps
-    if (req.files.layoutMaps) {
-      const maps = req.files.layoutMaps.map(file => ({
-        propertyId: property.id,
-        mapPhoto: path.relative('uploads', file.path)
-      }));
-      await LayoutMap.bulkCreate(maps, { transaction: t });
+    // Layout Maps
+    if (req.files?.layoutMaps) {
+      for (const file of req.files.layoutMaps) {
+        await connection.query(
+          'INSERT INTO LayoutMaps (propertyId, mapPhoto, createdAt, updatedAt) VALUES (?, ?, NOW(), NOW())',
+          [propertyId, path.relative('uploads', file.path)]
+        );
+      }
     }
 
-    await t.commit();
+    await connection.commit();
 
     return res.status(201).json({
       message: 'Property created successfully, pending admin approval.',
-      propertyId: property.id,
-      seoData: {
-        seoTitle: property.seoTitle,
-        metaDescription: property.metaDescription,
-        focusKeyword: property.focusKeyword
-      }
+      propertyId,
+      seoData: { seoTitle, metaDescription, focusKeyword }
     });
-
   } catch (error) {
-    await t.rollback();
+    await connection.rollback();
     console.error('Error creating property:', error);
     return res.status(500).json({
       message: 'Failed to create property.',
       error: error.message
     });
+  } finally {
+    connection.release();
   }
 };
 
-
-
-
-// list all properties
 exports.listProperties = async (req, res) => {
   try {
-    const properties = await Property.findAll({
-      // include: [{ model: Property, as: 'Property' }]
-    });
+    const properties = await query('SELECT * FROM Properties ORDER BY createdAt DESC');
     res.json(properties);
-    console.log('Properties fetched successfully', properties);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch properties', message: err.message });
   }
 };
 
-// list broker specicific properties
 exports.listBrokerProperties = async (req, res) => {
   try {
-    const properties = await Property.findAll({
-      where: { brokerId: req.params.id },
-      include: [
-        { model: PropertyImage, as: 'images' },
-        { model: Amenity, as: 'amenities' },
-        { model: NearbyFacility, as: 'nearbyFacilities' },
-        { model: FloorPlan, as: 'floorPlans' },
-        { model: DeveloperInfo, as: 'developerInfo' },
-        { model: LayoutMap, as: 'layoutMaps' }
-      ]
-    });
-    res.json(properties);
-    console.log('Broker properties fetched successfully', properties);
+    const properties = await query('SELECT * FROM Properties WHERE brokerId = ? ORDER BY createdAt DESC', [req.params.id]);
+    const populated = await populatePropertyAssociations(properties);
+    res.json(populated);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch broker properties', message: err.message });
   }
-}
+};
 
-// property details
 exports.getPropertyDetails = async (req, res) => {
   try {
-    const property = await Property.findOne({
-      where: { id: req.params.id },
-      include: [
-        { model: PropertyImage, as: 'images' },
-        { model: Amenity, as: 'amenities' },
-        { model: NearbyFacility, as: 'nearbyFacilities' },
-        { model: FloorPlan, as: 'floorPlans' },
-        { model: DeveloperInfo, as: 'developerInfo' },
-        { model: LayoutMap, as: 'layoutMaps' }
-      ]
-    });
-
-    if (!property) {
+    const properties = await query('SELECT * FROM Properties WHERE id = ?', [req.params.id]);
+    if (properties.length === 0) {
       return res.status(404).json({ message: 'Property not found' });
     }
-     res.status(200).json({mes: 'Property details fetched successfully', property });
-     
+
+    const [populated] = await populatePropertyAssociations(properties);
+    res.status(200).json({ mes: 'Property details fetched successfully', property: populated });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch property details', message: err.message });
   }
-}
+};

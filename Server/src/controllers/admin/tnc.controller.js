@@ -1,23 +1,20 @@
-const { TermsAndConditions } = require('../../../models');
+const { query } = require('../../config/db');
 
-// GET all terms (for admin or public)
+// GET all terms
 exports.getAllTerms = async (req, res) => {
   try {
-    const terms = await TermsAndConditions.findAll({ order: [['createdAt', 'DESC']] });
-    res.status(200).json({ success: true, terms:terms });
+    const terms = await query('SELECT * FROM TermsAndConditions ORDER BY createdAt DESC');
+    res.status(200).json({ success: true, terms });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Failed to fetch terms', error: err.message });
   }
 };
 
-// GET single active/latest terms (for public display)
+// GET single active/latest terms
 exports.getActiveTerms = async (req, res) => {
   try {
-    const terms = await TermsAndConditions.findOne({
-      where: { isActive: true },
-      order: [['createdAt', 'DESC']]
-    });
-    res.status(200).json({ success: true, terms:terms });
+    const terms = await query('SELECT * FROM TermsAndConditions WHERE isActive = true ORDER BY createdAt DESC LIMIT 1');
+    res.status(200).json({ success: true, terms: terms[0] || null });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Failed to fetch active terms', error: err.message });
   }
@@ -29,10 +26,15 @@ exports.createTerms = async (req, res) => {
     const { title, content, isActive } = req.body;
 
     if (isActive) {
-      await TermsAndConditions.update({ isActive: false }, { where: {} }); // deactivate all
+      await query('UPDATE TermsAndConditions SET isActive = false');
     }
 
-    const newTerms = await TermsAndConditions.create({ title, content, isActive });
+    const result = await query(
+      'INSERT INTO TermsAndConditions (title, content, isActive, createdAt, updatedAt) VALUES (?, ?, ?, NOW(), NOW())',
+      [title, content, isActive ? true : false]
+    );
+
+    const newTerms = { id: result.insertId, title, content, isActive: Boolean(isActive) };
     res.status(201).json({ success: true, terms: newTerms });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Failed to create terms', error: err.message });
@@ -46,15 +48,32 @@ exports.updateTerms = async (req, res) => {
     const { title, content, isActive } = req.body;
 
     if (isActive) {
-      await TermsAndConditions.update({ isActive: false }, { where: {} }); // deactivate all
+      await query('UPDATE TermsAndConditions SET isActive = false');
     }
 
-    const updated = await TermsAndConditions.update(
-      { title, content, isActive },
-      { where: { id } }
-    );
+    const updates = [];
+    const params = [];
 
-    res.status(200).json({ success: true, message: 'Terms updated', updated });
+    if (title !== undefined) {
+      updates.push('title = ?');
+      params.push(title);
+    }
+    if (content !== undefined) {
+      updates.push('content = ?');
+      params.push(content);
+    }
+    if (isActive !== undefined) {
+      updates.push('isActive = ?');
+      params.push(isActive);
+    }
+
+    if (updates.length > 0) {
+      updates.push('updatedAt = NOW()');
+      params.push(id);
+      await query(`UPDATE TermsAndConditions SET ${updates.join(', ')} WHERE id = ?`, params);
+    }
+
+    res.status(200).json({ success: true, message: 'Terms updated' });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Failed to update terms', error: err.message });
   }
@@ -64,7 +83,7 @@ exports.updateTerms = async (req, res) => {
 exports.deleteTerms = async (req, res) => {
   try {
     const { id } = req.params;
-    await TermsAndConditions.destroy({ where: { id } });
+    await query('DELETE FROM TermsAndConditions WHERE id = ?', [id]);
     res.status(200).json({ success: true, message: 'Terms deleted' });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Failed to delete terms', error: err.message });

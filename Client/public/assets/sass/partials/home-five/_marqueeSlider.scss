@@ -1,0 +1,23 @@
+  .service-slider-wrapper {
+    animation: marquee 14s linear infinite;
+    gap: 32px;
+  }
+  
+  .service-slider {
+    gap: 32px;
+  }
+  /* Keyframe for marquee animation */
+  @keyframes marquee {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+  
+  /* Handle the duplicate content to continue */
+  .service-slider-section:hover .service-slider-wrapper {
+    animation-play-state: paused;
+  }
+  

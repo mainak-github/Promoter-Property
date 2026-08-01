@@ -1,60 +1,55 @@
-const {
-  Property, PropertyImage, Amenity, NearbyFacility,
-  FloorPlan, DeveloperInfo, LayoutMap, sequelize
-} = require('../../../models');
+const { query, getConnection } = require('../../config/db');
+const { populatePropertyAssociations } = require('../public/property.controller');
 const slugify = require('slugify');
 const fs = require('fs');
-const { Op } = require('sequelize');
 const path = require('path');
 
 exports.getAllProperties = async (req, res) => {
   const {
-    approvalStatus, // optional: 'approved', 'pending', 'rejected'
+    approvalStatus,
     search = '',
     page = 1,
     limit = 10
   } = req.query;
 
-  const offset = (page - 1) * limit;
-  const where = {};
+  const offset = (parseInt(page) - 1) * parseInt(limit);
+  const whereClauses = [];
+  const params = [];
 
   if (approvalStatus) {
-    where.approvalStatus = approvalStatus;
+    whereClauses.push('approvalStatus = ?');
+    params.push(approvalStatus);
   }
 
   if (search) {
-    where[Op.or] = [
-      { title: { [Op.like]: `%${search}%` } },
-      { location: { [Op.like]: `%${search}%` } },
-      { description: { [Op.like]: `%${search}%` } }
-    ];
+    whereClauses.push('(title LIKE ? OR address LIKE ? OR shortDescription LIKE ?)');
+    const pattern = `%${search}%`;
+    params.push(pattern, pattern, pattern);
   }
 
+  const whereSQL = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
   try {
-    const { count, rows } = await Property.findAndCountAll({
-      where,
-      limit: parseInt(limit),
-      offset,
-      order: [['createdAt', 'DESC']],
-      include: [
-        { model: PropertyImage, as: 'images' },
-        { model: Amenity, as: 'amenities' },
-        { model: NearbyFacility, as: 'nearbyFacilities' },
-        { model: FloorPlan, as: 'floorPlans' },
-        { model: DeveloperInfo, as: 'developerInfo' },
-        { model: LayoutMap, as: 'layoutMaps' }
-      ]
-    });
+    const countResult = await query(`SELECT COUNT(*) as total FROM Properties ${whereSQL}`, params);
+    const total = countResult[0]?.total || 0;
+
+    const selectParams = [...params, parseInt(limit), offset];
+    const properties = await query(
+      `SELECT * FROM Properties ${whereSQL} ORDER BY createdAt DESC LIMIT ? OFFSET ?`,
+      selectParams
+    );
+
+    const populatedProperties = await populatePropertyAssociations(properties);
 
     return res.status(200).json({
       status: 'success',
       message: 'Admin property list fetched successfully',
       data: {
-        properties: rows,
+        properties: populatedProperties,
         pagination: {
-          total: count,
+          total,
           page: parseInt(page),
-          totalPages: Math.ceil(count / limit)
+          totalPages: Math.ceil(total / parseInt(limit))
         }
       }
     });
@@ -68,293 +63,224 @@ exports.getAllProperties = async (req, res) => {
 };
 
 exports.updateProperty = async (req, res) => {
-  const t = await sequelize.transaction();
+  const connection = await getConnection();
 
   try {
+    await connection.beginTransaction();
     const { id } = req.params;
-    const existingProperty = await Property.findByPk(id);
 
-    if (!existingProperty) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Property not found',
-      });
+    const [existingRows] = await connection.query('SELECT * FROM Properties WHERE id = ?', [id]);
+    if (existingRows.length === 0) {
+      return res.status(404).json({ status: 'error', message: 'Property not found' });
     }
 
-    // Extract fields from req.body
+    const existingProperty = existingRows[0];
     const {
       title, shortDescription, longDescription, priceRange, budgetType,
       city, subLocation, googleMapLink, propertyType, status,
       bedrooms, bathrooms, furnishedStatus, parkingAvailable,
       launchDate, completionDate, floorNumber, numberOfTowers,
       carpetArea, totalArea, facing, amenities, nearbyFacilities,
-      floorPlans, developerInfo,
-
-      // New Location fields
-      suburb, district, state, pincode, road,
-      country, continent, timezone, isoCode,
-      latitude, longitude, address,
-
-      // ============ SEO FIELDS ============
-      seoTitle,
-      metaDescription,
-      metaKeywords,
-      ogTitle,
-      ogType,
-      ogDescription,
-      twitterCard,
-      canonicalUrl,
-      focusKeyword,
-      robotsIndex,
-      // ============ END SEO FIELDS ============
-
-      // Existing additional photos to retain (JSON string expected)
-      existingAdditionalPhotos,
+      floorPlans, developerInfo, suburb, district, state, pincode, road,
+      country, continent, timezone, isoCode, latitude, longitude, address,
+      seoTitle, metaDescription, metaKeywords, ogTitle, ogType, ogDescription,
+      twitterCard, canonicalUrl, focusKeyword, robotsIndex, existingAdditionalPhotos
     } = req.body;
 
-    // Handle bedrooms as array or string
     let bedroomsArray = bedrooms;
     if (typeof bedrooms === 'string') {
       bedroomsArray = bedrooms.split(',').map(b => b.trim());
     }
 
-    // Update main property fields with SEO fields
-    await existingProperty.update({
-      title,
-      shortDescription,
-      longDescription,
-      priceRange,
-      budgetType,
-      city,
-      subLocation,
-      googleMapLink,
-      propertyType,
-      status,
-      bedrooms: Array.isArray(bedroomsArray) ? bedroomsArray.join(',') : null,
-      bathrooms: bathrooms ? parseInt(bathrooms) : null,
-      furnishedStatus,
-      parkingAvailable: parkingAvailable === 'true' || parkingAvailable === true,
-      launchDate: launchDate ? new Date(launchDate) : null,
-      completionDate: completionDate ? new Date(completionDate) : null,
-      floorNumber,
-      numberOfTowers,
-      carpetArea,
-      totalArea,
-      facing,
-      coverPhoto: req.files.coverPhoto ? path.relative('uploads', req.files.coverPhoto[0].path) : existingProperty.coverPhoto,
-      approvalStatus: req.user.role === 'broker' ? 'pending' : existingProperty.approvalStatus,
+    const coverPhotoPath = req.files?.coverPhoto ? path.relative('uploads', req.files.coverPhoto[0].path) : existingProperty.coverPhoto;
+    const approvalStatus = req.user?.role === 'broker' ? 'pending' : existingProperty.approvalStatus;
 
-      // Location fields
-      suburb, district, state, pincode, road,
-      country, continent, timezone, isoCode,
-      latitude, longitude, address,
+    await connection.query(
+      `UPDATE Properties SET
+        title = COALESCE(?, title),
+        shortDescription = COALESCE(?, shortDescription),
+        longDescription = COALESCE(?, longDescription),
+        priceRange = COALESCE(?, priceRange),
+        budgetType = COALESCE(?, budgetType),
+        city = COALESCE(?, city),
+        googleMapLink = COALESCE(?, googleMapLink),
+        propertyType = COALESCE(?, propertyType),
+        status = COALESCE(?, status),
+        bedrooms = COALESCE(?, bedrooms),
+        bathrooms = COALESCE(?, bathrooms),
+        furnishedStatus = COALESCE(?, furnishedStatus),
+        parkingAvailable = COALESCE(?, parkingAvailable),
+        launchDate = COALESCE(?, launchDate),
+        completionDate = COALESCE(?, completionDate),
+        floorNumber = COALESCE(?, floorNumber),
+        numberOfTowers = COALESCE(?, numberOfTowers),
+        carpetArea = COALESCE(?, carpetArea),
+        totalArea = COALESCE(?, totalArea),
+        facing = COALESCE(?, facing),
+        coverPhoto = ?,
+        approvalStatus = ?,
+        suburb = COALESCE(?, suburb),
+        district = COALESCE(?, district),
+        state = COALESCE(?, state),
+        pincode = COALESCE(?, pincode),
+        road = COALESCE(?, road),
+        country = COALESCE(?, country),
+        continent = COALESCE(?, continent),
+        timezone = COALESCE(?, timezone),
+        isoCode = COALESCE(?, isoCode),
+        latitude = COALESCE(?, latitude),
+        longitude = COALESCE(?, longitude),
+        address = COALESCE(?, address),
+        seoTitle = COALESCE(?, seoTitle),
+        metaDescription = COALESCE(?, metaDescription),
+        metaKeywords = COALESCE(?, metaKeywords),
+        ogTitle = COALESCE(?, ogTitle),
+        ogType = COALESCE(?, ogType),
+        ogDescription = COALESCE(?, ogDescription),
+        twitterCard = COALESCE(?, twitterCard),
+        canonicalUrl = COALESCE(?, canonicalUrl),
+        focusKeyword = COALESCE(?, focusKeyword),
+        robotsIndex = COALESCE(?, robotsIndex),
+        updatedAt = NOW()
+      WHERE id = ?`,
+      [
+        title, shortDescription, longDescription, priceRange, budgetType,
+        city, googleMapLink, propertyType, status,
+        Array.isArray(bedroomsArray) ? bedroomsArray.join(',') : null,
+        bathrooms ? parseInt(bathrooms) : null, furnishedStatus,
+        parkingAvailable !== undefined ? (parkingAvailable === 'true' || parkingAvailable === true) : null,
+        launchDate ? new Date(launchDate) : null, completionDate ? new Date(completionDate) : null,
+        floorNumber, numberOfTowers, carpetArea, totalArea, facing,
+        coverPhotoPath, approvalStatus, suburb, district, state, pincode, road,
+        country, continent, timezone, isoCode, latitude, longitude, address,
+        seoTitle, metaDescription, metaKeywords, ogTitle, ogType, ogDescription,
+        twitterCard, canonicalUrl, focusKeyword, robotsIndex, id
+      ]
+    );
 
-      // ============ SEO FIELDS UPDATE ============
-      seoTitle: seoTitle || null,
-      metaDescription: metaDescription || null,
-      metaKeywords: metaKeywords || null,
-      ogTitle: ogTitle || null,
-      ogType: ogType || 'website',
-      ogDescription: ogDescription || null,
-      twitterCard: twitterCard || 'summary_large_image',
-      canonicalUrl: canonicalUrl || null,
-      focusKeyword: focusKeyword || null,
-      robotsIndex: robotsIndex || 'index,follow'
-      // ============ END SEO FIELDS UPDATE ============
-    }, { transaction: t });
-
-    // === Handle Additional Photos preserving existing ones ===
-
-    // Parse JSON string of retained photos, or empty array if none sent
-    const existingPhotos = existingAdditionalPhotos 
-      ? JSON.parse(existingAdditionalPhotos) 
-      : [];
-
-    // Get current images from database
-    const currentImages = await PropertyImage.findAll({ where: { propertyId: id }, transaction: t });
-
-    // Find images to delete that are NOT in the retained list
-    const imagesToDelete = currentImages.filter(img => !existingPhotos.includes(img.imageUrl));
-
-    // Delete images removed by user
-    for (const img of imagesToDelete) {
-      await PropertyImage.destroy({ where: { id: img.id }, transaction: t });
-    }
-
-    // Add newly uploaded photos
-    if (req.files.additionalPhotos) {
-      const newImages = req.files.additionalPhotos.map(file => ({
-        propertyId: id,
-        imageUrl: path.relative('uploads', file.path),
-      }));
-      await PropertyImage.bulkCreate(newImages, { transaction: t });
-    }
-
-    // === Amenities (many-to-many) update ===
-    if (amenities) {
-      let amenitiesArray = amenities;
-      if (typeof amenities === 'string') {
-        amenitiesArray = amenities
-          .split(',')
-          .map(id => parseInt(id.trim()))
-          .filter(id => !isNaN(id));
-      }
-      if (Array.isArray(amenitiesArray) && amenitiesArray.length > 0) {
-        await existingProperty.setAmenities(amenitiesArray, { transaction: t });
+    // Additional Photos
+    const existingPhotos = existingAdditionalPhotos ? JSON.parse(existingAdditionalPhotos) : [];
+    const [currentImages] = await connection.query('SELECT * FROM PropertyImages WHERE propertyId = ?', [id]);
+    for (const img of currentImages) {
+      if (!existingPhotos.includes(img.imageUrl)) {
+        await connection.query('DELETE FROM PropertyImages WHERE id = ?', [img.id]);
       }
     }
 
-    // === Nearby Facilities (1-to-many) update ===
-    await NearbyFacility.destroy({ where: { propertyId: id }, transaction: t });
+    if (req.files?.additionalPhotos) {
+      for (const file of req.files.additionalPhotos) {
+        await connection.query(
+          'INSERT INTO PropertyImages (propertyId, imageUrl, createdAt, updatedAt) VALUES (?, ?, NOW(), NOW())',
+          [id, path.relative('uploads', file.path)]
+        );
+      }
+    }
+
+    // Nearby Facilities
+    await connection.query('DELETE FROM NearbyFacilities WHERE propertyId = ?', [id]);
     if (nearbyFacilities) {
       const facilitiesArray = JSON.parse(nearbyFacilities);
       for (const fac of facilitiesArray) {
-        await existingProperty.createNearbyFacility({
-          facilityType: fac.facilityType,
-          facilityName: fac.facilityName,
-          distance: fac.distance,
-        }, { transaction: t });
+        await connection.query(
+          'INSERT INTO NearbyFacilities (propertyId, facilityType, facilityName, distance, createdAt, updatedAt) VALUES (?, ?, ?, ?, NOW(), NOW())',
+          [id, fac.facilityType, fac.facilityName, fac.distance]
+        );
       }
     }
 
-    // === Floor Plans (1-to-many) update ===
-    await FloorPlan.destroy({ where: { propertyId: id }, transaction: t });
+    // Floor Plans
+    await connection.query('DELETE FROM FloorPlans WHERE propertyId = ?', [id]);
     if (floorPlans) {
       const floorPlansArray = Array.isArray(floorPlans) ? floorPlans : JSON.parse(floorPlans);
       for (let i = 0; i < floorPlansArray.length; i++) {
         const fp = floorPlansArray[i];
-        const photo = req.files.floorPlans && req.files.floorPlans[i];
-        await FloorPlan.create({
-          propertyId: id,
-          photo: photo ? path.relative('uploads', photo.path) : null,
-          floorName: fp.floorName,
-          towerName: fp.towerName,
-          shortDescription: fp.shortDescription,
-          priceRange: fp.priceRange,
-        }, { transaction: t });
+        const photo = req.files?.floorPlans?.[i];
+        await connection.query(
+          'INSERT INTO FloorPlans (propertyId, photo, floorName, towerName, shortDescription, priceRange, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())',
+          [id, photo ? path.relative('uploads', photo.path) : null, fp.floorName, fp.towerName, fp.shortDescription, fp.priceRange]
+        );
       }
     }
 
-    // === Developer Info (1-to-1) update ===
-    await DeveloperInfo.destroy({ where: { propertyId: id }, transaction: t });
+    // Developer Info
+    await connection.query('DELETE FROM DeveloperInfos WHERE propertyId = ?', [id]);
     if (developerInfo) {
       const devInfo = JSON.parse(developerInfo);
-      await existingProperty.createDeveloperInfo({
-        developerName: devInfo.developerName,
-        developerDescription: devInfo.developerDescription,
-        developerLogo: req.files.developerLogo ? path.relative('uploads', req.files.developerLogo[0].path) : null,
-      }, { transaction: t });
+      await connection.query(
+        'INSERT INTO DeveloperInfos (propertyId, developerName, developerDescription, developerLogo, createdAt, updatedAt) VALUES (?, ?, ?, ?, NOW(), NOW())',
+        [id, devInfo.developerName, devInfo.developerDescription, req.files?.developerLogo ? path.relative('uploads', req.files.developerLogo[0].path) : null]
+      );
     }
 
-    // === Layout Maps (1-to-many) update ===
-    await LayoutMap.destroy({ where: { propertyId: id }, transaction: t });
-    if (req.files.layoutMaps) {
-      const maps = req.files.layoutMaps.map(file => ({
-        propertyId: id,
-        mapPhoto: path.relative('uploads', file.path),
-      }));
-      await LayoutMap.bulkCreate(maps, { transaction: t });
+    // Layout Maps
+    await connection.query('DELETE FROM LayoutMaps WHERE propertyId = ?', [id]);
+    if (req.files?.layoutMaps) {
+      for (const file of req.files.layoutMaps) {
+        await connection.query(
+          'INSERT INTO LayoutMaps (propertyId, mapPhoto, createdAt, updatedAt) VALUES (?, ?, NOW(), NOW())',
+          [id, path.relative('uploads', file.path)]
+        );
+      }
     }
 
-    // Commit all changes
-    await t.commit();
-
+    await connection.commit();
     return res.status(200).json({
       status: 'success',
-      message: 'Property updated successfully. Awaiting admin approval.',
-      propertyId: existingProperty.id,
-      seoData: {
-        seoTitle: existingProperty.seoTitle,
-        metaDescription: existingProperty.metaDescription,
-        focusKeyword: existingProperty.focusKeyword
-      }
+      message: 'Property updated successfully.',
+      propertyId: id
     });
-
   } catch (error) {
-    // Rollback on error
-    await t.rollback();
+    await connection.rollback();
     console.error('Error updating property:', error);
     return res.status(500).json({
       status: 'error',
       message: 'Failed to update property',
-      error: error.message,
+      error: error.message
     });
+  } finally {
+    connection.release();
   }
 };
-
-
 
 exports.deleteProperty = async (req, res) => {
   const { id } = req.params;
+  const connection = await getConnection();
 
   try {
-    const property = await Property.findByPk(id, {
-      include: ['images', 'amenities', 'nearbyFacilities', 'floorPlans', 'developerInfo', 'layoutMaps']
-    });
-
-    if (!property) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Property not found'
-      });
+    const [properties] = await connection.query('SELECT * FROM Properties WHERE id = ?', [id]);
+    if (properties.length === 0) {
+      return res.status(404).json({ status: 'error', message: 'Property not found' });
     }
 
-    // Only allow broker to delete their own properties
-    if (req.user.role === 'broker' && property.brokerId !== req.user.id) {
-      return res.status(403).json({
-        status: 'error',
-        message: 'You are not authorized to delete this property'
-      });
+    const property = properties[0];
+
+    if (req.user?.role === 'broker' && property.brokerId !== req.user.id) {
+      return res.status(403).json({ status: 'error', message: 'You are not authorized to delete this property' });
     }
 
-    // Begin transaction
-    const t = await sequelize.transaction();
+    await connection.beginTransaction();
 
-    try {
-      // Remove associations first
-      await property.setAmenities([], { transaction: t });
+    await connection.query('DELETE FROM PropertyAmenities WHERE propertyId = ?', [id]).catch(() => {});
+    await connection.query('DELETE FROM NearbyFacilities WHERE propertyId = ?', [id]);
+    await connection.query('DELETE FROM FloorPlans WHERE propertyId = ?', [id]);
+    await connection.query('DELETE FROM DeveloperInfos WHERE propertyId = ?', [id]);
+    await connection.query('DELETE FROM LayoutMaps WHERE propertyId = ?', [id]);
+    await connection.query('DELETE FROM PropertyImages WHERE propertyId = ?', [id]);
+    await connection.query('DELETE FROM Properties WHERE id = ?', [id]);
 
-      await Promise.all([
-        NearbyFacility.destroy({ where: { propertyId: id }, transaction: t }),
-        FloorPlan.destroy({ where: { propertyId: id }, transaction: t }),
-        DeveloperInfo.destroy({ where: { propertyId: id }, transaction: t }),
-        LayoutMap.destroy({ where: { propertyId: id }, transaction: t }),
-        PropertyImage.destroy({ where: { propertyId: id }, transaction: t })
-      ]);
-
-      // Delete the property itself
-      await property.destroy({ transaction: t });
-
-      // Optionally: delete the upload folder
-      const propertyFolder = path.join(__dirname, '../../../uploads/properties', property.slug || `${property.id}`);
-      if (fs.existsSync(propertyFolder)) {
-        fs.rmSync(propertyFolder, { recursive: true, force: true });
-      }
-
-      await t.commit();
-
-      return res.status(200).json({
-        status: 'success',
-        message: 'Property deleted successfully'
-      });
-
-    } catch (error) {
-      await t.rollback();
-      console.error('Transaction error:', error);
-      return res.status(500).json({
-        status: 'error',
-        message: 'Failed to delete property',
-        error: error.message
-      });
+    const propertyFolder = path.join(__dirname, '../../../uploads/properties', property.slug || `${property.id}`);
+    if (fs.existsSync(propertyFolder)) {
+      fs.rmSync(propertyFolder, { recursive: true, force: true });
     }
 
+    await connection.commit();
+
+    return res.status(200).json({ status: 'success', message: 'Property deleted successfully' });
   } catch (error) {
-    console.error('Error:', error);
-    return res.status(500).json({
-      status: 'error',
-      message: 'An unexpected error occurred',
-      error: error.message
-    });
+    await connection.rollback();
+    console.error('Error deleting property:', error);
+    return res.status(500).json({ status: 'error', message: 'Failed to delete property', error: error.message });
+  } finally {
+    connection.release();
   }
 };
-

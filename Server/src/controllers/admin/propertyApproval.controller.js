@@ -1,5 +1,4 @@
-// controllers/admin/propertyApproval.controller.js
-const { Property } = require('../../../models');
+const { query } = require('../../config/db');
 
 exports.approveOrRejectProperty = async (req, res) => {
   const { id } = req.params;
@@ -13,27 +12,26 @@ exports.approveOrRejectProperty = async (req, res) => {
   }
 
   try {
-    const property = await Property.findByPk(id);
-    if (!property) {
+    const properties = await query('SELECT * FROM Properties WHERE id = ?', [id]);
+    if (properties.length === 0) {
       return res.status(404).json({
         status: 'error',
         message: 'Property not found'
       });
     }
 
-    property.approvalStatus = approvalStatus;
-
-    // Optional: only set remarks if your model and DB has this column
-    if ('remarks' in property && remarks !== undefined) {
-      property.remarks = remarks;
+    if (remarks !== undefined) {
+      await query('UPDATE Properties SET approvalStatus = ?, remarks = ?, updatedAt = NOW() WHERE id = ?', [approvalStatus, remarks, id]);
+    } else {
+      await query('UPDATE Properties SET approvalStatus = ?, updatedAt = NOW() WHERE id = ?', [approvalStatus, id]);
     }
 
-    await property.save();
+    const updatedProperty = await query('SELECT * FROM Properties WHERE id = ?', [id]);
 
     return res.status(200).json({
       status: 'success',
       message: `Property has been ${approvalStatus}`,
-      data: property
+      data: updatedProperty[0]
     });
   } catch (error) {
     return res.status(500).json({
