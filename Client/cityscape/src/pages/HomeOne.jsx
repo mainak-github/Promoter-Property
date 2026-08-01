@@ -27,7 +27,7 @@ const HomeOne = () => {
 
                 {/* Top header */}
                 <TopHeader/>
-
+                
                 {/* Header */}
                 <Header 
                     headerClass="" 

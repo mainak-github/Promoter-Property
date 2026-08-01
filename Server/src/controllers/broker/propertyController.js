@@ -14,7 +14,7 @@ exports.createProperty = async (req, res) => {
       priceRange,
       budgetType,
       city,
-      suburb, // updated field (formerly subLocation)
+      suburb,
       district,
       state,
       pincode,
@@ -43,6 +43,18 @@ exports.createProperty = async (req, res) => {
       nearbyFacilities,
       floorPlans,
       developerInfo,
+      // ============ SEO FIELDS ============
+      seoTitle,
+      metaDescription,
+      metaKeywords,
+      ogTitle,
+      ogType,
+      ogDescription,
+      twitterCard,
+      canonicalUrl,
+      focusKeyword,
+      robotsIndex,
+      // ============ END SEO FIELDS ============
     } = req.body;
 
     // Convert comma-separated bedrooms string to array if needed
@@ -53,7 +65,7 @@ exports.createProperty = async (req, res) => {
 
     const slug = slugify(title, { lower: true });
 
-    // 1. Create Property
+    // 1. Create Property with SEO fields
     const property = await Property.create({
       brokerId: req.user.id,
       coverPhoto: req.files.coverPhoto ? path.relative('uploads', req.files.coverPhoto[0].path) : null,
@@ -89,35 +101,61 @@ exports.createProperty = async (req, res) => {
       totalArea,
       facing,
       approvalStatus: 'pending',
-      slug
+      slug,
+      // ============ SEO FIELDS ============
+      seoTitle: seoTitle || null,
+      metaDescription: metaDescription || null,
+      metaKeywords: metaKeywords || null,
+      ogTitle: ogTitle || null,
+      ogType: ogType || 'website',
+      ogDescription: ogDescription || null,
+      twitterCard: twitterCard || 'summary_large_image',
+      canonicalUrl: canonicalUrl || null,
+      focusKeyword: focusKeyword || null,
+      robotsIndex: robotsIndex || 'index,follow'
+      // ============ END SEO FIELDS ============
     }, { transaction: t });
 
     // 2. Additional Photos
     if (req.files.additionalPhotos) {
-     const images = req.files.additionalPhotos.map(file => ({
-  propertyId: property.id,
-  imageUrl: file.path ? path.relative('uploads', file.path) : null
-}));
-await PropertyImage.bulkCreate(images, { transaction: t });
+      const images = req.files.additionalPhotos.map(file => ({
+        propertyId: property.id,
+        imageUrl: file.path ? path.relative('uploads', file.path) : null
+      }));
+      await PropertyImage.bulkCreate(images, { transaction: t });
     }
 
     // 3. Amenities
-  let amenitiesArray = [];
-if (amenities) {
-  try {
-    if (typeof amenities === 'string' && amenities.startsWith('[')) {
-  amenitiesArray = JSON.parse(amenities);
-}
- else if (Array.isArray(amenities)) {
-      amenitiesArray = amenities.map(id => parseInt(id)).filter(id => !isNaN(id));
+    if (amenities) {
+      let amenityNames = [];
+      
+      if (typeof amenities === 'string') {
+        amenityNames = amenities.split(',').map(name => name.trim()).filter(name => name);
+      } else if (Array.isArray(amenities)) {
+        amenityNames = amenities;
+      }
+      
+      console.log('Amenity names:', amenityNames);
+      
+      if (amenityNames.length > 0) {
+        const amenityInstances = [];
+        
+        // Find or create each amenity
+        for (const name of amenityNames) {
+          const [amenity] = await Amenity.findOrCreate({
+            where: { name: name },
+            defaults: { name: name },
+            transaction: t
+          });
+          amenityInstances.push(amenity);
+        }
+        
+        // Associate all amenities with the property
+        await property.setAmenities(amenityInstances, { transaction: t });
+        
+        console.log('✅ Amenities associated:', amenityInstances.map(a => a.name));
+      }
     }
-  } catch(err) {
-    console.error('Error parsing amenities:', err);
-  }
-}
-await property.setAmenities(amenitiesArray, { transaction: t });
-
-
 
     // 4. Nearby Facilities
     if (nearbyFacilities) {
@@ -171,7 +209,12 @@ await property.setAmenities(amenitiesArray, { transaction: t });
 
     return res.status(201).json({
       message: 'Property created successfully, pending admin approval.',
-      propertyId: property.id
+      propertyId: property.id,
+      seoData: {
+        seoTitle: property.seoTitle,
+        metaDescription: property.metaDescription,
+        focusKeyword: property.focusKeyword
+      }
     });
 
   } catch (error) {

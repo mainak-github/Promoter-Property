@@ -2,7 +2,7 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    // Create the Properties table without the 'bedrooms' field
+    // Create the Properties table with all fields including SEO
     await queryInterface.createTable('Properties', {
       id: {
         allowNull: false,
@@ -44,16 +44,48 @@ module.exports = {
       subLocation: {
         type: Sequelize.STRING
       },
+      district: {
+        type: Sequelize.STRING
+      },
+      state: {
+        type: Sequelize.STRING
+      },
+      pincode: {
+        type: Sequelize.STRING
+      },
+      address: {
+        type: Sequelize.STRING
+      },
+      road: {
+        type: Sequelize.STRING
+      },
+      country: {
+        type: Sequelize.STRING
+      },
+      continent: {
+        type: Sequelize.STRING
+      },
+      timezone: {
+        type: Sequelize.STRING
+      },
+      isoCode: {
+        type: Sequelize.STRING
+      },
+      latitude: {
+        type: Sequelize.DECIMAL(10, 7)
+      },
+      longitude: {
+        type: Sequelize.DECIMAL(10, 7)
+      },
       googleMapLink: {
         type: Sequelize.STRING
       },
       propertyType: {
-        type: Sequelize.ENUM('Flat', 'Apartment', 'Independent House', 'Villa')
+        type: Sequelize.ENUM('Flat', 'Apartment', 'Independent House', 'Villa', 'Plots')
       },
       status: {
         type: Sequelize.ENUM('Launching Soon', 'Ready to Move In', 'Under Construction')
       },
-      // Removed the 'bedrooms' field from here
       bathrooms: {
         type: Sequelize.INTEGER
       },
@@ -88,6 +120,63 @@ module.exports = {
         type: Sequelize.ENUM('pending', 'approved', 'rejected'),
         defaultValue: 'pending'
       },
+
+      // ============ SEO FIELDS ============
+      seoTitle: {
+        type: Sequelize.STRING(60),
+        allowNull: true,
+        comment: 'SEO optimized title (50-60 chars recommended)'
+      },
+      metaDescription: {
+        type: Sequelize.STRING(160),
+        allowNull: true,
+        comment: 'Meta description for search results (150-160 chars)'
+      },
+      metaKeywords: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+        comment: 'Comma-separated keywords for SEO'
+      },
+      ogTitle: {
+        type: Sequelize.STRING(60),
+        allowNull: true,
+        comment: 'Open Graph title for social media sharing'
+      },
+      ogType: {
+        type: Sequelize.STRING(20),
+        allowNull: true,
+        defaultValue: 'website',
+        comment: 'Open Graph type (website, article, product)'
+      },
+      ogDescription: {
+        type: Sequelize.STRING(160),
+        allowNull: true,
+        comment: 'Open Graph description for social sharing'
+      },
+      twitterCard: {
+        type: Sequelize.STRING(30),
+        allowNull: true,
+        defaultValue: 'summary_large_image',
+        comment: 'Twitter card type'
+      },
+      canonicalUrl: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+        comment: 'Canonical URL to prevent duplicate content'
+      },
+      focusKeyword: {
+        type: Sequelize.STRING(100),
+        allowNull: true,
+        comment: 'Primary keyword for SEO ranking'
+      },
+      robotsIndex: {
+        type: Sequelize.STRING(30),
+        allowNull: true,
+        defaultValue: 'index,follow',
+        comment: 'Robots meta tag'
+      },
+      // ============ END SEO FIELDS ============
+
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -118,7 +207,7 @@ module.exports = {
         onDelete: 'CASCADE'
       },
       type: {
-        type: Sequelize.STRING, // E.g., "1BHK", "2BHK"
+        type: Sequelize.STRING,
         allowNull: false
       },
       createdAt: {

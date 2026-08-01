@@ -358,27 +358,39 @@ export default function PropertyForm({ initialData = null, apiBase = "/api/prope
       fd.append("title", title);
       fd.append("slug", slugify(title));
 
-      const fieldsToAppend = [
-        "shortDescription",
-        "longDescription",
-        "priceRange",
-        "budgetType",
-        "city",
-        "suburb",
-        "district",
-        "state",
-        "pincode",
-        "road",
-        "country",
-        "continent",
-        "timezone",
-        "isoCode",
-        "googleMapLink",
-        "propertyType",
-        "status",
-        "furnishedStatus",
-        "facing",
-      ];
+   const fieldsToAppend = [
+  "shortDescription",
+  "longDescription",
+  "priceRange",
+  "budgetType",
+  "city",
+  "suburb",
+  "district",
+  "state",
+  "pincode",
+  "road",
+  "country",
+  "continent",
+  "timezone",
+  "isoCode",
+  "googleMapLink",
+  "propertyType",
+  "status",
+  "furnishedStatus",
+  "facing",
+  // Add SEO fields here
+  "seoTitle",
+  "metaDescription",
+  "metaKeywords",
+  "ogTitle",
+  "ogType",
+  "ogDescription",
+  "twitterCard",
+  "canonicalUrl",
+  "focusKeyword",
+  "robotsIndex"
+];
+
       fieldsToAppend.forEach((k) => {
         if (vals[k] !== undefined && vals[k] !== null) fd.append(k, vals[k]);
       });
@@ -401,9 +413,10 @@ export default function PropertyForm({ initialData = null, apiBase = "/api/prope
       if (vals.completionDate) fd.append("completionDate", dayjs(vals.completionDate).toISOString());
 
       // amenities
-   if (vals.amenities && Array.isArray(vals.amenities)) {
-  const ids = vals.amenities.map(a => a.id ?? a);
-  fd.append("amenities", JSON.stringify(ids));
+if (vals.amenities && Array.isArray(vals.amenities) && vals.amenities.length > 0) {
+  // Send as comma-separated string: "Swimming Pool,Gym,Parking"
+  fd.append("amenities", vals.amenities.join(','));
+  console.log('Sending amenity names:', vals.amenities.join(','));
 }
 
 
@@ -708,17 +721,34 @@ export default function PropertyForm({ initialData = null, apiBase = "/api/prope
 
         <Divider>Amenities & Nearby Facilities</Divider>
 
-        <Form.Item name="amenities" label="Amenities (choose)">
-          {/* Example static list; replace with dynamic fetch from backend if needed */}
-          <Select mode="multiple" placeholder="Select amenities">
-            <Option value="1">Swimming Pool</Option>
-            <Option value="2">Gym</Option>
-            <Option value="3">Club House</Option>
-            <Option value="4">Playground</Option>
-            <Option value="5">Parking</Option>
-          </Select>
-        </Form.Item>
-
+      <Form.Item
+  label="Amenities"
+  name="amenities"
+  rules={[{ required: true, message: 'Please select amenities' }]}
+>
+  <Select
+    mode="multiple"
+    placeholder="Select amenities"
+    showSearch
+    filterOption={(input, option) =>
+      (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+    }
+  >
+    {/* Use amenity NAMES as values instead of IDs */}
+    <Option value="Swimming Pool">Swimming Pool</Option>
+    <Option value="Gym">Gym</Option>
+    <Option value="Parking">Parking</Option>
+    <Option value="Garden">Garden</Option>
+    <Option value="Security">Security</Option>
+    <Option value="Elevator">Elevator</Option>
+    <Option value="Power Backup">Power Backup</Option>
+    <Option value="Club House">Club House</Option>
+    <Option value="Play Area">Play Area</Option>
+    <Option value="CCTV">CCTV</Option>
+    <Option value="Jogging Track">Jogging Track</Option>
+    <Option value="Community Hall">Community Hall</Option>
+  </Select>
+</Form.Item>
         <div style={{ marginBottom: 12 }}>
           <Space align="center">
             <h4 style={{ margin: 0 }}>Nearby Facilities</h4>
@@ -907,6 +937,132 @@ export default function PropertyForm({ initialData = null, apiBase = "/api/prope
         </div>
 
         <Divider />
+
+
+<Divider>SEO Details</Divider>
+
+<Form.Item 
+  name="seoTitle" 
+  label="SEO Title" 
+  extra="Optimal length: 50-60 characters. Include location and property type"
+  rules={[
+    { max: 60, message: 'SEO title should be under 60 characters for best results' }
+  ]}
+>
+  <Input 
+    placeholder="e.g., 3BHK Luxury Apartment for Sale in Mumbai | Property Name"
+    showCount
+    maxLength={60}
+  />
+</Form.Item>
+
+<Form.Item 
+  name="metaDescription" 
+  label="Meta Description" 
+  extra="Optimal length: 150-155 characters. Write compelling description with call-to-action"
+  rules={[
+    { max: 160, message: 'Meta description should be under 160 characters' }
+  ]}
+>
+  <TextArea 
+    rows={3}
+    placeholder="e.g., Discover your dream 3BHK apartment in Mumbai with modern amenities. Contact us today for exclusive viewing!"
+    showCount
+    maxLength={160}
+  />
+</Form.Item>
+
+<Form.Item 
+  name="metaKeywords" 
+  label="Meta Keywords" 
+  extra="Comma-separated keywords (e.g., apartment Mumbai, 3BHK flat, luxury property)"
+>
+  <Input placeholder="luxury apartment, Mumbai real estate, 3BHK for sale" />
+</Form.Item>
+
+<Row gutter={16}>
+  <Col xs={24} md={12}>
+    <Form.Item 
+      name="ogTitle" 
+      label="Open Graph Title" 
+      extra="Title shown when shared on Facebook/LinkedIn"
+    >
+      <Input placeholder="Same as SEO title or customize for social media" />
+    </Form.Item>
+  </Col>
+  <Col xs={24} md={12}>
+    <Form.Item 
+      name="ogType" 
+      label="Open Graph Type"
+      initialValue="website"
+    >
+      <Select>
+        <Option value="website">Website</Option>
+        <Option value="article">Article</Option>
+        <Option value="product">Product</Option>
+      </Select>
+    </Form.Item>
+  </Col>
+</Row>
+
+<Form.Item 
+  name="ogDescription" 
+  label="Open Graph Description" 
+  extra="Description shown when shared on social media (150-160 chars)"
+>
+  <TextArea 
+    rows={2}
+    placeholder="Compelling description for social media sharing"
+    showCount
+    maxLength={160}
+  />
+</Form.Item>
+
+<Row gutter={16}>
+  <Col xs={24} md={12}>
+    <Form.Item 
+      name="twitterCard" 
+      label="Twitter Card Type"
+      initialValue="summary_large_image"
+    >
+      <Select>
+        <Option value="summary">Summary</Option>
+        <Option value="summary_large_image">Summary Large Image</Option>
+      </Select>
+    </Form.Item>
+  </Col>
+  <Col xs={24} md={12}>
+    <Form.Item 
+      name="canonicalUrl" 
+      label="Canonical URL" 
+      extra="Optional: Full URL to avoid duplicate content issues"
+    >
+      <Input placeholder="https://yourwebsite.com/properties/property-slug" />
+    </Form.Item>
+  </Col>
+</Row>
+
+<Form.Item 
+  name="focusKeyword" 
+  label="Focus Keyword" 
+  extra="Primary keyword you want this property to rank for"
+>
+  <Input placeholder="e.g., 3BHK apartment Mumbai" />
+</Form.Item>
+
+<Form.Item 
+  name="robotsIndex" 
+  label="Search Engine Indexing"
+  initialValue="index,follow"
+>
+  <Select>
+    <Option value="index,follow">Index & Follow (Recommended)</Option>
+    <Option value="noindex,follow">No Index, Follow</Option>
+    <Option value="index,nofollow">Index, No Follow</Option>
+    <Option value="noindex,nofollow">No Index, No Follow</Option>
+  </Select>
+</Form.Item>
+
 
         <Button type="primary" htmlType="submit" loading={loading} block>
           Submit Property

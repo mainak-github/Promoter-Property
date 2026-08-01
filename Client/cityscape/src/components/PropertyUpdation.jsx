@@ -41,6 +41,10 @@ const PropertyUpdation = () => {
   const [submitting, setSubmitting] = useState(false);
   const [form] = Form.useForm();
 
+  // ⭐ NEW: State for amenities
+  const [amenitiesList, setAmenitiesList] = useState([]);
+  const [loadingAmenities, setLoadingAmenities] = useState(false);
+
   // LocationIQ API Key
   const LOCATIONIQ_API_KEY = "pk.c84a46da67c826897a94d8b73b7c68e7";
 
@@ -59,6 +63,44 @@ const PropertyUpdation = () => {
   const [existingFloorPlanPhotos, setExistingFloorPlanPhotos] = useState([]);
   const [existingDeveloperLogo, setExistingDeveloperLogo] = useState(null);
   const [existingLayoutMaps, setExistingLayoutMaps] = useState([]);
+
+  // ⭐ NEW: Fetch amenities from database
+  useEffect(() => {
+    const fetchAmenities = async () => {
+      setLoadingAmenities(true);
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`${url.API_URL}/admin/amenities`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        
+        if (response.data && response.data.data) {
+          setAmenitiesList(response.data.data);
+        } else if (Array.isArray(response.data)) {
+          setAmenitiesList(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching amenities:', error);
+        // Fallback amenities if API fails
+        setAmenitiesList([
+          { id: 1, name: 'Swimming Pool' },
+          { id: 2, name: 'Gym' },
+          { id: 3, name: 'Parking' },
+          { id: 4, name: 'Garden' },
+          { id: 5, name: 'Security' },
+          { id: 6, name: 'Elevator' },
+          { id: 7, name: 'Power Backup' },
+          { id: 8, name: 'Club House' },
+          { id: 9, name: 'Play Area' },
+          { id: 10, name: 'CCTV' },
+        ]);
+      } finally {
+        setLoadingAmenities(false);
+      }
+    };
+
+    fetchAmenities();
+  }, []);
 
   // Extract lat/lng from Google Maps link
   const extractLatLngFromMapsLink = (link) => {
@@ -94,9 +136,9 @@ const PropertyUpdation = () => {
       for (let cat of categories) {
         if (collected.length >= 5) break;
 
-        const url = `https://us1.locationiq.com/v1/nearby.php`;
+        const fetchUrl = `https://us1.locationiq.com/v1/nearby.php`;
         try {
-          const res = await axios.get(url, {
+          const res = await axios.get(fetchUrl, {
             params: {
               key: LOCATIONIQ_API_KEY,
               lat,
@@ -192,7 +234,7 @@ const PropertyUpdation = () => {
     }
   };
 
-  // Fetch property for edit on mount
+  // ⭐ UPDATED: Fetch property for edit on mount
   useEffect(() => {
     const fetchProperty = async () => {
       try {
@@ -206,6 +248,9 @@ const PropertyUpdation = () => {
         });
         const prop = response.data.property;
 
+        // ⭐ NEW: Convert amenities array of objects to array of names
+        const amenityNames = prop.amenities?.map(a => a.name) || [];
+
         const mappedProp = {
           ...prop,
           parkingAvailable: prop.parkingAvailable ? 'Yes' : 'No',
@@ -214,6 +259,7 @@ const PropertyUpdation = () => {
           floorPlans: Array.isArray(prop.floorPlans) ? prop.floorPlans : [],
           nearbyFacilities: Array.isArray(prop.nearbyFacilities) ? prop.nearbyFacilities : [],
           developerInfo: prop.developerInfo && typeof prop.developerInfo === 'object' ? prop.developerInfo : { developerName: '', developerDescription: '' },
+          amenities: amenityNames, // ⭐ NEW: Set amenities as array of names
         };
 
         form.setFieldsValue(mappedProp);
@@ -227,6 +273,7 @@ const PropertyUpdation = () => {
         setExistingDeveloperLogo(prop.developerLogo || null);
         setExistingLayoutMaps(Array.isArray(prop.layoutMaps) ? prop.layoutMaps : []);
       } catch (error) {
+        console.error('Error fetching property:', error);
         toast.error('Failed to load property.');
       } finally {
         setLoading(false);
@@ -272,6 +319,11 @@ const PropertyUpdation = () => {
         formData.append(key, JSON.stringify(values[key]));
       } else if (key === 'parkingAvailable') {
         formData.append(key, values[key] === 'Yes');
+      } else if (key === 'amenities') {
+        // ⭐ NEW: Send amenities as comma-separated string
+        if (Array.isArray(values[key]) && values[key].length > 0) {
+          formData.append('amenities', values[key].join(','));
+        }
       } else {
         formData.append(key, values[key]);
       }
@@ -397,7 +449,6 @@ const PropertyUpdation = () => {
                   </Card>
 
                   <Card title="Location Details" bordered={false} style={{ marginBottom: 24 }}>
-                    {/* Google Maps Link with Fetch Button */}
                     <Form.Item 
                       name="googleMapLink" 
                       label="Google Map Link" 
@@ -572,14 +623,160 @@ const PropertyUpdation = () => {
                           </Select>
                         </Form.Item>
                       </Col>
+                      
+                      {/* ⭐ NEW: AMENITIES DROPDOWN (REPLACING TEXTAREA) */}
                       <Col span={24}>
-                        <Form.Item name="amenities" label="Amenities" rules={[{ required: true, message: 'Please enter amenities!' }]}>
-                          <TextArea rows={2} placeholder="Amenities (comma separated)" />
+                        <Form.Item 
+                          name="amenities" 
+                          label="Amenities" 
+                          rules={[{ required: true, message: 'Please select amenities!' }]}
+                        >
+                          <Select
+                            mode="multiple"
+                            placeholder="Select amenities"
+                            showSearch
+                            loading={loadingAmenities}
+                            filterOption={(input, option) =>
+                              (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+                            }
+                            style={{ width: '100%' }}
+                          >
+                            {amenitiesList.map((amenity) => (
+                              <Option key={amenity.id} value={amenity.name}>
+                                {amenity.name}
+                              </Option>
+                            ))}
+                          </Select>
                         </Form.Item>
                       </Col>
                     </Row>
                   </Card>
-
+<Card title="SEO Details" bordered={false} style={{ marginBottom: 24 }}>
+  <Row gutter={16}>
+    <Col span={24}>
+      <Form.Item 
+        name="seoTitle" 
+        label="SEO Title" 
+        extra="Optimal length: 50-60 characters for best search results"
+        rules={[
+          { max: 60, message: 'SEO title should be under 60 characters' }
+        ]}
+      >
+        <Input 
+          placeholder="e.g., 3BHK Luxury Apartment for Sale in Mumbai"
+          showCount
+          maxLength={60}
+        />
+      </Form.Item>
+    </Col>
+    <Col span={24}>
+      <Form.Item 
+        name="metaDescription" 
+        label="Meta Description" 
+        extra="Optimal length: 150-160 characters for search engine snippets"
+        rules={[
+          { max: 160, message: 'Meta description should be under 160 characters' }
+        ]}
+      >
+        <TextArea 
+          rows={3}
+          placeholder="e.g., Discover your dream 3BHK apartment in Mumbai with modern amenities. Contact us today!"
+          showCount
+          maxLength={160}
+        />
+      </Form.Item>
+    </Col>
+    <Col span={24}>
+      <Form.Item 
+        name="metaKeywords" 
+        label="Meta Keywords" 
+        extra="Comma-separated keywords (e.g., apartment Mumbai, 3BHK, luxury property)"
+      >
+        <Input placeholder="luxury apartment, Mumbai real estate, 3BHK for sale" />
+      </Form.Item>
+    </Col>
+    <Col lg={12} xs={24}>
+      <Form.Item 
+        name="ogTitle" 
+        label="Open Graph Title" 
+        extra="Title shown when shared on social media"
+      >
+        <Input placeholder="Same as SEO title or customize for social media" />
+      </Form.Item>
+    </Col>
+    <Col lg={12} xs={24}>
+      <Form.Item 
+        name="ogType" 
+        label="Open Graph Type"
+        initialValue="website"
+      >
+        <Select>
+          <Option value="website">Website</Option>
+          <Option value="article">Article</Option>
+          <Option value="product">Product</Option>
+        </Select>
+      </Form.Item>
+    </Col>
+    <Col span={24}>
+      <Form.Item 
+        name="ogDescription" 
+        label="Open Graph Description" 
+        extra="Description shown when shared on social media (150-160 chars)"
+      >
+        <TextArea 
+          rows={2}
+          placeholder="Compelling description for social media sharing"
+          showCount
+          maxLength={160}
+        />
+      </Form.Item>
+    </Col>
+    <Col lg={12} xs={24}>
+      <Form.Item 
+        name="twitterCard" 
+        label="Twitter Card Type"
+        initialValue="summary_large_image"
+      >
+        <Select>
+          <Option value="summary">Summary</Option>
+          <Option value="summary_large_image">Summary Large Image</Option>
+        </Select>
+      </Form.Item>
+    </Col>
+    <Col lg={12} xs={24}>
+      <Form.Item 
+        name="canonicalUrl" 
+        label="Canonical URL" 
+        extra="Full URL to avoid duplicate content"
+      >
+        <Input placeholder="https://yourwebsite.com/properties/property-slug" />
+      </Form.Item>
+    </Col>
+    <Col span={24}>
+      <Form.Item 
+        name="focusKeyword" 
+        label="Focus Keyword" 
+        extra="Primary keyword for SEO ranking"
+      >
+        <Input placeholder="e.g., 3BHK apartment Mumbai" />
+      </Form.Item>
+    </Col>
+    <Col span={24}>
+      <Form.Item 
+        name="robotsIndex" 
+        label="Search Engine Indexing"
+        initialValue="index,follow"
+      >
+        <Select>
+          <Option value="index,follow">Index & Follow (Recommended)</Option>
+          <Option value="noindex,follow">No Index, Follow</Option>
+          <Option value="index,nofollow">Index, No Follow</Option>
+          <Option value="noindex,nofollow">No Index, No Follow</Option>
+        </Select>
+      </Form.Item>
+    </Col>
+  </Row>
+</Card>
                   <Card title="Nearby Facilities (Auto-fetched from location)" bordered={false} style={{ marginBottom: 24 }}>
                     <Form.List
                       name="nearbyFacilities"

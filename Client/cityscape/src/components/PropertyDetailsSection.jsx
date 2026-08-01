@@ -18,7 +18,7 @@ import {
 } from "react-icons/fa";
 
 import {
-    Card, Row, Col, Spin, Button, Space, Typography, Image, Divider, Tag, Empty, Avatar, Descriptions, List, Tooltip
+    Card, Row, Col, Spin, Button, Space, Typography, Image, Divider, Tag, Empty, Avatar, Descriptions, List, Tooltip, Rate
 } from "antd";
 
 import {
@@ -52,7 +52,10 @@ import {
     SearchOutlined,
     InfoCircleOutlined,
     SolutionOutlined,
-    TeamOutlined
+    TeamOutlined,
+    CameraOutlined,
+    HeartFilled,
+    BuildOutlined
 } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
@@ -86,10 +89,512 @@ const propertyOverviewMap = [
     { label: "Budget Type", key: "budgetType", icon: <DollarCircleOutlined />, unit: "" },
 ];
 
+// Similar Property Item Component
+const SimilarPropertyItem = ({ property, resolveImage }) => {
+    const [isFavorite, setIsFavorite] = useState(false);
+    const [imageLoaded, setImageLoaded] = useState(false);
+
+    // Enhanced Indian Price Formatting
+    const formatPriceToIndian = (priceString) => {
+        if (!priceString) return '₹0';
+        
+        const cleanPrice = priceString.toString().toLowerCase().trim();
+        const priceMatch = cleanPrice.match(/(\d+(?:\.\d+)?)\s*(cr|crore|l|lakh|k|thousand)?/);
+        
+        if (!priceMatch) return `₹${priceString}`;
+        
+        const [, numberStr, unit] = priceMatch;
+        const number = parseFloat(numberStr);
+        
+        if (isNaN(number)) return `₹${priceString}`;
+        
+        if (unit) {
+            switch (unit) {
+                case 'cr':
+                case 'crore':
+                    return number >= 10 ? `₹${Math.round(number)} Cr` : `₹${number.toFixed(1)} Cr`;
+                case 'l':
+                case 'lakh':
+                    return `₹${number} L`;
+                case 'k':
+                case 'thousand':
+                    return `₹${number}K`;
+                default:
+                    return `₹${new Intl.NumberFormat('en-IN').format(number)}`;
+            }
+        }
+        
+        return number >= 100 ? `₹${number} Cr` : `₹${number} L`;
+    };
+
+    const getFormattedLocation = () => {
+        const locationParts = [
+            property.suburb,
+            property.city
+        ].filter(Boolean);
+        
+        return locationParts.join(', ') || property.city || 'Prime Location';
+    };
+
+    const getDeveloperName = () => {
+        return property.developerInfo?.developerName || 'Premium Developer';
+    };
+
+    const handleCardClick = () => {
+        window.location.href = `/property/details/${property.id}`;
+    };
+
+    return (
+        <div className="similar-property-card-container" onClick={handleCardClick}>
+            <Card
+                className="similar-property-card"
+                hoverable
+                bordered={false}
+                cover={
+                    <div className="similar-property-image-container">
+                        <div className="image-wrapper">
+                            {!imageLoaded && (
+                                <div className="image-placeholder">
+                                    <Spin />
+                                </div>
+                            )}
+                            <img
+                                alt={property.title}
+                                src={resolveImage(property.coverPhoto)}
+                                className="property-main-image"
+                                onLoad={() => setImageLoaded(true)}
+                                onError={(e) => {
+                                    e.target.src = houseThumb;
+                                }}
+                            />
+                        </div>
+                        <div className="image-overlay">
+                            <div className="overlay-stats">
+                                <Tag className="stat-tag">
+                                    <CameraOutlined /> {(property.images?.length || 0) + 1}
+                                </Tag>
+                            </div>
+                        </div>
+                        <div className="favorite-button">
+                            <Button
+                                type="text"
+                                shape="circle"
+                                size="small"
+                                icon={isFavorite ? <HeartFilled /> : <HeartOutlined />}
+                                className={`favorite-btn ${isFavorite ? 'favorited' : ''}`}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsFavorite(!isFavorite);
+                                }}
+                            />
+                        </div>
+                    </div>
+                }
+            >
+                <div className="card-content">
+                    <div className="developer-section">
+                        <div className="developer-info">
+                            <Space size="small">
+                                <Avatar size="small" icon={<BuildOutlined />} className="developer-avatar" />
+                                <Text className="developer-name">{getDeveloperName()}</Text>
+                            </Space>
+                            <Rate 
+                                disabled 
+                                defaultValue={4.2} 
+                                allowHalf 
+                                className="developer-rating"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="location-section">
+                        <Text className="location-text" ellipsis>
+                            <EnvironmentOutlined className="location-icon" />
+                            {getFormattedLocation()}
+                        </Text>
+                    </div>
+
+                    <div className="title-section">
+                        <Title level={5} className="property-title" ellipsis={{ rows: 2 }}>
+                            {property.title}
+                        </Title>
+                    </div>
+
+                    <div className="price-section">
+                        <div className="price-container">
+                            <div className="main-price">
+                                {formatPriceToIndian(property.priceRange)}
+                            </div>
+                            <Tag size="small" color="green" className="budget-tag">
+                                {property.budgetType || 'Total Price'}
+                            </Tag>
+                        </div>
+                    </div>
+
+                    <div className="features-grid">
+                        <div className="feature-item bedrooms">
+                            <div className="feature-icon">
+                                <HomeOutlined style={{ fontSize: '16px', color: '#1890ff' }} />
+                            </div>
+                            <div className="feature-details">
+                                <div className="feature-number">{property.bedrooms || 2}</div>
+                                <div className="feature-label">Bedrooms</div>
+                            </div>
+                        </div>
+                        
+                        <div className="feature-item bathrooms">
+                            <div className="feature-icon">
+                                <span style={{ fontSize: '16px' }}>🚿</span>
+                            </div>
+                            <div className="feature-details">
+                                <div className="feature-number">{property.bathrooms || 1}</div>
+                                <div className="feature-label">Bathrooms</div>
+                            </div>
+                        </div>
+
+                        <div className="feature-item area">
+                            <div className="feature-icon">
+                                <AreaChartOutlined style={{ fontSize: '16px', color: '#fa8c16' }} />
+                            </div>
+                            <div className="feature-details">
+                                <div className="feature-number">
+                                    {parseInt(property.carpetArea || property.totalArea || 1200).toLocaleString('en-IN')}
+                                </div>
+                                <div className="feature-label">Sq Ft</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="action-section">
+                        <div className="view-details-indicator">
+                            <EyeOutlined style={{ marginRight: 6 }} />
+                            <span>Click to view details</span>
+                        </div>
+                    </div>
+                </div>
+            </Card>
+
+            <style jsx>{`
+                .similar-property-card-container {
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    cursor: pointer;
+                }
+
+                .similar-property-card {
+                    height: 100% !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    border-radius: 12px !important;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                    overflow: hidden !important;
+                    background: #ffffff !important;
+                    border: 1px solid #f0f0f0 !important;
+                }
+
+                .similar-property-card-container:hover .similar-property-card {
+                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+                    transform: translateY(-4px) !important;
+                    border-color: #1890ff !important;
+                }
+
+                .similar-property-card .ant-card-body {
+                    padding: 0 !important;
+                    height: 100% !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                }
+
+                .similar-property-image-container {
+                    position: relative;
+                    height: 180px;
+                    overflow: hidden;
+                    background: #f5f5f5;
+                }
+
+                .image-wrapper {
+                    width: 100%;
+                    height: 100%;
+                    position: relative;
+                }
+
+                .property-main-image {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    transition: transform 0.5s ease;
+                }
+
+                .similar-property-card-container:hover .property-main-image {
+                    transform: scale(1.05);
+                }
+
+                .image-placeholder {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: #f5f5f5;
+                }
+
+                .image-overlay {
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+                    padding: 12px;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                }
+
+                .similar-property-card-container:hover .image-overlay {
+                    opacity: 1;
+                }
+
+                .overlay-stats {
+                    display: flex;
+                    gap: 8px;
+                }
+
+                .stat-tag {
+                    background: rgba(255, 255, 255, 0.9) !important;
+                    color: rgba(0, 0, 0, 0.85) !important;
+                    border: none !important;
+                    font-size: 11px !important;
+                    font-weight: 600 !important;
+                }
+
+                .favorite-button {
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    z-index: 2;
+                }
+
+                .favorite-btn {
+                    background: rgba(255, 255, 255, 0.95) !important;
+                    border: none !important;
+                    width: 32px !important;
+                    height: 32px !important;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+                    transition: all 0.3s ease !important;
+                }
+
+                .favorite-btn:hover {
+                    transform: scale(1.1) !important;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+                }
+
+                .favorite-btn.favorited {
+                    background: #ff4d4f !important;
+                    color: white !important;
+                }
+
+                .card-content {
+                    padding: 14px;
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                }
+
+                .developer-section {
+                    height: 22px;
+                }
+
+                .developer-info {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+
+                .developer-avatar {
+                    background-color: #1890ff !important;
+                }
+
+                .developer-name {
+                    color: #1890ff !important;
+                    font-weight: 600 !important;
+                    font-size: 11px !important;
+                }
+
+                .developer-rating {
+                    font-size: 10px !important;
+                }
+
+                .location-section {
+                    height: 18px;
+                }
+
+                .location-text {
+                    color: #666 !important;
+                    font-size: 11px !important;
+                    display: block;
+                }
+
+                .location-icon {
+                    color: #ff4d4f;
+                    margin-right: 4px;
+                    font-size: 12px;
+                }
+
+                .title-section {
+                    height: 44px;
+                    display: flex;
+                    align-items: flex-start;
+                }
+
+                .property-title {
+                    margin: 0 !important;
+                    font-size: 14px !important;
+                    line-height: 1.4 !important;
+                    color: #262626 !important;
+                    font-weight: 600 !important;
+                }
+
+                .price-section {
+                    height: 60px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .price-container {
+                    background: linear-gradient(135deg, #f6ffed, #e6f7ff);
+                    border: 1px solid #d9f7be;
+                    border-radius: 8px;
+                    padding: 10px;
+                    text-align: center;
+                    width: 100%;
+                }
+
+                .main-price {
+                    font-size: 20px !important;
+                    font-weight: 700 !important;
+                    color: #389e0d !important;
+                    line-height: 1;
+                    margin-bottom: 4px;
+                }
+
+                .budget-tag {
+                    font-size: 10px !important;
+                }
+
+                .features-grid {
+                    height: 60px;
+                    display: grid;
+                    grid-template-columns: 1fr 1fr 1fr;
+                    gap: 6px;
+                }
+
+                .feature-item {
+                    background: #fafafa;
+                    border: 1px solid #f0f0f0;
+                    border-radius: 6px;
+                    padding: 8px 4px;
+                    text-align: center;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 4px;
+                    transition: all 0.3s ease;
+                }
+
+                .similar-property-card-container:hover .feature-item {
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                }
+
+                .feature-item.bedrooms {
+                    background: linear-gradient(135deg, #e6f7ff, #f0f8ff);
+                    border-color: #91d5ff;
+                }
+
+                .feature-item.bathrooms {
+                    background: linear-gradient(135deg, #f6ffed, #f0f9ff);
+                    border-color: #b7eb8f;
+                }
+
+                .feature-item.area {
+                    background: linear-gradient(135deg, #fff7e6, #fffbf0);
+                    border-color: #ffd591;
+                }
+
+                .feature-icon {
+                    font-size: 14px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .feature-details {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+                .feature-number {
+                    font-size: 13px !important;
+                    font-weight: 700 !important;
+                    color: #262626 !important;
+                    line-height: 1;
+                }
+
+                .feature-label {
+                    font-size: 9px !important;
+                    color: #8c8c8c !important;
+                    line-height: 1;
+                    font-weight: 500 !important;
+                }
+
+                .action-section {
+                    height: 36px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-top: auto;
+                }
+
+                .view-details-indicator {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #1890ff;
+                    font-size: 12px;
+                    font-weight: 600;
+                    padding: 8px 16px;
+                    background: linear-gradient(135deg, #e6f7ff, #f0f8ff);
+                    border: 1px solid #91d5ff;
+                    border-radius: 6px;
+                    width: 100%;
+                    transition: all 0.3s ease;
+                }
+
+                .similar-property-card-container:hover .view-details-indicator {
+                    background: linear-gradient(135deg, #1890ff, #096dd9);
+                    color: white;
+                    border-color: #1890ff;
+                    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+                }
+            `}</style>
+        </div>
+    );
+};
+
 const PropertyDetailsSection = () => {
     const { id } = useParams();
     const [property, setProperty] = useState(null);
+    const [similarProperties, setSimilarProperties] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [similarLoading, setSimilarLoading] = useState(true);
     const [mainImage, setMainImage] = useState(houseThumb);
     const sliderRef = useRef(null);
 
@@ -118,8 +623,27 @@ const PropertyDetailsSection = () => {
         }
     };
 
+    const getSimilarProperties = async () => {
+        try {
+            const res = await axios.get(`${apiurl.API_URL}/public/properties`, {
+                params: { page: 1, limit: 4, sortBy: "createdAt", order: "desc" }
+            });
+            if (res.data.status === "success") {
+                // Filter out current property and get random 4 properties
+                const allProperties = res.data.data.properties.filter(p => p.id !== parseInt(id));
+                const shuffled = allProperties.sort(() => 0.5 - Math.random());
+                setSimilarProperties(shuffled.slice(0, 4));
+            }
+        } catch (error) {
+            console.error("Error fetching similar properties:", error);
+        } finally {
+            setSimilarLoading(false);
+        }
+    };
+
     useEffect(() => {
         getPropertyData(id);
+        getSimilarProperties();
     }, [id]);
 
     const handleThumbnailClick = (image, index) => {
@@ -343,7 +867,25 @@ const PropertyDetailsSection = () => {
 
                         {/* --- DESCRIPTION --- */}
                         <Card title={<Title level={4}><SearchOutlined /> Detailed Description</Title>} bordered={false} style={{ marginBottom: 24, borderRadius: 12, boxShadow: '0 4px 8px rgba(0,0,0,0.08)' }}>
-                            <Text style={{ lineHeight: '1.8' }}>{property.longDescription || property.shortDescription}</Text>
+                            {property.longDescription || property.shortDescription ? (
+                                <List
+                                    size="large"
+                                    dataSource={(property.longDescription || property.shortDescription)
+                                        .split('\n')
+                                        .filter(item => item.trim() !== '')
+                                        .map(item => item.trim())}
+                                    renderItem={item => (
+                                        <List.Item style={{ border: 'none', padding: '8px 0' }}>
+                                            <Space align="start">
+                                                <span style={{ color: '#1a73e8', fontSize: '8px', marginTop: '8px' }}>●</span>
+                                                <Text style={{ lineHeight: '1.8', fontSize: '15px' }}>{item}</Text>
+                                            </Space>
+                                        </List.Item>
+                                    )}
+                                />
+                            ) : (
+                                <Empty description="No description available" />
+                            )}
                         </Card>
 
                         {/* --- AMENITIES --- */}
@@ -390,7 +932,7 @@ const PropertyDetailsSection = () => {
                                 <Col xs={24} md={12}>
                                     {property.latitude && property.longitude ? (
                                         <iframe
-                                            src={`https://maps.google.com/maps?q=$${property.latitude},${property.longitude}&z=15&output=embed`}
+                                            src={`https://maps.google.com/maps?q=${property.latitude},${property.longitude}&z=15&output=embed`}
                                             style={{ width: "100%", height: 350, border: 0, borderRadius: 8 }}
                                             allowFullScreen
                                             loading="lazy"
@@ -440,7 +982,22 @@ const PropertyDetailsSection = () => {
 
                         {/* --- SIMILAR PROPERTIES --- */}
                         <Card title={<Title level={4}>Similar Properties</Title>} bordered={false} style={{ marginBottom: 24, borderRadius: 12, boxShadow: '0 4px 8px rgba(0,0,0,0.08)' }}>
-                            <Text>This section would contain a slider or grid of similar properties, fetched from another API endpoint.</Text>
+                            {similarLoading ? (
+                                <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                                    <Spin size="large" />
+                                    <Text style={{ display: 'block', marginTop: 16 }}>Loading similar properties...</Text>
+                                </div>
+                            ) : similarProperties.length > 0 ? (
+                                <Row gutter={[16, 16]}>
+                                    {similarProperties.map((similarProp, index) => (
+                                        <Col xs={24} sm={12} md={12} lg={12} xl={6} key={similarProp.id || `similar-${index}`}>
+                                            <SimilarPropertyItem property={similarProp} resolveImage={resolveImage} />
+                                        </Col>
+                                    ))}
+                                </Row>
+                            ) : (
+                                <Empty description="No similar properties found" />
+                            )}
                         </Card>
 
                     </Col>

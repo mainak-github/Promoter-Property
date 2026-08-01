@@ -72,7 +72,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     city: DataTypes.STRING,
-    suburb: DataTypes.STRING, // renamed from subLocation
+    suburb: DataTypes.STRING,
     district: DataTypes.STRING,
     state: DataTypes.STRING,
     pincode: DataTypes.STRING,
@@ -92,7 +92,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM('Launching Soon', 'Ready to Move In', 'Under Construction')
     },
     bedrooms: {
-      type: DataTypes.STRING, // stored as "1 BHK,2 BHK"
+      type: DataTypes.STRING,
       allowNull: true,
     },
     bathrooms: DataTypes.INTEGER,
@@ -112,7 +112,64 @@ module.exports = (sequelize, DataTypes) => {
     approvalStatus: {
       type: DataTypes.ENUM('pending', 'approved', 'rejected'),
       defaultValue: 'pending'
+    },
+
+    // ============ SEO FIELDS ============
+    seoTitle: {
+      type: DataTypes.STRING(60),
+      allowNull: true,
+      comment: 'SEO optimized title (50-60 chars recommended)'
+    },
+    metaDescription: {
+      type: DataTypes.STRING(160),
+      allowNull: true,
+      comment: 'Meta description for search results (150-160 chars)'
+    },
+    metaKeywords: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      comment: 'Comma-separated keywords for SEO'
+    },
+    ogTitle: {
+      type: DataTypes.STRING(60),
+      allowNull: true,
+      comment: 'Open Graph title for social media sharing'
+    },
+    ogType: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+      defaultValue: 'website',
+      comment: 'Open Graph type (website, article, product)'
+    },
+    ogDescription: {
+      type: DataTypes.STRING(160),
+      allowNull: true,
+      comment: 'Open Graph description for social sharing'
+    },
+    twitterCard: {
+      type: DataTypes.STRING(30),
+      allowNull: true,
+      defaultValue: 'summary_large_image',
+      comment: 'Twitter card type (summary, summary_large_image)'
+    },
+    canonicalUrl: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      comment: 'Canonical URL to prevent duplicate content'
+    },
+    focusKeyword: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      comment: 'Primary keyword for SEO ranking'
+    },
+    robotsIndex: {
+      type: DataTypes.STRING(30),
+      allowNull: true,
+      defaultValue: 'index,follow',
+      comment: 'Robots meta tag (index,follow / noindex,nofollow)'
     }
+    // ============ END SEO FIELDS ============
+
   }, {
     sequelize,
     modelName: 'Property',

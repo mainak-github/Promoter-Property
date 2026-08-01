@@ -12,8 +12,8 @@ const path = require('path');
 
 
 const allowedOrigins = [
-  'https://promoterproperty.com',
-  // 'http://localhost:5173',
+  // 'https://promoterproperty.com',
+  'http://localhost:5173',
   // add other trusted origins here
 ];
 

@@ -34,7 +34,7 @@ import url from '../url';
 
 const { Text, Title } = Typography;
 
-// Fixed PropertyItem Component with Realistic Icons
+// PropertyItem Component with ENTIRE CARD CLICKABLE + View Details Button
 const PropertyItem = ({ property }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -121,8 +121,13 @@ const PropertyItem = ({ property }) => {
     return property.developerInfo?.developerName || 'Premium Developer';
   };
 
+  // Handle card click
+  const handleCardClick = () => {
+    window.location.href = `/property/details/${property.id}`;
+  };
+
   return (
-    <div className="property-card-container">
+    <div className="property-card-container" onClick={handleCardClick}>
       <Card
         className="property-card-aligned"
         hoverable
@@ -234,7 +239,7 @@ const PropertyItem = ({ property }) => {
             </div>
           </div>
 
-          {/* Features Grid - Fixed Height with Realistic Icons */}
+          {/* Features Grid */}
           <div className="features-grid">
             <div className="feature-item bedrooms">
               <div className="feature-icon">
@@ -269,7 +274,7 @@ const PropertyItem = ({ property }) => {
             </div>
           </div>
 
-          {/* Tags Section with Realistic Icons */}
+          {/* Tags Section */}
           <div className="tags-section">
             <Space wrap size="small">
               {property.furnishedStatus && (
@@ -290,19 +295,24 @@ const PropertyItem = ({ property }) => {
             </Space>
           </div>
 
-          {/* Action Buttons */}
+          {/* Action Buttons - WITH VIEW DETAILS BUTTON */}
           <div className="action-section">
+            {/* View Details Button */}
             <Button
               type="primary"
               block
               size="large"
               className="view-details-button"
               icon={<EyeOutlined />}
-              onClick={() => window.location.href = `/property/details/${property.id}`}
+              onClick={(e) => {
+                e.stopPropagation(); // Optional: prevents double navigation
+                window.location.href = `/property/details/${property.id}`;
+              }}
             >
               View Full Details
             </Button>
             
+            {/* Contact Buttons */}
             <div className="contact-buttons">
               <Button
                 size="middle"
@@ -354,6 +364,7 @@ const PropertyItem = ({ property }) => {
           height: 100%;
           display: flex;
           flex-direction: column;
+          cursor: pointer;
         }
 
         .property-card-aligned {
@@ -601,7 +612,7 @@ const PropertyItem = ({ property }) => {
           transition: all 0.3s ease;
         }
 
-        .feature-item:hover {
+        .property-card-container:hover .feature-item {
           transform: translateY(-2px);
           box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
@@ -799,7 +810,7 @@ const PropertyItem = ({ property }) => {
   );
 };
 
-// Main PropertyGrid Component
+// Main PropertyGrid Component (UNCHANGED)
 const PropertyGrid = () => {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(false);

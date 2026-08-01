@@ -95,6 +95,19 @@ exports.updateProperty = async (req, res) => {
       country, continent, timezone, isoCode,
       latitude, longitude, address,
 
+      // ============ SEO FIELDS ============
+      seoTitle,
+      metaDescription,
+      metaKeywords,
+      ogTitle,
+      ogType,
+      ogDescription,
+      twitterCard,
+      canonicalUrl,
+      focusKeyword,
+      robotsIndex,
+      // ============ END SEO FIELDS ============
+
       // Existing additional photos to retain (JSON string expected)
       existingAdditionalPhotos,
     } = req.body;
@@ -105,7 +118,7 @@ exports.updateProperty = async (req, res) => {
       bedroomsArray = bedrooms.split(',').map(b => b.trim());
     }
 
-    // Update main property fields
+    // Update main property fields with SEO fields
     await existingProperty.update({
       title,
       shortDescription,
@@ -135,6 +148,19 @@ exports.updateProperty = async (req, res) => {
       suburb, district, state, pincode, road,
       country, continent, timezone, isoCode,
       latitude, longitude, address,
+
+      // ============ SEO FIELDS UPDATE ============
+      seoTitle: seoTitle || null,
+      metaDescription: metaDescription || null,
+      metaKeywords: metaKeywords || null,
+      ogTitle: ogTitle || null,
+      ogType: ogType || 'website',
+      ogDescription: ogDescription || null,
+      twitterCard: twitterCard || 'summary_large_image',
+      canonicalUrl: canonicalUrl || null,
+      focusKeyword: focusKeyword || null,
+      robotsIndex: robotsIndex || 'index,follow'
+      // ============ END SEO FIELDS UPDATE ============
     }, { transaction: t });
 
     // === Handle Additional Photos preserving existing ones ===
@@ -237,6 +263,11 @@ exports.updateProperty = async (req, res) => {
       status: 'success',
       message: 'Property updated successfully. Awaiting admin approval.',
       propertyId: existingProperty.id,
+      seoData: {
+        seoTitle: existingProperty.seoTitle,
+        metaDescription: existingProperty.metaDescription,
+        focusKeyword: existingProperty.focusKeyword
+      }
     });
 
   } catch (error) {
@@ -250,6 +281,7 @@ exports.updateProperty = async (req, res) => {
     });
   }
 };
+
 
 
 exports.deleteProperty = async (req, res) => {
