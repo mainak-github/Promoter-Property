@@ -9,18 +9,18 @@ import PageTitle from '../common/PageTitle';
 const BlogClassic = () => {
     return (
         <>
-        <PageTitle title="CityScape - Blog Classic" />
+            <PageTitle title="Promoter Property - Blog Classic" />
 
             {/* Header */}
-            <Header 
-                headerClass="dark-header has-border" 
+            <Header
+                headerClass="dark-header has-border"
                 logoBlack={false}
                 logoWhite={true}
                 headerMenusClass="mx-auto"
                 btnClass="btn btn-outline-main btn-outline-main-dark d-lg-block d-none"
                 btnLink="/add-new-listing"
                 btnText="Add Listing"
-                spanClass="icon-right text-gradient" 
+                spanClass="icon-right text-gradient"
                 showHeaderBtn={true}
                 showOffCanvasBtn={false}
                 offCanvasBtnClass=""
@@ -28,18 +28,18 @@ const BlogClassic = () => {
             />
 
             {/* BreadCrumb */}
-            <Breadcrumb 
+            <Breadcrumb
                 pageTitle="Blog Classic"
                 pageName="Blog Classic"
             />
 
-            <BlogClassicSection/> 
+            <BlogClassicSection />
 
             {/* Cta */}
-            <Cta ctaClass=""/>
+            <Cta ctaClass="" />
 
             {/* Footer */}
-            <Footer/>
+            <Footer />
         </>
     );
 };

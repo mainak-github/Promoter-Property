@@ -124,5 +124,175 @@ body {
   color: #8c8c8c;
 }
 
+/* =========================================================
+   Global Container & Layout Margins Fix
+   ========================================================= */
+.container,
+.container-two,
+.container-fluid {
+  width: 100% !important;
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box !important;
+}
+
+@media (min-width: 576px) {
+  .container,
+  .container-two {
+    max-width: 540px !important;
+  }
+}
+@media (min-width: 768px) {
+  .container,
+  .container-two {
+    max-width: 720px !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+}
+@media (min-width: 992px) {
+  .container,
+  .container-two {
+    max-width: 960px !important;
+  }
+}
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1140px !important;
+  }
+  .container-two {
+    max-width: 1280px !important;
+  }
+}
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1320px !important;
+  }
+  .container-two {
+    max-width: 1340px !important;
+  }
+}
+
+/* =========================================================
+   Premium Footer & Bottom Footer Styling
+   ========================================================= */
+footer.footer,
+footer.footer-two {
+  background-color: #0b0f19 !important;
+  color: #a0aec0 !important;
+  padding-top: 75px !important;
+  padding-bottom: 60px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  position: relative !important;
+}
+
+.footer-item__title {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 1.15rem !important;
+  margin-bottom: 1.25rem !important;
+  letter-spacing: 0.02em !important;
+}
+
+.footer-item__desc {
+  color: #94a3b8 !important;
+  font-size: 0.95rem !important;
+  line-height: 1.65 !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.footer-menu__link {
+  color: #cbd5e1 !important;
+  transition: color 0.25s ease, padding-left 0.25s ease !important;
+}
+.footer-menu__link:hover {
+  color: #ff6b2c !important;
+  padding-left: 4px !important;
+}
+
+.contact-info__icon {
+  font-size: 1.2rem !important;
+  color: #ff6b2c !important;
+}
+
+.contact-info__text {
+  color: #64748b !important;
+  font-size: 0.8rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  display: block !important;
+}
+
+.contact-info__address {
+  color: #f1f5f9 !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  display: block !important;
+}
+
+.subscribe-box .input-group {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  transition: border-color 0.3s ease !important;
+}
+
+.subscribe-box .input-group:focus-within {
+  border-color: #ff6b2c !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 44, 0.2) !important;
+}
+
+.subscribe-box input.form-control {
+  background: transparent !important;
+  border: none !important;
+  color: #ffffff !important;
+  padding: 0.75rem 1rem !important;
+  font-size: 0.95rem !important;
+}
+
+.subscribe-box input.form-control::placeholder {
+  color: #64748b !important;
+}
+
+.subscribe-box button {
+  background: linear-gradient(135deg, #ff6b2c, #ff8c42) !important;
+  border: none !important;
+  color: #ffffff !important;
+  padding: 0 1.25rem !important;
+  font-size: 1.1rem !important;
+  transition: opacity 0.25s ease !important;
+}
+.subscribe-box button:hover {
+  opacity: 0.9 !important;
+}
+
+.bottom-footer {
+  background-color: #07090e !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+  padding: 20px 0 !important;
+}
+
+.bottom-footer__text {
+  color: #64748b !important;
+  font-size: 0.9rem !important;
+  margin: 0 !important;
+}
+
+.bottom-footer .footer-links .footer-link {
+  color: #94a3b8 !important;
+  font-size: 0.9rem !important;
+  margin-left: 1.25rem !important;
+  transition: color 0.25s ease !important;
+  text-decoration: none !important;
+}
+
+.bottom-footer .footer-links .footer-link:hover {
+  color: #ff6b2c !important;
+}
+
+
 
 

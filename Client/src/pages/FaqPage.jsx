@@ -11,18 +11,18 @@ import PageTitle from '../common/PageTitle';
 const FaqPage = () => {
     return (
         <>
-        <PageTitle title="CityScape - Frequently Ask Question" />
+            <PageTitle title="Promoter Property - Frequently Ask Question" />
 
             {/* Header */}
-            <Header 
-                headerClass="dark-header has-border" 
+            <Header
+                headerClass="dark-header has-border"
                 logoBlack={false}
                 logoWhite={true}
                 headerMenusClass="mx-auto"
                 btnClass="btn btn-outline-main btn-outline-main-dark d-lg-block d-none"
                 btnLink="/add-new-listing"
                 btnText="Add Listing"
-                spanClass="icon-right text-gradient" 
+                spanClass="icon-right text-gradient"
                 showHeaderBtn={true}
                 showOffCanvasBtn={false}
                 offCanvasBtnClass=""
@@ -30,25 +30,25 @@ const FaqPage = () => {
             />
 
             {/* BreadCrumb */}
-            <Breadcrumb 
+            <Breadcrumb
                 pageTitle="FAQ"
                 pageName="FAQ"
             />
 
             {/* Faq Two */}
-            <FaqTwo/>
+            <FaqTwo />
 
             {/* Faq Contact Us */}
-            <FaqContactUs/>
+            <FaqContactUs />
 
             {/* Counter Four */}
-            <CounterFour/>
-            
+            <CounterFour />
+
             {/* Cta */}
-            <Cta ctaClass=""/>
+            <Cta ctaClass="" />
 
             {/* Footer */}
-            <Footer/>
+            <Footer />
         </>
     );
 };

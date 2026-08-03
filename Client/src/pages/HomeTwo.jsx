@@ -18,23 +18,23 @@ import PageTitle from '../common/PageTitle';
 const HomeTwo = () => {
     return (
         <>
-            <PageTitle title="CityScape - Home Two" />
-            
-            <OffCanvas/>
-            <MobileMenu/>
-            
+            <PageTitle title="Promoter Property - Home Two" />
+
+            <OffCanvas />
+            <MobileMenu />
+
             <main className="dark-background">
 
                 {/* Header */}
-                <Header 
-                    headerClass="dark-header" 
+                <Header
+                    headerClass="dark-header"
                     logoBlack={false}
                     logoWhite={true}
                     headerMenusClass="ms-auto me-4"
                     btnClass="btn btn-outline-main btn-outline-main-dark d-lg-block d-none"
                     btnLink="/add-new-listing"
                     btnText="Add Listing"
-                    spanClass="icon-right text-gradient" 
+                    spanClass="icon-right text-gradient"
                     showHeaderBtn={true}
                     showOffCanvasBtn={false}
                     offCanvasBtnClass=""
@@ -42,36 +42,36 @@ const HomeTwo = () => {
                 />
 
                 {/* Banner Two */}
-                <BannerTwo/>
+                <BannerTwo />
 
                 {/* Service */}
-                <Service/>
+                <Service />
 
                 {/* About Two */}
-                <AboutTwo/>
+                <AboutTwo />
 
                 {/* Floor Plan */}
-                <FloorPlan/>
+                <FloorPlan />
 
                 {/* Gallery */}
-                <Gallery/>
+                <Gallery />
 
                 {/* Counter Two */}
-                <CounterTwo/>
+                <CounterTwo />
 
                 {/* Apartment */}
-                <Apartment/>
+                <Apartment />
 
                 {/* Message Two */}
-                <MessageTwo/>
+                <MessageTwo />
 
                 {/* Blog Two */}
-                <BlogTwo/>
+                <BlogTwo />
 
                 {/* Footer */}
-                <Footer/>
-                
-            </main>   
+                <Footer />
+
+            </main>
         </>
     );
 };

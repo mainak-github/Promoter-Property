@@ -9,42 +9,42 @@ import PageTitle from '../common/PageTitle';
 const AddListing = () => {
     return (
         <>
-        <PageTitle title="CityScape - Add Listing" />
+            <PageTitle title="Promoter Property - Add Listing" />
 
-        <main className="body-bg">
-            
-            {/* Header */}
-            <Header 
-                headerClass="dark-header has-border" 
-                logoBlack={false}
-                logoWhite={true}
-                headerMenusClass="mx-auto"
-                btnClass="btn btn-outline-main btn-outline-main-dark d-lg-block d-none"
-                btnLink="/add-new-listing"
-                btnText="Add Listing"
-                spanClass="icon-right text-gradient" 
-                showHeaderBtn={true}
-                showOffCanvasBtn={false}
-                offCanvasBtnClass=""
-                showContactNumber={false}
-            />
+            <main className="body-bg">
 
-            {/* BreadCrumb */}
-            <Breadcrumb 
-                pageTitle="Add Listing"
-                pageName="Add Listing"
-            />
+                {/* Header */}
+                <Header
+                    headerClass="dark-header has-border"
+                    logoBlack={false}
+                    logoWhite={true}
+                    headerMenusClass="mx-auto"
+                    btnClass="btn btn-outline-main btn-outline-main-dark d-lg-block d-none"
+                    btnLink="/add-new-listing"
+                    btnText="Add Listing"
+                    spanClass="icon-right text-gradient"
+                    showHeaderBtn={true}
+                    showOffCanvasBtn={false}
+                    offCanvasBtnClass=""
+                    showContactNumber={false}
+                />
 
-            {/* Add Listing */}
-            <AddListingSection/>
+                {/* BreadCrumb */}
+                <Breadcrumb
+                    pageTitle="Add Listing"
+                    pageName="Add Listing"
+                />
 
-            {/* Cta */}
-            <Cta ctaClass=""/>
+                {/* Add Listing */}
+                <AddListingSection />
 
-            {/* Footer */}
-            <Footer/>
+                {/* Cta */}
+                <Cta ctaClass="" />
 
-        </main>   
+                {/* Footer */}
+                <Footer />
+
+            </main>
         </>
     );
 };

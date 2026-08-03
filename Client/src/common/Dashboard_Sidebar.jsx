@@ -1,10 +1,30 @@
 import React from 'react';
-import { Layout, Menu, Image, Button } from 'antd';
-import { HomeOutlined, TeamOutlined, ProfileOutlined, MailOutlined, AppstoreOutlined, BarChartOutlined, FileTextOutlined } from '@ant-design/icons';
+import { Layout, Menu } from 'antd';
+import { HomeOutlined, TeamOutlined, ProfileOutlined, MailOutlined, AppstoreOutlined, BarChartOutlined, FileTextOutlined, ContactsOutlined } from '@ant-design/icons';
 
 const { Sider } = Layout;
 
 const DashboardSidebar = ({ collapsed }) => {
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+
+  const getActiveKeys = () => {
+    if (pathname.includes('/admin/clients')) return { selected: ['clients'], open: ['client-management'] };
+    if (pathname.includes('/admin/brokers')) return { selected: ['brokers'], open: ['broker-management'] };
+    if (pathname.includes('/admin/property-listing')) return { selected: ['list-property'], open: ['property-management'] };
+    if (pathname.includes('/admin/properties')) return { selected: ['all-properties'], open: ['property-management'] };
+    if (pathname.includes('/admin/leads')) return { selected: ['lead-management'], open: ['tasks'] };
+    if (pathname.includes('/admin/reports/sales')) return { selected: ['sales-performance'], open: ['reports'] };
+    if (pathname.includes('/admin/reports/brokers')) return { selected: ['broker-performance'], open: ['reports'] };
+    if (pathname.includes('/admin/reports/clients')) return { selected: ['client-activity'], open: ['reports'] };
+    if (pathname.includes('/admin/cms/faqs')) return { selected: ['faqs'], open: ['cms'] };
+    if (pathname.includes('/admin/cms/privacy-policy')) return { selected: ['privacy-policy'], open: ['cms'] };
+    if (pathname.includes('/admin/cms/tnc')) return { selected: ['tnc'], open: ['cms'] };
+    if (pathname.includes('/admin/dashboard')) return { selected: ['dashboard'], open: [] };
+    return { selected: ['dashboard'], open: [] };
+  };
+
+  const { selected: selectedKeys, open: defaultOpenKeys } = getActiveKeys();
+
   const menuItems = [
     {
       key: 'dashboard',
@@ -55,23 +75,13 @@ const DashboardSidebar = ({ collapsed }) => {
     },
     {
       key: 'tasks',
-      icon: <FileTextOutlined />,
+      icon: <ContactsOutlined />,
       label: 'Tasks',
       children: [
         {
           key: 'lead-management',
           label: 'Lead Management',
           onClick: () => window.location.href = '/admin/leads',
-        },
-        {
-          key: 'view-leads',
-          label: 'View and reassign leads',
-          onClick: () => window.location.href = '/admin/view-leads',
-        },
-        {
-          key: 'manage-followups',
-          label: 'Manage follow-ups',
-          onClick: () => window.location.href = '/admin/manage-followups',
         },
       ],
     },
@@ -128,8 +138,8 @@ const DashboardSidebar = ({ collapsed }) => {
 
   return (
     <Sider
-      breakpoint="lg"
-      collapsedWidth="0"
+      width={260}
+      collapsedWidth={80}
       trigger={null}
       collapsible
       collapsed={collapsed}
@@ -139,18 +149,50 @@ const DashboardSidebar = ({ collapsed }) => {
         position: 'sticky',
         top: 0,
         left: 0,
+        zIndex: 1001,
+        boxShadow: '2px 0 10px rgba(15, 23, 42, 0.15)'
       }}
     >
-      <div style={{ padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'flex-start' }}>
-        <Image src="assets/images/logo-sm.png" alt="logo" style={{ marginRight: collapsed ? 0 : 8 }} width={32} preview={false} />
-        <h1 style={{ color: 'white', margin: 0, fontSize: 18, opacity: collapsed ? 0 : 1, transition: 'opacity 0.3s' }}>
-          Promoter Property
-        </h1>
+      <div 
+        style={{ 
+          height: 64, 
+          padding: '0 20px', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: collapsed ? 'center' : 'flex-start',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          background: '#001529'
+        }}
+      >
+        <div style={{
+          width: 38,
+          height: 38,
+          borderRadius: 10,
+          background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 4px 10px rgba(234, 88, 12, 0.4)',
+          flexShrink: 0
+        }}>
+          <HomeOutlined style={{ color: '#ffffff', fontSize: 20 }} />
+        </div>
+        {!collapsed && (
+          <div style={{ marginLeft: 12, overflow: 'hidden', whiteSpace: 'nowrap' }}>
+            <div style={{ color: '#ffffff', fontWeight: 800, fontSize: 16, letterSpacing: '0.04em', lineHeight: 1.2 }}>
+              PROMOTER
+            </div>
+            <div style={{ color: '#ea580c', fontWeight: 700, fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+              PROPERTY ADMIN
+            </div>
+          </div>
+        )}
       </div>
       <Menu
         theme="dark"
         mode="inline"
-        defaultSelectedKeys={['dashboard']}
+        selectedKeys={selectedKeys}
+        defaultOpenKeys={defaultOpenKeys}
         items={menuItems}
       />
     </Sider>

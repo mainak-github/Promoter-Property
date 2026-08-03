@@ -1,0 +1,196 @@
+-- Promoter Property MySQL Database Schema
+
+CREATE TABLE IF NOT EXISTS Users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255),
+  email VARCHAR(255) UNIQUE,
+  password VARCHAR(255),
+  role ENUM('client', 'broker', 'admin') NOT NULL DEFAULT 'client',
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS BrokerProfiles (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  userId INT,
+  mobileNumber VARCHAR(255),
+  fullName VARCHAR(255),
+  companyName VARCHAR(255),
+  companyRegNo VARCHAR(255),
+  gstId VARCHAR(255),
+  brokerRegNo VARCHAR(255),
+  agreementFile VARCHAR(255),
+  address TEXT,
+  profilePhoto VARCHAR(255),
+  memberId VARCHAR(255),
+  approval_status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+  created_by VARCHAR(255),
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (userId) REFERENCES Users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Properties (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  brokerId INT NOT NULL,
+  coverPhoto VARCHAR(255),
+  title VARCHAR(255),
+  slug VARCHAR(255),
+  shortDescription TEXT,
+  longDescription LONGTEXT,
+  priceRange VARCHAR(255),
+  budgetType ENUM('Budgeted', 'Mid-Budget', 'Premium-Budget') NOT NULL DEFAULT 'Budgeted',
+  city VARCHAR(255),
+  suburb VARCHAR(255),
+  district VARCHAR(255),
+  state VARCHAR(255),
+  pincode VARCHAR(255),
+  address VARCHAR(255),
+  road VARCHAR(255),
+  country VARCHAR(255),
+  continent VARCHAR(255),
+  timezone VARCHAR(255),
+  isoCode VARCHAR(255),
+  latitude DECIMAL(10, 7),
+  longitude DECIMAL(10, 7),
+  googleMapLink TEXT,
+  propertyType ENUM('Flat', 'Apartment', 'Independent House', 'Villa', 'Plots'),
+  status ENUM('Launching Soon', 'Ready to Move In', 'Under Construction'),
+  bedrooms VARCHAR(255),
+  bathrooms INT,
+  furnishedStatus ENUM('Fully Furnished', 'Semi-Furnished', 'Unfurnished'),
+  parkingAvailable TINYINT(1) DEFAULT 0,
+  launchDate DATETIME,
+  completionDate DATETIME,
+  floorNumber VARCHAR(255),
+  numberOfTowers VARCHAR(255),
+  carpetArea VARCHAR(255),
+  totalArea VARCHAR(255),
+  facing ENUM('East Facing', 'West Facing', 'North Facing', 'South Facing'),
+  approvalStatus ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+  remarks TEXT,
+  seoTitle VARCHAR(255),
+  metaDescription TEXT,
+  metaKeywords TEXT,
+  ogTitle VARCHAR(255),
+  ogType VARCHAR(255) DEFAULT 'website',
+  ogDescription TEXT,
+  twitterCard VARCHAR(255) DEFAULT 'summary_large_image',
+  canonicalUrl VARCHAR(255),
+  focusKeyword VARCHAR(255),
+  robotsIndex VARCHAR(255) DEFAULT 'index,follow',
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (brokerId) REFERENCES Users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS PropertyImages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  propertyId INT NOT NULL,
+  imageUrl VARCHAR(255) NOT NULL,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (propertyId) REFERENCES Properties(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Amenities (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL UNIQUE,
+  icon VARCHAR(255),
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS PropertyAmenities (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  propertyId INT NOT NULL,
+  amenityId INT NOT NULL,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (propertyId) REFERENCES Properties(id) ON DELETE CASCADE,
+  FOREIGN KEY (amenityId) REFERENCES Amenities(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS NearbyFacilities (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  propertyId INT NOT NULL,
+  facilityName VARCHAR(255),
+  distance VARCHAR(255),
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (propertyId) REFERENCES Properties(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS FloorPlans (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  propertyId INT NOT NULL,
+  title VARCHAR(255),
+  imageUrl VARCHAR(255),
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (propertyId) REFERENCES Properties(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS DeveloperInfos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  propertyId INT NOT NULL,
+  developerName VARCHAR(255),
+  experienceYears INT,
+  totalProjects INT,
+  logoUrl VARCHAR(255),
+  aboutDeveloper TEXT,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (propertyId) REFERENCES Properties(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS LayoutMaps (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  propertyId INT NOT NULL,
+  title VARCHAR(255),
+  imageUrl VARCHAR(255),
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (propertyId) REFERENCES Properties(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Faqs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  question TEXT NOT NULL,
+  answer TEXT NOT NULL,
+  isActive TINYINT(1) DEFAULT 1,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS PrivacyPolicies (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  content LONGTEXT NOT NULL,
+  isActive TINYINT(1) DEFAULT 1,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS TermsAndConditions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  content LONGTEXT NOT NULL,
+  isActive TINYINT(1) DEFAULT 1,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS leads (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  phone VARCHAR(255) NOT NULL,
+  email VARCHAR(255),
+  message TEXT,
+  propertyId INT,
+  brokerId INT,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (propertyId) REFERENCES Properties(id) ON DELETE CASCADE,
+  FOREIGN KEY (brokerId) REFERENCES Users(id) ON DELETE SET NULL
+);

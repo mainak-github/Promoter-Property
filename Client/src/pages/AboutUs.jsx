@@ -11,17 +11,17 @@ import PageTitle from '../common/PageTitle';
 const AboutUs = () => {
     return (
         <>
-            <PageTitle title="CityScape - About Us" />
+            <PageTitle title="Promoter Property - About Us" />
             {/* Header */}
-            <Header 
-                headerClass="dark-header has-border" 
+            <Header
+                headerClass="dark-header has-border"
                 logoBlack={false}
                 logoWhite={true}
                 headerMenusClass="mx-auto"
                 btnClass="btn btn-outline-main btn-outline-main-dark d-lg-block d-none"
                 btnLink="/add-new-listing"
                 btnText="Add Listing"
-                spanClass="icon-right text-gradient" 
+                spanClass="icon-right text-gradient"
                 showHeaderBtn={true}
                 showOffCanvasBtn={false}
                 offCanvasBtnClass=""
@@ -29,22 +29,22 @@ const AboutUs = () => {
             />
 
             {/* BreadCrumb */}
-            <Breadcrumb 
+            <Breadcrumb
                 pageTitle="About Us"
                 pageName="About Us"
             />
 
-            <AboutThree/>    
+            <AboutThree />
 
-            <Team sectionClass=""/>
+            <Team sectionClass="" />
 
-            <PropertyTypeThree/> 
+            <PropertyTypeThree />
 
             {/* Cta */}
-            <Cta ctaClass=""/>
+            <Cta ctaClass="" />
 
             {/* Footer */}
-            <Footer/>
+            <Footer />
         </>
     );
 };

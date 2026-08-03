@@ -11,7 +11,7 @@ import PageTitle from '../common/PageTitle';
 const Contact = () => {
     return (
         <>
-            <PageTitle title="CityScape - Contact Us" />
+            <PageTitle title="Promoter Property - Contact Us" />
 
             <main className="body-bg">
                 

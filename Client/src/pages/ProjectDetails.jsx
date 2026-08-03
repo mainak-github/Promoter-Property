@@ -9,46 +9,46 @@ import PageTitle from '../common/PageTitle';
 
 const ProjectDetails = () => {
 
-    const {title} = useParams(); 
+    const { title } = useParams();
 
     return (
         <>
-        <PageTitle title="CityScape - Project Details" />
+            <PageTitle title="Promoter PropertyProperty - Project Details" />
 
-        <main className="body-bg">
-            
-            {/* Header */}
-            <Header 
-                headerClass="dark-header has-border" 
-                logoBlack={false}
-                logoWhite={true}
-                headerMenusClass="mx-auto"
-                btnClass="btn btn-outline-main btn-outline-main-dark d-lg-block d-none"
-                btnLink="/add-new-listing"
-                btnText="Add Listing"
-                spanClass="icon-right text-gradient" 
-                showHeaderBtn={true}
-                showOffCanvasBtn={false}
-                offCanvasBtnClass=""
-                showContactNumber={false}
-            />
+            <main className="body-bg">
 
-            {/* BreadCrumb */}
-            <Breadcrumb 
-                pageTitle="Property Details"
-                pageName={title}
-            />
+                {/* Header */}
+                <Header
+                    headerClass="dark-header has-border"
+                    logoBlack={false}
+                    logoWhite={true}
+                    headerMenusClass="mx-auto"
+                    btnClass="btn btn-outline-main btn-outline-main-dark d-lg-block d-none"
+                    btnLink="/add-new-listing"
+                    btnText="Add Listing"
+                    spanClass="icon-right text-gradient"
+                    showHeaderBtn={true}
+                    showOffCanvasBtn={false}
+                    offCanvasBtnClass=""
+                    showContactNumber={false}
+                />
 
-            {/* Project Details Section */}
-            <ProjectDetailsSection/>
+                {/* BreadCrumb */}
+                <Breadcrumb
+                    pageTitle="Property Details"
+                    pageName={title}
+                />
 
-            {/* Cta */}
-            <Cta ctaClass=""/>
+                {/* Project Details Section */}
+                <ProjectDetailsSection />
 
-            {/* Footer */}
-            <Footer/>
+                {/* Cta */}
+                <Cta ctaClass="" />
 
-        </main>   
+                {/* Footer */}
+                <Footer />
+
+            </main>
         </>
     );
 };

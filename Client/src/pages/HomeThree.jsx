@@ -19,23 +19,23 @@ import PageTitle from '../common/PageTitle';
 const HomeThree = () => {
     return (
         <>
-        
-        <PageTitle title="CityScape - Home Three" />
-            <OffCanvas/>
-            <MobileMenu/>
-            
+
+            <PageTitle title="Promoter PropertyProperty - Home Three" />
+            <OffCanvas />
+            <MobileMenu />
+
             <main className="body-bg">
 
                 {/* Header */}
-                <Header 
-                    headerClass="bg-transparent" 
+                <Header
+                    headerClass="bg-transparent"
                     logoBlack={true}
                     logoWhite={false}
                     headerMenusClass="ms-auto menu-right"
                     btnClass="btn btn-main  d-lg-block d-none"
                     btnLink="/add-new-listing"
                     btnText="Add Listing"
-                    spanClass="icon-right" 
+                    spanClass="icon-right"
                     showHeaderBtn={true}
                     showOffCanvasBtn={false}
                     offCanvasBtnClass=""
@@ -43,39 +43,39 @@ const HomeThree = () => {
                 />
 
                 {/* Banner Three */}
-                <BannerThree/>
+                <BannerThree />
 
                 {/* About Three */}
-                <AboutThree/>
+                <AboutThree />
 
                 {/* Property Type Three */}
-                <PropertyTypeThree/>
+                <PropertyTypeThree />
 
                 {/* Property Two */}
-                <PropertyTwo/>
+                <PropertyTwo />
 
                 {/* Message Three */}
-                <MessageThree/>
+                <MessageThree />
 
                 {/* Newsletter */}
-                <Newsletter/>
+                <Newsletter />
 
                 {/* Testimonial Three */}
-                <TestimonialThree/>
+                <TestimonialThree />
 
                 {/* Counter Three */}
-                <CounterThree/>
+                <CounterThree />
 
                 {/* Faq */}
-                <Faq/>
+                <Faq />
 
                 {/* Blog Three */}
-                <BlogThree/>
+                <BlogThree />
 
                 {/* Footer */}
-                <Footer/>
-                
-            </main>   
+                <Footer />
+
+            </main>
         </>
     );
 };

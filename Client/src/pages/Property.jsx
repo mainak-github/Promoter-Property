@@ -9,42 +9,42 @@ import PageTitle from '../common/PageTitle';
 const Property = () => {
     return (
         <>
-        <PageTitle title="CityScape - Property" />
+            <PageTitle title="Promoter Property - Property" />
 
-        <main className="body-bg">
-            
-            {/* Header */}
-            <Header 
-                headerClass="dark-header has-border" 
-                logoBlack={false}
-                logoWhite={true}
-                headerMenusClass="mx-auto"
-                btnClass="btn btn-outline-main btn-outline-main-dark d-lg-block d-none"
-                btnLink="/add-new-listing"
-                btnText="Add Listing"
-                spanClass="icon-right text-gradient" 
-                showHeaderBtn={true}
-                showOffCanvasBtn={false}
-                offCanvasBtnClass=""
-                showContactNumber={false}
-            />
+            <main className="body-bg">
 
-            {/* BreadCrumb */}
-            <Breadcrumb 
-                pageTitle="Property"
-                pageName="Property"
-            />
+                {/* Header */}
+                <Header
+                    headerClass="dark-header has-border"
+                    logoBlack={false}
+                    logoWhite={true}
+                    headerMenusClass="mx-auto"
+                    btnClass="btn btn-outline-main btn-outline-main-dark d-lg-block d-none"
+                    btnLink="/add-new-listing"
+                    btnText="Add Listing"
+                    spanClass="icon-right text-gradient"
+                    showHeaderBtn={true}
+                    showOffCanvasBtn={false}
+                    offCanvasBtnClass=""
+                    showContactNumber={false}
+                />
 
-            {/* Property Page Section */}
-            <PropertyPageSection/>
+                {/* BreadCrumb */}
+                <Breadcrumb
+                    pageTitle="Property"
+                    pageName="Property"
+                />
 
-            {/* Cta */}
-            <Cta ctaClass=""/>
+                {/* Property Page Section */}
+                <PropertyPageSection />
 
-            {/* Footer */}
-            <Footer/>
+                {/* Cta */}
+                <Cta ctaClass="" />
 
-        </main>   
+                {/* Footer */}
+                <Footer />
+
+            </main>
         </>
     );
 };

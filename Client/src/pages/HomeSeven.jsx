@@ -9,23 +9,23 @@ import PageTitle from '../common/PageTitle';
 const HomeSeven = () => {
     return (
         <>
-        <PageTitle title="CityScape - Home Seven" />
+            <PageTitle title="Promoter Property - Home Seven" />
 
-            <OffCanvas/>
-            <MobileMenu/>
-            
+            <OffCanvas />
+            <MobileMenu />
+
             <main className="body-bg">
 
                 {/* Header */}
-                <Header 
-                    headerClass="" 
+                <Header
+                    headerClass=""
                     logoBlack={true}
                     logoWhite={false}
                     headerMenusClass=""
                     btnClass="btn btn-outline-light d-lg-block d-none"
                     btnLink="/login"
                     btnText="Login / Register"
-                    spanClass="icon-right text-gradient" 
+                    spanClass="icon-right text-gradient"
                     showHeaderBtn={true}
                     showOffCanvasBtn={true}
                     offCanvasBtnClass=""
@@ -33,13 +33,13 @@ const HomeSeven = () => {
                 />
 
                 {/* Banner */}
-                <Banner/>
+                <Banner />
 
-             
+
                 {/* Footer */}
-                <Footer/>
-                
-            </main>   
+                <Footer />
+
+            </main>
         </>
     );
 };

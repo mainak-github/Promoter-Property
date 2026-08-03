@@ -58,6 +58,7 @@ const { confirm } = Modal;
 const { Option } = Select;
 
 const BrokerLists = () => {
+  const [collapsed, setCollapsed] = useState(false);
   const [brokers, setBrokers] = useState([]);
   const [filteredBrokers, setFilteredBrokers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -433,20 +434,53 @@ const BrokerLists = () => {
   const rejectedBrokers = brokers.filter(broker => broker.status === 'rejected').length;
 
   return (
-    <Layout style={{ minHeight: '100vh', background: '#f0f2f5' }}>
-      {currentUser?.role === 'admin' ? <DashboardSidebar /> : <DashboardSidebar2 />}
+    <Layout style={{ minHeight: '100vh', background: '#f8fafc' }}>
+      {currentUser?.role === 'admin' ? <DashboardSidebar collapsed={collapsed} /> : <DashboardSidebar2 collapsed={collapsed} />}
       <Layout>
-        <DashboardNavbar />
-        <Content style={{ margin: '24px 16px', padding: 0 }}>
-          {/* Breadcrumb */}
-          <Breadcrumb 
-            style={{ marginBottom: 24 }} 
-            items={[
-              { title: <DashboardOutlined />, href: '/admin/dashboard' },
-              { title: 'Broker Management' }, 
-              { title: 'All Brokers' }
-            ]} 
-          />
+        <DashboardNavbar collapsed={collapsed} onCollapse={() => setCollapsed(!collapsed)} />
+        <Content style={{ padding: '24px 28px' }}>
+          {/* Header Banner */}
+          <div style={{
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            padding: '24px 32px',
+            borderRadius: 16,
+            marginBottom: 24,
+            boxShadow: '0 8px 24px rgba(15, 23, 42, 0.15)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 16,
+            borderLeft: '6px solid #ea580c'
+          }}>
+            <div>
+              <div style={{ fontSize: '0.78rem', color: '#ea580c', fontWeight: 700, letterSpacing: '0.08em', marginBottom: 4 }}>
+                PARTNER MANAGEMENT
+              </div>
+              <h2 style={{ color: '#ffffff', margin: 0, fontSize: '1.65rem', fontWeight: 800 }}>
+                Broker & Partner Directory
+              </h2>
+              <p style={{ color: '#94a3b8', margin: '4px 0 0 0', fontSize: '0.92rem' }}>
+                Verify broker registration files, approve partner profiles & monitor activity.
+              </p>
+            </div>
+
+            <Button 
+              icon={<ReloadOutlined spin={loading} />}
+              onClick={fetchBrokers}
+              style={{
+                background: '#ea580c',
+                borderColor: '#ea580c',
+                color: '#ffffff',
+                fontWeight: 700,
+                height: 40,
+                borderRadius: 8,
+                boxShadow: '0 4px 12px rgba(234, 88, 12, 0.3)'
+              }}
+            >
+              Refresh Brokers
+            </Button>
+          </div>
 
           {/* Page Header */}
           <div style={{ marginBottom: 24 }}>

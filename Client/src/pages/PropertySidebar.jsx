@@ -9,42 +9,42 @@ import PageTitle from '../common/PageTitle';
 const Property = () => {
     return (
         <>
-        <PageTitle title="CityScape - Property With Sidebar" />
+            <PageTitle title="Promoter PropertyProperty - Property With Sidebar" />
 
-        <main className="body-bg">
-            
-            {/* Header */}
-            <Header 
-                headerClass="dark-header has-border" 
-                logoBlack={false}
-                logoWhite={true}
-                headerMenusClass="mx-auto"
-                btnClass="btn btn-outline-main btn-outline-main-dark d-lg-block d-none"
-                btnLink="/add-new-listing"
-                btnText="Add Listing"
-                spanClass="icon-right text-gradient" 
-                showHeaderBtn={true}
-                showOffCanvasBtn={false}
-                offCanvasBtnClass=""
-                showContactNumber={false}
-            />
+            <main className="body-bg">
 
-            {/* BreadCrumb */}
-            <Breadcrumb 
-                pageTitle="Property Sidebar"
-                pageName="Property Sidebar"
-            />
+                {/* Header */}
+                <Header
+                    headerClass="dark-header has-border"
+                    logoBlack={false}
+                    logoWhite={true}
+                    headerMenusClass="mx-auto"
+                    btnClass="btn btn-outline-main btn-outline-main-dark d-lg-block d-none"
+                    btnLink="/add-new-listing"
+                    btnText="Add Listing"
+                    spanClass="icon-right text-gradient"
+                    showHeaderBtn={true}
+                    showOffCanvasBtn={false}
+                    offCanvasBtnClass=""
+                    showContactNumber={false}
+                />
 
-            {/* Property Sidebar Section */}
-            <PropertySidebarSection/>
+                {/* BreadCrumb */}
+                <Breadcrumb
+                    pageTitle="Property Sidebar"
+                    pageName="Property Sidebar"
+                />
 
-            {/* Cta */}
-            <Cta ctaClass=""/>
+                {/* Property Sidebar Section */}
+                <PropertySidebarSection />
 
-            {/* Footer */}
-            <Footer/>
+                {/* Cta */}
+                <Cta ctaClass="" />
 
-        </main>   
+                {/* Footer */}
+                <Footer />
+
+            </main>
         </>
     );
 };

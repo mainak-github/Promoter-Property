@@ -9,42 +9,42 @@ import PageTitle from '../common/PageTitle';
 const MapLocation = () => {
     return (
         <>
-        <PageTitle title="CityScape - Map Location" />
+            <PageTitle title="Promoter PropertyProperty - Map Location" />
 
-        <main className="body-bg">
-            
-            {/* Header */}
-            <Header 
-                headerClass="dark-header has-border" 
-                logoBlack={false}
-                logoWhite={true}
-                headerMenusClass="mx-auto"
-                btnClass="btn btn-outline-main btn-outline-main-dark d-lg-block d-none"
-                btnLink="/add-new-listing"
-                btnText="Add Listing"
-                spanClass="icon-right text-gradient" 
-                showHeaderBtn={true}
-                showOffCanvasBtn={false}
-                offCanvasBtnClass=""
-                showContactNumber={false}
-            />
+            <main className="body-bg">
 
-            {/* BreadCrumb */}
-            <Breadcrumb 
-                pageTitle="Map Location"
-                pageName="Map Location"
-            />
+                {/* Header */}
+                <Header
+                    headerClass="dark-header has-border"
+                    logoBlack={false}
+                    logoWhite={true}
+                    headerMenusClass="mx-auto"
+                    btnClass="btn btn-outline-main btn-outline-main-dark d-lg-block d-none"
+                    btnLink="/add-new-listing"
+                    btnText="Add Listing"
+                    spanClass="icon-right text-gradient"
+                    showHeaderBtn={true}
+                    showOffCanvasBtn={false}
+                    offCanvasBtnClass=""
+                    showContactNumber={false}
+                />
 
-            {/* Map Location  */}
-            <MapLocationSection/>
+                {/* BreadCrumb */}
+                <Breadcrumb
+                    pageTitle="Map Location"
+                    pageName="Map Location"
+                />
 
-            {/* Cta */}
-            <Cta ctaClass=""/>
+                {/* Map Location  */}
+                <MapLocationSection />
 
-            {/* Footer */}
-            <Footer/>
+                {/* Cta */}
+                <Cta ctaClass="" />
 
-        </main>   
+                {/* Footer */}
+                <Footer />
+
+            </main>
         </>
     );
 };

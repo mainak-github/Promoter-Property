@@ -21,7 +21,7 @@ import Cta from './../components/Cta';
 const HomeFour = () => {
     return (
         <>
-        <PageTitle title="CityScape - Home Four" />
+        <PageTitle title="Promoter Property - Home Four" />
 
             <OffCanvas/>
             <MobileMenu/>

@@ -10,41 +10,41 @@ import LoginSection from '../components/LoginSection';
 const Login = () => {
     return (
         <>
-        <PageTitle title="CityScape - Login" />
+            <PageTitle title="Promoter PropertyProperty - Login" />
 
-        <main className="body-bg">
-            
-            {/* Header */}
-            <Header 
-                headerClass="dark-header has-border" 
-                logoBlack={false}
-                logoWhite={true}
-                headerMenusClass="mx-auto"
-                btnClass="btn btn-outline-main btn-outline-main-dark d-lg-block d-none"
-                btnLink="/add-new-listing"
-                btnText="Add Listing"
-                spanClass="icon-right text-gradient" 
-                showHeaderBtn={true}
-                showOffCanvasBtn={false}
-                offCanvasBtnClass=""
-                showContactNumber={false}
-            />
+            <main className="body-bg">
 
-            {/* BreadCrumb */}
-            <Breadcrumb 
-                pageTitle="Login"
-                pageName="Login"
-            />
+                {/* Header */}
+                <Header
+                    headerClass="dark-header has-border"
+                    logoBlack={false}
+                    logoWhite={true}
+                    headerMenusClass="mx-auto"
+                    btnClass="btn btn-outline-main btn-outline-main-dark d-lg-block d-none"
+                    btnLink="/add-new-listing"
+                    btnText="Add Listing"
+                    spanClass="icon-right text-gradient"
+                    showHeaderBtn={true}
+                    showOffCanvasBtn={false}
+                    offCanvasBtnClass=""
+                    showContactNumber={false}
+                />
 
-            <LoginSection/>
-            
-            {/* Cta */}
-            <Cta ctaClass=""/>
+                {/* BreadCrumb */}
+                <Breadcrumb
+                    pageTitle="Login"
+                    pageName="Login"
+                />
 
-            {/* Footer */}
-            <Footer/>
+                <LoginSection />
 
-        </main>   
+                {/* Cta */}
+                <Cta ctaClass="" />
+
+                {/* Footer */}
+                <Footer />
+
+            </main>
         </>
     );
 };

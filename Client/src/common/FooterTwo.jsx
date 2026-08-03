@@ -32,7 +32,7 @@ const FooterTwo = () => {
                         <div className="col-xl-3 col-sm-6">
                             <div className="footer-item">
                                 <h6 className="footer-item__title">Subscribe </h6>
-                                <p className="footer-item__desc">It is a long established fact that  reader will be Elite Property </p>
+                                <p className="footer-item__desc">Subscribe to our newsletter to receive the latest property listings, news, and market updates directly in your inbox.</p>
 
                                 <SubscribeBox/>
 

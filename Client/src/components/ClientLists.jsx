@@ -61,6 +61,7 @@ const { Option } = Select;
 const { RangePicker } = DatePicker;
 
 const ClientLists = () => {
+  const [collapsed, setCollapsed] = useState(false);
   const [users, setUsers] = useState([]);
   const [clients, setClients] = useState([]); // Only clients
   const [filteredClients, setFilteredClients] = useState([]);
@@ -328,6 +329,7 @@ const ClientLists = () => {
   const activeClients = clients.filter(user => (user.status || 'active') === 'active').length;
   const pendingClients = clients.filter(user => user.status === 'pending').length;
   const newClientsThisMonth = clients.filter(user => {
+    if (!user.createdAt) return false;
     const userDate = new Date(user.createdAt);
     const currentDate = new Date();
     return userDate.getMonth() === currentDate.getMonth() && 
@@ -335,47 +337,69 @@ const ClientLists = () => {
   }).length;
 
   return (
-    <Layout style={{ minHeight: '100vh', background: '#f0f2f5' }}>
-      {currentUser?.role === 'admin' ? <DashboardSidebar /> : <DashboardSidebar2 />}
+    <Layout style={{ minHeight: '100vh', background: '#f8fafc' }}>
+      {currentUser?.role === 'admin' ? <DashboardSidebar collapsed={collapsed} /> : <DashboardSidebar2 collapsed={collapsed} />}
       <Layout>
-        <DashboardNavbar />
-        <Content style={{ margin: '24px 16px', padding: 0 }}>
-          {/* Breadcrumb */}
-          <Breadcrumb 
-            style={{ marginBottom: 24 }} 
-            items={[
-              { title: <DashboardOutlined />, href: '/admin/dashboard' },
-              { title: 'Client Management' }, 
-              { title: 'All Clients' }
-            ]} 
-          />
+        <DashboardNavbar collapsed={collapsed} onCollapse={() => setCollapsed(!collapsed)} />
+        <Content style={{ padding: '24px 28px' }}>
+          {/* Header Banner */}
+          <div style={{
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            padding: '24px 32px',
+            borderRadius: 16,
+            marginBottom: 24,
+            boxShadow: '0 8px 24px rgba(15, 23, 42, 0.15)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 16,
+            borderLeft: '6px solid #ea580c'
+          }}>
+            <div>
+              <div style={{ fontSize: '0.78rem', color: '#ea580c', fontWeight: 700, letterSpacing: '0.08em', marginBottom: 4 }}>
+                CLIENT MANAGEMENT
+              </div>
+              <h2 style={{ color: '#ffffff', margin: 0, fontSize: '1.65rem', fontWeight: 800 }}>
+                All Registered Clients
+              </h2>
+              <p style={{ color: '#94a3b8', margin: '4px 0 0 0', fontSize: '0.92rem' }}>
+                Manage customer accounts, monitor active users and client activity logs.
+              </p>
+            </div>
 
-          {/* Page Header */}
-          <div style={{ marginBottom: 24 }}>
-            <Title level={2} style={{ margin: 0, color: '#262626' }}>
-              <UserOutlined style={{ marginRight: 12, color: '#1890ff' }} />
-              Client Management
-            </Title>
-            <Text style={{ color: '#8c8c8c', fontSize: '16px' }}>
-              Manage and monitor all client accounts and their activities
-            </Text>
+            <Button 
+              icon={<ReloadOutlined spin={loading} />}
+              onClick={fetchUsers}
+              style={{
+                background: '#ea580c',
+                borderColor: '#ea580c',
+                color: '#ffffff',
+                fontWeight: 700,
+                height: 40,
+                borderRadius: 8,
+                boxShadow: '0 4px 12px rgba(234, 88, 12, 0.3)'
+              }}
+            >
+              Refresh Clients
+            </Button>
           </div>
 
-          {/* Statistics Cards - Only Client Focused */}
+          {/* Statistics Cards */}
           <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
             <Col xs={24} sm={12} lg={6}>
-              <Card>
+              <Card bordered={false} style={{ borderRadius: 14, boxShadow: '0 4px 12px rgba(15, 23, 42, 0.04)', borderTop: '3px solid #ea580c' }}>
                 <Statistic
-                  title="Total Clients"
+                  title={<span style={{ fontWeight: 700, color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase' }}>Total Clients</span>}
                   value={totalClients}
-                  valueStyle={{ color: '#1890ff' }}
+                  valueStyle={{ color: '#ea580c', fontWeight: 800 }}
                   prefix={<UserOutlined />}
                 />
                 <Progress 
                   percent={100} 
                   size="small" 
                   showInfo={false}
-                  strokeColor="#1890ff"
+                  strokeColor="#ea580c"
                 />
               </Card>
             </Col>

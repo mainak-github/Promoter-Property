@@ -9,18 +9,18 @@ import PageTitle from '../common/PageTitle';
 const Checkout = () => {
     return (
         <>
-        <PageTitle title="CityScape - Checkout" />
+            <PageTitle title="Promoter PropertyProperty - Checkout" />
 
             {/* Header */}
-            <Header 
-                headerClass="dark-header has-border" 
+            <Header
+                headerClass="dark-header has-border"
                 logoBlack={false}
                 logoWhite={true}
                 headerMenusClass="mx-auto"
                 btnClass="btn btn-outline-main btn-outline-main-dark d-lg-block d-none"
                 btnLink="/add-new-listing"
                 btnText="Add Listing"
-                spanClass="icon-right text-gradient" 
+                spanClass="icon-right text-gradient"
                 showHeaderBtn={true}
                 showOffCanvasBtn={false}
                 offCanvasBtnClass=""
@@ -28,19 +28,19 @@ const Checkout = () => {
             />
 
             {/* BreadCrumb */}
-            <Breadcrumb 
+            <Breadcrumb
                 pageTitle="Checkout"
                 pageName="Checkout"
             />
-            
+
             {/* Checkout Section */}
-            <CheckoutSection/>
+            <CheckoutSection />
 
             {/* Cta */}
-            <Cta ctaClass=""/>
+            <Cta ctaClass="" />
 
             {/* Footer */}
-            <Footer/>
+            <Footer />
         </>
     );
 };

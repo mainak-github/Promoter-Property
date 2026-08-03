@@ -19,26 +19,26 @@ import FooterFive from '../common/FooterFive';
 const HomeFive = () => {
     return (
         <>
-        <PageTitle title="CityScape - Home Five" />
+            <PageTitle title="Promoter Property - Home Five" />
 
-            <OffCanvas/>
-            <MobileMenu/>
-            
+            <OffCanvas />
+            <MobileMenu />
+
             <main className="body-bg">
 
                 {/* TopHeaderFive */}
-                <TopHeaderFive/>
+                <TopHeaderFive />
 
                 {/* Header */}
-                <Header 
-                    headerClass="" 
+                <Header
+                    headerClass=""
                     logoBlack={true}
                     logoWhite={false}
                     headerMenusClass=""
                     btnClass="btn btn-main  d-lg-block d-none"
                     btnLink="/add-new-listing"
                     btnText="Add Listing"
-                    spanClass="icon-right" 
+                    spanClass="icon-right"
                     showHeaderBtn={false}
                     showOffCanvasBtn={true}
                     offCanvasBtnClass=""
@@ -46,36 +46,36 @@ const HomeFive = () => {
                 />
 
                 {/* BannerFive */}
-                <BannerFive/>
+                <BannerFive />
 
                 {/* AboutFive */}
-                <AboutFive/>
+                <AboutFive />
 
                 {/* MarqueeSlider */}
-                <MarqueeSlider/>
+                <MarqueeSlider />
 
                 {/* PropertyTypeFive */}
-                <PropertyTypeFive/>
+                <PropertyTypeFive />
 
                 {/* ChooseUsFive */}
-                <ChooseUsFive/>
+                <ChooseUsFive />
 
                 {/* Property */}
-                <PropertyFive/>
+                <PropertyFive />
 
                 {/* Property */}
-                <GalleryFive/>
+                <GalleryFive />
 
                 {/* CounterSix */}
-                <CounterSix/>
+                <CounterSix />
 
                 {/* BlogFive */}
-                <BlogFive/>
-             
+                <BlogFive />
+
                 {/* Footer */}
-                <FooterFive/>
-                
-            </main>   
+                <FooterFive />
+
+            </main>
         </>
     );
 };

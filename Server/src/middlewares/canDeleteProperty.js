@@ -1,18 +1,19 @@
-// middleware/canDeleteProperty.js
-const { Property } = require('../../models');
+const db = require('../config/db');
 
 module.exports = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    const property = await Property.findByPk(id);
-    if (!property) {
+    const [rows] = await db.query('SELECT * FROM Properties WHERE id = ?', [id]);
+    if (rows.length === 0) {
       return res.status(404).json({ status: 'error', message: 'Property not found' });
     }
 
+    const property = rows[0];
+
     // Admins can delete any, brokers can delete their own
-    if (req.user.role === 'admin' || (req.user.role === 'broker' && property.brokerId === req.user.id)) {
-      req.propertyToDelete = property; // attach to req for next step
+    if (req.user?.role === 'admin' || (req.user?.role === 'broker' && property.brokerId === req.user.id)) {
+      req.propertyToDelete = property;
       return next();
     }
 

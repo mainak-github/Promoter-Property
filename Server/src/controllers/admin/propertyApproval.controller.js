@@ -1,4 +1,4 @@
-const { query } = require('../../config/db');
+const db = require('../../config/db');
 
 exports.approveOrRejectProperty = async (req, res) => {
   const { id } = req.params;
@@ -12,8 +12,8 @@ exports.approveOrRejectProperty = async (req, res) => {
   }
 
   try {
-    const properties = await query('SELECT * FROM Properties WHERE id = ?', [id]);
-    if (properties.length === 0) {
+    const [rows] = await db.query('SELECT * FROM Properties WHERE id = ?', [id]);
+    if (rows.length === 0) {
       return res.status(404).json({
         status: 'error',
         message: 'Property not found'
@@ -21,19 +21,20 @@ exports.approveOrRejectProperty = async (req, res) => {
     }
 
     if (remarks !== undefined) {
-      await query('UPDATE Properties SET approvalStatus = ?, remarks = ?, updatedAt = NOW() WHERE id = ?', [approvalStatus, remarks, id]);
+      await db.query('UPDATE Properties SET approvalStatus = ?, remarks = ? WHERE id = ?', [approvalStatus, remarks, id]);
     } else {
-      await query('UPDATE Properties SET approvalStatus = ?, updatedAt = NOW() WHERE id = ?', [approvalStatus, id]);
+      await db.query('UPDATE Properties SET approvalStatus = ? WHERE id = ?', [approvalStatus, id]);
     }
 
-    const updatedProperty = await query('SELECT * FROM Properties WHERE id = ?', [id]);
+    const [updatedRows] = await db.query('SELECT * FROM Properties WHERE id = ?', [id]);
 
     return res.status(200).json({
       status: 'success',
       message: `Property has been ${approvalStatus}`,
-      data: updatedProperty[0]
+      data: updatedRows[0]
     });
   } catch (error) {
+    console.error('Error approving/rejecting property:', error);
     return res.status(500).json({
       status: 'error',
       message: 'Failed to update property approval status',

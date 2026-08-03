@@ -60,6 +60,7 @@ const { confirm } = Modal;
 const { Option } = Select;
 
 const PropertiesList = () => {
+  const [collapsed, setCollapsed] = useState(false);
   const [properties, setProperties] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -437,20 +438,69 @@ const PropertiesList = () => {
   const propertyTypes = [...new Set(properties.map(p => p.propertyType).filter(Boolean))];
 
   return (
-    <Layout style={{ minHeight: '100vh', background: '#f0f2f5' }}>
-      {currentUser?.role === 'admin' ? <DashboardSidebar /> : <DashboardSidebar2 />}
+    <Layout style={{ minHeight: '100vh', background: '#f8fafc' }}>
+      {currentUser?.role === 'admin' ? <DashboardSidebar collapsed={collapsed} /> : <DashboardSidebar2 collapsed={collapsed} />}
       <Layout>
-        <DashboardNavbar />
-        <Content style={{ margin: '24px 16px', padding: 0 }}>
-          {/* Breadcrumb */}
-          <Breadcrumb 
-            style={{ marginBottom: 24 }} 
-            items={[
-              { title: <DashboardOutlined />, href: '/admin/dashboard' },
-              { title: 'Property Management' }, 
-              { title: 'All Properties' }
-            ]} 
-          />
+        <DashboardNavbar collapsed={collapsed} onCollapse={() => setCollapsed(!collapsed)} />
+        <Content style={{ padding: '24px 28px' }}>
+          {/* Header Banner */}
+          <div style={{
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            padding: '24px 32px',
+            borderRadius: 16,
+            marginBottom: 24,
+            boxShadow: '0 8px 24px rgba(15, 23, 42, 0.15)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 16,
+            borderLeft: '6px solid #ea580c'
+          }}>
+            <div>
+              <div style={{ fontSize: '0.78rem', color: '#ea580c', fontWeight: 700, letterSpacing: '0.08em', marginBottom: 4 }}>
+                PROPERTY MANAGEMENT
+              </div>
+              <h2 style={{ color: '#ffffff', margin: 0, fontSize: '1.65rem', fontWeight: 800 }}>
+                All Real Estate Listings
+              </h2>
+              <p style={{ color: '#94a3b8', margin: '4px 0 0 0', fontSize: '0.92rem' }}>
+                Approve submitted property listings, manage status flags & inventory oversight.
+              </p>
+            </div>
+
+            <Space size="middle">
+              <Button 
+                icon={<ReloadOutlined spin={loading} />}
+                onClick={fetchProperties}
+                style={{
+                  background: '#ea580c',
+                  borderColor: '#ea580c',
+                  color: '#ffffff',
+                  fontWeight: 700,
+                  height: 40,
+                  borderRadius: 8,
+                  boxShadow: '0 4px 12px rgba(234, 88, 12, 0.3)'
+                }}
+              >
+                Refresh Inventory
+              </Button>
+              <Button 
+                icon={<PlusOutlined />}
+                onClick={() => window.location.href = '/admin/property-listing'}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.2)',
+                  fontWeight: 700,
+                  height: 40,
+                  borderRadius: 8
+                }}
+              >
+                Add Listing
+              </Button>
+            </Space>
+          </div>
 
           {/* Page Header */}
           <div style={{ marginBottom: 24 }}>

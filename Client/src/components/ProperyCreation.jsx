@@ -469,33 +469,59 @@ if (vals.amenities && Array.isArray(vals.amenities) && vals.amenities.length > 0
   };
 
 
+  const [collapsed, setCollapsed] = useState(false);
+
   if (!localStorage.getItem('token')) {
     window.location.href = '/admin/login';
     return null;
   }
 
+  const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+
   // ----------------- Render -----------------
   return (
-    <>
-  <Layout style={{ minHeight: '100vh' }}>
-      {JSON.parse(localStorage.getItem('user')).role === 'admin' ? <DashboardSidebar /> : <DashboardSidebar2 />}
+    <Layout style={{ minHeight: '100vh', background: '#f8fafc' }}>
+      {currentUser?.role === 'admin' ? <DashboardSidebar collapsed={collapsed} /> : <DashboardSidebar2 collapsed={collapsed} />}
       <Layout>
-        <DashboardNavbar />
-        <Content style={{ margin: '24px 16px', padding: 24, background: '#fff' }}>
-          <Breadcrumb style={{ marginBottom: 24 }} items={[{ title: 'Properties' }, { title: 'All Properties' }]} />
-      
-       <Card style={{ maxWidth: 1100, margin: "20px auto", padding: 16 }}>
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSubmit}
-        initialValues={{
-          parkingAvailable: false,
-        }}
-      >
-        <h2 style={{ textAlign: "center", marginBottom: 16 }}>Create Property</h2>
+        <DashboardNavbar collapsed={collapsed} onCollapse={() => setCollapsed(!collapsed)} />
+        <Content style={{ padding: '24px 28px' }}>
+          {/* Header Banner */}
+          <div style={{
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            padding: '24px 32px',
+            borderRadius: 16,
+            marginBottom: 24,
+            boxShadow: '0 8px 24px rgba(15, 23, 42, 0.15)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 16,
+            borderLeft: '6px solid #ea580c'
+          }}>
+            <div>
+              <div style={{ fontSize: '0.78rem', color: '#ea580c', fontWeight: 700, letterSpacing: '0.08em', marginBottom: 4 }}>
+                PROPERTY CREATION
+              </div>
+              <h2 style={{ color: '#ffffff', margin: 0, fontSize: '1.65rem', fontWeight: 800 }}>
+                {initialData ? 'Edit Property Listing' : 'Create New Property Listing'}
+              </h2>
+              <p style={{ color: '#94a3b8', margin: '4px 0 0 0', fontSize: '0.92rem' }}>
+                Fill in property specifications, amenities, location maps & upload high quality photos.
+              </p>
+            </div>
+          </div>
 
-        <Divider>Basic Info</Divider>
+          <Card style={{ maxWidth: 1200, margin: '0 auto', borderRadius: 14, boxShadow: '0 4px 14px rgba(15, 23, 42, 0.04)' }}>
+            <Form
+              form={form}
+              layout="vertical"
+              onFinish={handleSubmit}
+              initialValues={{
+                parkingAvailable: false,
+              }}
+            >
+              <Divider style={{ borderColor: '#ea580c', color: '#ea580c', fontWeight: 700 }}>Basic Info</Divider>
         <Row gutter={16}>
           <Col xs={24} md={16}>
             <Form.Item name="title" label="Title" rules={[{ required: true, message: "Title required" }]}>
@@ -787,59 +813,111 @@ if (vals.amenities && Array.isArray(vals.amenities) && vals.amenities.length > 0
           </Card>
         ))}
 
-        <Divider>Floor Plans</Divider>
+        <Divider style={{ borderColor: '#ea580c', color: '#ea580c', fontWeight: 700 }}>Floor Plans</Divider>
 
         {floorPlans.map((fp, idx) => (
-          <Card key={idx} size="small" style={{ marginBottom: 10 }}>
-            <Row gutter={8} align="middle">
-              <Col xs={24} md={5}>
+          <Card 
+            key={idx} 
+            size="small" 
+            style={{ 
+              marginBottom: 16, 
+              borderRadius: 12, 
+              border: '1px solid #e2e8f0', 
+              background: '#f8fafc',
+              boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, borderBottom: '1px dashed #cbd5e1', paddingBottom: 8 }}>
+              <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.92rem' }}>
+                Floor Plan Unit #{idx + 1}
+              </span>
+              <Button 
+                danger 
+                type="text" 
+                icon={<MinusCircleOutlined />} 
+                onClick={() => removeFloorPlan(idx)}
+                style={{ fontWeight: 600 }}
+              >
+                Remove Unit
+              </Button>
+            </div>
+            
+            <Row gutter={[12, 12]}>
+              <Col xs={24} sm={12} md={6}>
                 <Input
-                  placeholder="Floor Name"
+                  placeholder="Floor Name (e.g. 2nd Floor)"
                   value={fp.floorName}
                   onChange={(e) => updateFloorPlan(idx, "floorName", e.target.value)}
                 />
               </Col>
-              <Col xs={24} md={5}>
+              <Col xs={24} sm={12} md={6}>
                 <Input
-                  placeholder="Tower Name"
+                  placeholder="Tower Name (e.g. Tower A)"
                   value={fp.towerName}
                   onChange={(e) => updateFloorPlan(idx, "towerName", e.target.value)}
                 />
               </Col>
-              <Col xs={24} md={8}>
+              <Col xs={24} sm={12} md={6}>
                 <Input
-                  placeholder="Short Description"
-                  value={fp.shortDescription}
-                  onChange={(e) => updateFloorPlan(idx, "shortDescription", e.target.value)}
-                />
-              </Col>
-              <Col xs={24} md={3}>
-                <Input
-                  placeholder="Price Range"
+                  placeholder="Price Range (e.g. ₹45L - ₹50L)"
                   value={fp.priceRange}
                   onChange={(e) => updateFloorPlan(idx, "priceRange", e.target.value)}
                 />
               </Col>
-              <Col xs={24} md={2}>
-                <label style={{ display: "block" }}>
+              <Col xs={24} sm={12} md={6}>
+                <div>
                   <input
                     type="file"
                     accept="image/*"
+                    id={`fp-file-${idx}`}
+                    style={{ display: 'none' }}
                     onChange={(e) => {
                       const f = e.target.files?.[0];
                       if (f) onSelectFloorPlanPhoto(idx, f);
                     }}
                   />
-                </label>
+                  <Button 
+                    icon={<UploadOutlined />} 
+                    onClick={() => document.getElementById(`fp-file-${idx}`).click()}
+                    block
+                    style={{ 
+                      textAlign: 'left', 
+                      overflow: 'hidden', 
+                      textOverflow: 'ellipsis', 
+                      whiteSpace: 'nowrap' 
+                    }}
+                  >
+                    {fp.photo?.name || (floorPlanFiles[idx]?.name) || "Upload Floor Plan"}
+                  </Button>
+                </div>
               </Col>
-              <Col xs={24} md={1}>
-                <Button danger icon={<MinusCircleOutlined />} onClick={() => removeFloorPlan(idx)} />
+              <Col xs={24}>
+                <Input
+                  placeholder="Short Description (e.g. 3 BHK Luxury Suite with East Facing Balcony)"
+                  value={fp.shortDescription}
+                  onChange={(e) => updateFloorPlan(idx, "shortDescription", e.target.value)}
+                />
               </Col>
             </Row>
           </Card>
         ))}
 
-        <Button type="dashed" onClick={addFloorPlan} block icon={<PlusOutlined />}>Add Floor Plan</Button>
+        <Button 
+          type="dashed" 
+          onClick={addFloorPlan} 
+          block 
+          icon={<PlusOutlined />}
+          style={{
+            borderColor: '#ea580c',
+            color: '#ea580c',
+            fontWeight: 700,
+            height: 42,
+            borderRadius: 8,
+            marginBottom: 24
+          }}
+        >
+          Add Floor Plan
+        </Button>
 
         <Divider>Developer Info</Divider>
         <Row gutter={12}>
@@ -1064,15 +1142,28 @@ if (vals.amenities && Array.isArray(vals.amenities) && vals.amenities.length > 0
 </Form.Item>
 
 
-        <Button type="primary" htmlType="submit" loading={loading} block>
-          Submit Property
+        <Button 
+          type="primary" 
+          htmlType="submit" 
+          loading={loading} 
+          block
+          style={{
+            background: 'linear-gradient(135deg, #f97316, #ea580c)',
+            borderColor: '#ea580c',
+            height: 48,
+            borderRadius: 10,
+            fontWeight: 800,
+            fontSize: '1rem',
+            boxShadow: '0 4px 14px rgba(234, 88, 12, 0.35)',
+            marginTop: 16
+          }}
+        >
+          Submit Property Listing
         </Button>
       </Form>
     </Card>
         </Content>
       </Layout>
     </Layout>
-    </>
-   
   );
 }

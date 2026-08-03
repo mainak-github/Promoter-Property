@@ -176,12 +176,12 @@ export const footerInfos = [
     {
         icon: <i className="fas fa-map-marker-alt"></i>,
         text: 'Address',
-        address: '66 Broklyant, New York India'
+        address: 'Chennai, Tamil Nadu, India'
     },
     {
         icon: <i className="fas fa-phone"></i>,
         text: 'Phone Number',
-        address: '012 345 678 9101'
+        address: '+91 89390 00065'
     }
 ]
 

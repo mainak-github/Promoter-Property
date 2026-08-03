@@ -10,22 +10,22 @@ import PageTitle from '../common/PageTitle';
 
 const BlogDetails = () => {
 
-    const location = useLocation(); 
-    
+    const location = useLocation();
+
     return (
         <>
-            <PageTitle title="CityScape - Blog Details" />
+            <PageTitle title="Promoter Property - Blog Details" />
 
             {/* Header */}
-            <Header 
-                headerClass="dark-header has-border" 
+            <Header
+                headerClass="dark-header has-border"
                 logoBlack={false}
                 logoWhite={true}
                 headerMenusClass="mx-auto"
                 btnClass="btn btn-outline-main btn-outline-main-dark d-lg-block d-none"
                 btnLink="/add-new-listing"
                 btnText="Add Listing"
-                spanClass="icon-right text-gradient" 
+                spanClass="icon-right text-gradient"
                 showHeaderBtn={true}
                 showOffCanvasBtn={false}
                 offCanvasBtnClass=""
@@ -33,18 +33,18 @@ const BlogDetails = () => {
             />
 
             {/* BreadCrumb */}
-            <Breadcrumb 
+            <Breadcrumb
                 pageTitle="Blog Details"
                 pageName={location.state.title}
             />
 
-            <BlogDetailsSection/>
+            <BlogDetailsSection />
 
             {/* Cta */}
-            <Cta ctaClass=""/>
+            <Cta ctaClass="" />
 
             {/* Footer */}
-            <Footer/>
+            <Footer />
         </>
     );
 };

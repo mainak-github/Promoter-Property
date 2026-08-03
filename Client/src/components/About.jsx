@@ -1,11 +1,34 @@
-
-import { aboutContent, aboutStatistics } from '../data/HomeOneData/HomeOneData';
+import { useEffect, useState } from 'react';
+import { aboutContent } from '../data/HomeOneData/HomeOneData';
 import Button from '../common/Button';
 import SectionHeading from '../common/SectionHeading';
-
 import CountUp from 'react-countup';
+import { API_URL } from '../url';
 
 const About = () => {
+    const [stats, setStats] = useState({
+        satisfiedClients: 0,
+        satisfiedUsers: 0,
+        totalProperties: 0,
+        totalBrokers: 0,
+    });
+
+    useEffect(() => {
+        fetch(`${API_URL}/public/stats`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    setStats({
+                        satisfiedClients: data.data.satisfiedClients || 0,
+                        satisfiedUsers: data.data.satisfiedUsers || 0,
+                        totalProperties: data.data.totalProperties || 0,
+                        totalBrokers: data.data.totalBrokers || 0,
+                    });
+                }
+            })
+            .catch(err => console.error('Failed to fetch stats:', err));
+    }, []);
+
     return (
         <>
             {/* ======================== About Section Start ========================== */}
@@ -17,13 +40,24 @@ const About = () => {
                                 <img src={aboutContent.thumb} alt=""/>
                                 <div className="client-statistics flx-align">
                                     <span className="client-statistics__icon">
-                                        {aboutStatistics.icon}
+                                        <i className="fas fa-users text-gradient"></i>
                                     </span>
                                     <div className="client-statistics__content">
                                         <h5 className="client-statistics__number statisticsCounter">
-                                            <CountUp end={parseInt(aboutStatistics.number)}/>
+                                            <CountUp end={stats.satisfiedClients} duration={3} />{stats.satisfiedClients > 0 ? '+' : ''}
                                         </h5>
-                                        <span className="client-statistics__text fs-18">{aboutStatistics.text}</span>
+                                        <span className="client-statistics__text fs-18">Satisfied Clients</span>
+                                    </div>
+                                </div>
+                                <div className="client-statistics flx-align mt-3">
+                                    <span className="client-statistics__icon">
+                                        <i className="fas fa-user-check text-gradient"></i>
+                                    </span>
+                                    <div className="client-statistics__content">
+                                        <h5 className="client-statistics__number statisticsCounter">
+                                            <CountUp end={stats.satisfiedUsers} duration={3} />{stats.satisfiedUsers > 0 ? '+' : ''}
+                                        </h5>
+                                        <span className="client-statistics__text fs-18">Satisfied Users</span>
                                     </div>
                                 </div>
                             </div>

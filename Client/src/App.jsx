@@ -51,6 +51,11 @@ import FAQs from './components/Faqs';
 import PrivacyPolicyCMS from './components/Privacypolicy';
 import TermsConditions from './components/Tncs';
 import Leads from './components/PropertyLeads';
+import SalesReport from './components/SalesReport';
+import BrokerReport from './components/BrokerReport';
+import ClientActivityReport from './components/ClientActivityReport';
+import AdminProfile from './components/AdminProfile';
+import AdminSettings from './components/AdminSettings';
 
 function App() {
 
@@ -133,6 +138,11 @@ function App() {
             <Route path="/admin/leads" element={<Leads />} />
             <Route path="/admin/cms/privacy-policy" element={<PrivacyPolicyCMS />} />
             <Route path="/admin/cms/tnc" element={<TermsConditions />} />
+            <Route path="/admin/reports/sales" element={<SalesReport />} />
+            <Route path="/admin/reports/brokers" element={<BrokerReport />} />
+            <Route path="/admin/reports/clients" element={<ClientActivityReport />} />
+            <Route path="/admin/profile" element={<AdminProfile />} />
+            <Route path="/admin/settings" element={<AdminSettings />} />
 
            
             

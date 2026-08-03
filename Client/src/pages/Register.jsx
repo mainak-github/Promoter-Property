@@ -9,56 +9,56 @@ import PageTitle from '../common/PageTitle';
 const Register = () => {
     return (
         <>
-        <PageTitle title="CityScape - Registration" />
+            <PageTitle title="Promoter PropertyProperty - Registration" />
 
-        <main className="body-bg">
-            
-            {/* Header */}
-            <Header 
-                headerClass="dark-header has-border" 
-                logoBlack={false}
-                logoWhite={true}
-                headerMenusClass="mx-auto"
-                btnClass="btn btn-outline-main btn-outline-main-dark d-lg-block d-none"
-                btnLink="/add-new-listing"
-                btnText="Add Listing"
-                spanClass="icon-right text-gradient" 
-                showHeaderBtn={true}
-                showOffCanvasBtn={false}
-                offCanvasBtnClass=""
-                showContactNumber={false}
-            />
+            <main className="body-bg">
 
-            {/* BreadCrumb */}
-            <Breadcrumb 
-                pageTitle="Register"
-                pageName="Register"
-            />
+                {/* Header */}
+                <Header
+                    headerClass="dark-header has-border"
+                    logoBlack={false}
+                    logoWhite={true}
+                    headerMenusClass="mx-auto"
+                    btnClass="btn btn-outline-main btn-outline-main-dark d-lg-block d-none"
+                    btnLink="/add-new-listing"
+                    btnText="Add Listing"
+                    spanClass="icon-right text-gradient"
+                    showHeaderBtn={true}
+                    showOffCanvasBtn={false}
+                    offCanvasBtnClass=""
+                    showContactNumber={false}
+                />
 
-            {/* Register Section */}
-            <LoginRegister
-                titleText="Sign up"
-                firstNameCol="col-sm-6 col-xs-6" 
-                showFirstName={true}
-                lastNameCol="col-sm-6 col-xs-6" 
-                showLastName={true}
-                passwordCol="col-sm-6 col-xs-6" 
-                showConfirm={true}
-                btnText="Register"
-                showForgotRemember={false}
-                showTermCondition={true}
-                haveAccountText = "Already Have An Account? "
-                haveAccountLinkText = "Login"
-                haveAccountLink = "/login"
-            />
+                {/* BreadCrumb */}
+                <Breadcrumb
+                    pageTitle="Register"
+                    pageName="Register"
+                />
 
-            {/* Cta */}
-            <Cta ctaClass=""/>
+                {/* Register Section */}
+                <LoginRegister
+                    titleText="Sign up"
+                    firstNameCol="col-sm-6 col-xs-6"
+                    showFirstName={true}
+                    lastNameCol="col-sm-6 col-xs-6"
+                    showLastName={true}
+                    passwordCol="col-sm-6 col-xs-6"
+                    showConfirm={true}
+                    btnText="Register"
+                    showForgotRemember={false}
+                    showTermCondition={true}
+                    haveAccountText="Already Have An Account? "
+                    haveAccountLinkText="Login"
+                    haveAccountLink="/login"
+                />
 
-            {/* Footer */}
-            <Footer/>
+                {/* Cta */}
+                <Cta ctaClass="" />
 
-        </main>   
+                {/* Footer */}
+                <Footer />
+
+            </main>
         </>
     );
 };

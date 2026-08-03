@@ -61,6 +61,7 @@ const { Option } = Select;
 const { confirm } = Modal;
 
 const Leads = () => {
+  const [collapsed, setCollapsed] = useState(false);
   const [leads, setLeads] = useState([]);
   const [filteredLeads, setFilteredLeads] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -422,7 +423,7 @@ const Leads = () => {
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <Spin size="large" tip="Loading leads..." />
+        <Spin size="large" />
       </div>
     );
   }
@@ -445,20 +446,53 @@ const Leads = () => {
   }
 
   return (
-    <Layout style={{ minHeight: '100vh', background: '#f0f2f5' }}>
-      <DashboardSidebar />
+    <Layout style={{ minHeight: '100vh', background: '#f8fafc' }}>
+      <DashboardSidebar collapsed={collapsed} />
       <Layout>
-        <DashboardNavbar />
-        <Content style={{ margin: '24px 16px', padding: 0 }}>
-          {/* Breadcrumb */}
-          <Breadcrumb 
-            style={{ marginBottom: 24 }} 
-            items={[
-              { title: <DashboardOutlined />, href: '/admin/dashboard' },
-              { title: 'Lead Management' }, 
-              { title: 'All Leads' }
-            ]} 
-          />
+        <DashboardNavbar collapsed={collapsed} onCollapse={() => setCollapsed(!collapsed)} />
+        <Content style={{ padding: '24px 28px' }}>
+          {/* Header Banner */}
+          <div style={{
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            padding: '24px 32px',
+            borderRadius: 16,
+            marginBottom: 24,
+            boxShadow: '0 8px 24px rgba(15, 23, 42, 0.15)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 16,
+            borderLeft: '6px solid #ea580c'
+          }}>
+            <div>
+              <div style={{ fontSize: '0.78rem', color: '#ea580c', fontWeight: 700, letterSpacing: '0.08em', marginBottom: 4 }}>
+                LEAD MANAGEMENT
+              </div>
+              <h2 style={{ color: '#ffffff', margin: 0, fontSize: '1.65rem', fontWeight: 800 }}>
+                Customer Inquiries & Leads
+              </h2>
+              <p style={{ color: '#94a3b8', margin: '4px 0 0 0', fontSize: '0.92rem' }}>
+                Track property buyer inquiries, reassign leads & monitor response timeline.
+              </p>
+            </div>
+
+            <Button 
+              icon={<ReloadOutlined spin={loading} />}
+              onClick={fetchLeads}
+              style={{
+                background: '#ea580c',
+                borderColor: '#ea580c',
+                color: '#ffffff',
+                fontWeight: 700,
+                height: 40,
+                borderRadius: 8,
+                boxShadow: '0 4px 12px rgba(234, 88, 12, 0.3)'
+              }}
+            >
+              Refresh Leads
+            </Button>
+          </div>
 
           {/* Page Header */}
           <div style={{ marginBottom: 24 }}>
