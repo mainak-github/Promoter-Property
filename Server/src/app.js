@@ -13,24 +13,37 @@ const path = require('path');
 
 const allowedOrigins = [
   'https://promoterproperty.com',
+  'https://www.promoterproperty.com',
   'http://promoterproperty.com',
+  'http://www.promoterproperty.com',
   'http://localhost:5173',
   'http://localhost:5174',
   'http://localhost:3000',
-  'http://localhost:3001',
-  'http://127.0.0.1:5173',
-  'http://127.0.0.1:3000'
+  'http://127.0.0.1:5173'
 ];
 
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    console.log("Blocked Origin:", origin);
+    callback(new Error(`Origin ${origin} not allowed`));
+  },
+  credentials: true
+}));
 if (process.env.ALLOWED_ORIGINS) {
   process.env.ALLOWED_ORIGINS.split(',').forEach(o => allowedOrigins.push(o.trim()));
 }
 
 app.use(cors({
-  origin: function(origin, callback){
+  origin: function (origin, callback) {
     // allow requests with no origin (like mobile apps or curl requests)
-    if(!origin) return callback(null, true);
-    if(
+    if (!origin) return callback(null, true);
+    if (
       allowedOrigins.indexOf(origin) !== -1 ||
       /^http:\/\/localhost:\d+$/.test(origin) ||
       /^http:\/\/127\.0\.0\.1:\d+$/.test(origin)
@@ -40,7 +53,7 @@ app.use(cors({
     const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
     return callback(new Error(msg), false);
   },
-  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
@@ -58,7 +71,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/test', testRoutes);
 app.use('/api/admin/brokers', brokerRoutes);
-app.use('/api/admin/property',require('./routes/broker/propertyRoutes'))
+app.use('/api/admin/property', require('./routes/broker/propertyRoutes'))
 app.use('/api/admin', adminPropertyRoutes);
 app.use('/api/public', publicPropertyRoutes);
 app.use('/api/admin', require('./routes/admin/faq.routes'));
