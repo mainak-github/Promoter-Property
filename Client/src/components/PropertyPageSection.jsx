@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useContext, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import url from '../url';
-import { useFormik } from 'formik';
-import * as yup from 'yup';
 import { 
   message, 
   Spin, 
@@ -15,299 +13,169 @@ import {
   Row, 
   Col, 
   Typography, 
-  Tooltip, 
-  Badge, 
-  Affix,
-  Space,
-  Divider,
-  Avatar,
-  Rate,
-  Progress,
-  FloatButton,
-  BackTop,
-  Drawer,
-  Statistic
+  Space, 
+  Divider, 
+  Skeleton,
+  Pagination,
+  Statistic,
+  Badge,
+  Tabs
 } from 'antd';
 import { 
   SearchOutlined, 
   FilterOutlined, 
+  ClearOutlined, 
+  EnvironmentOutlined, 
+  HomeOutlined, 
+  AppstoreOutlined, 
+  UnorderedListOutlined,
+  BuildOutlined,
   SortAscendingOutlined,
-  ReloadOutlined,
-  ClearOutlined,
-  EnvironmentOutlined,
-  HomeOutlined,
-  HeartOutlined,
-  ShareAltOutlined,
-  EyeOutlined,
-  CalendarOutlined,
-  StarFilled,
-  PhoneOutlined,
-  WhatsAppOutlined,
-  CameraOutlined,
-  AreaChartOutlined,
-  BankOutlined,
-  CarOutlined,
   CheckCircleOutlined,
   FireOutlined,
-  RightOutlined,
-  LeftOutlined,
-  AppstoreOutlined,
-  UnorderedListOutlined,
-  UserOutlined,
   DollarCircleOutlined,
-  BuildOutlined
+  CompassOutlined,
+  ReloadOutlined
 } from '@ant-design/icons';
 import PropertyCard from './common/PropertyCard';
+import PropertyQuickViewModal from './common/PropertyQuickViewModal';
+import PropertyInquiryModal from './common/PropertyInquiryModal';
 
 const { Option } = Select;
 const { Text, Title } = Typography;
-const { Meta } = Card;
 
-const PropertyItem = ({ property }) => {
-  return <PropertyCard property={property} />;
-};
+const BUDGET_PRESETS = [
+  { label: 'All Budgets', value: '' },
+  { label: 'Under ₹50 Lakhs', value: '0-5000000', minPrice: 0, maxPrice: 5000000 },
+  { label: '₹50 Lakhs - ₹1 Crore', value: '5000000-10000000', minPrice: 5000000, maxPrice: 10000000 },
+  { label: '₹1 Crore - ₹3 Crores', value: '10000000-30000000', minPrice: 10000000, maxPrice: 30000000 },
+  { label: '₹3 Crores - ₹5 Crores', value: '30000000-50000000', minPrice: 30000000, maxPrice: 50000000 },
+  { label: 'Above ₹5 Crores', value: '50000000-999999999', minPrice: 50000000, maxPrice: 999999999 }
+];
 
+const PROPERTY_TYPES = [
+  'Flat',
+  'Apartment',
+  'Independent House',
+  'Villa',
+  'Plots'
+];
 
+const CONSTRUCTION_STATUSES = [
+  'Ready to Move In',
+  'Under Construction',
+  'Launching Soon'
+];
 
-
-// Filter Form Component (keeping previous implementation)
-const PropertyFilterForm = ({ onFilterChange, loading }) => {
-  const [dynamicOptions, setDynamicOptions] = useState({
-    cities: [],
-    propertyTypes: []
-  });
-
-  useEffect(() => {
-    const fetchFilterOptions = async () => {
-      try {
-        const response = await axios.get(`${url.API_URL}/public/properties?page=1&limit=100`);
-        if (response.data.status === "success") {
-          const properties = response.data.data.properties;
-          
-          const cities = [...new Set(properties.map(p => p.city).filter(Boolean))].sort();
-          const propertyTypes = [...new Set(properties.map(p => p.propertyType).filter(Boolean))].sort();
-          
-          setDynamicOptions({ cities, propertyTypes });
-        }
-      } catch (error) {
-        console.error('Error fetching filter options:', error);
-      }
-    };
-
-    fetchFilterOptions();
-  }, []);
-
-  const formik = useFormik({
-    initialValues: {
-      searchKeyword: '',
-      propertyType: '',
-      city: '',
-      bedrooms: '',
-      status: ''
-    },
-    onSubmit: (values) => {
-      onFilterChange(values);
-      message.success('Search filters applied successfully!');
-    }
-  });
-
-  const clearFilters = () => {
-    formik.resetForm();
-    onFilterChange({});
-    message.info('Filters cleared');
-  };
-
-  return (
-    <Card className="filter-main-card" bordered={false}>
-      <div className="filter-header-section">
-        <Title level={4} className="filter-main-title">
-          <SearchOutlined className="me-2" />
-          Find Your Perfect Property
-        </Title>
-        <Text className="filter-subtitle">
-          Search through 153 verified properties
-        </Text>
-      </div>
-      
-      <form onSubmit={formik.handleSubmit}>
-        <Row gutter={[16, 16]} align="middle">
-          <Col xs={24} md={6}>
-            <Input
-              size="large"
-              placeholder="Search properties..."
-              prefix={<SearchOutlined />}
-              value={formik.values.searchKeyword}
-              onChange={(e) => formik.setFieldValue('searchKeyword', e.target.value)}
-              className="search-input-main"
-              allowClear
-            />
-          </Col>
-          
-          <Col xs={12} md={4}>
-            <Select
-              size="large"
-              placeholder="Property Type"
-              value={formik.values.propertyType}
-              onChange={(value) => formik.setFieldValue('propertyType', value)}
-              className="w-100"
-              allowClear
-            >
-              {dynamicOptions.propertyTypes.map(type => (
-                <Option key={type} value={type}>{type}</Option>
-              ))}
-            </Select>
-          </Col>
-          
-          <Col xs={12} md={4}>
-            <Select
-              size="large"
-              placeholder="City"
-              value={formik.values.city}
-              onChange={(value) => formik.setFieldValue('city', value)}
-              className="w-100"
-              allowClear
-            >
-              {dynamicOptions.cities.map(city => (
-                <Option key={city} value={city}>{city}</Option>
-              ))}
-            </Select>
-          </Col>
-          
-          <Col xs={12} md={4}>
-            <Select
-              size="large"
-              placeholder="BHK"
-              value={formik.values.bedrooms}
-              onChange={(value) => formik.setFieldValue('bedrooms', value)}
-              className="w-100"
-              allowClear
-            >
-              <Option value="1">1 BHK</Option>
-              <Option value="2">2 BHK</Option>
-              <Option value="3">3 BHK</Option>
-              <Option value="4">4+ BHK</Option>
-            </Select>
-          </Col>
-          
-          <Col xs={12} md={6}>
-            <Space size="small" className="w-100">
-              <Button 
-                type="primary" 
-                size="large"
-                htmlType="submit" 
-                loading={loading}
-                icon={<SearchOutlined />}
-                className="search-main-btn"
-              >
-                Search
-              </Button>
-              <Button 
-                size="large"
-                onClick={clearFilters}
-                icon={<ClearOutlined />}
-                className="clear-main-btn"
-              >
-                Clear
-              </Button>
-            </Space>
-          </Col>
-        </Row>
-      </form>
-
-      <style>{`
-        .filter-main-card {
-          background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
-          border-radius: 12px !important;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-          margin-bottom: 24px !important;
-          border: 1px solid #e6f7ff !important;
-        }
-
-        .filter-header-section {
-          margin-bottom: 20px;
-          text-align: center;
-        }
-
-        .filter-main-title {
-          margin: 0 !important;
-          color: #262626 !important;
-          font-size: 22px !important;
-        }
-
-        .filter-subtitle {
-          color: #8c8c8c !important;
-          font-size: 14px !important;
-        }
-
-        .search-input-main {
-          border-radius: 8px !important;
-          border: 1px solid #d9d9d9 !important;
-        }
-
-        .search-main-btn {
-          background: linear-gradient(135deg, #1890ff, #096dd9) !important;
-          border: none !important;
-          border-radius: 8px !important;
-          font-weight: 600 !important;
-        }
-
-        .clear-main-btn {
-          border-radius: 8px !important;
-          border-color: #d9d9d9 !important;
-          font-weight: 600 !important;
-        }
-      `}</style>
-    </Card>
-  );
-};
-
-// Main PropertyPageSection Component with Perfect Grid Alignment
 const PropertyPageSection = () => {
-  // State Management
+  // Main States
   const [properties, setProperties] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filters, setFilters] = useState({});
+
+  // Filter States
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [propertyType, setPropertyType] = useState('');
+  const [city, setCity] = useState('');
+  const [bedrooms, setBedrooms] = useState('');
+  const [status, setStatus] = useState('');
+  const [budgetRange, setBudgetRange] = useState('');
+  const [activeTab, setActiveTab] = useState('ALL');
+
+  // Control States
   const [sortBy, setSortBy] = useState('newest');
   const [viewMode, setViewMode] = useState('grid');
-  
-  // Pagination State
-  const [pagination, setPagination] = useState({
-    currentPage: 1,
-    totalPages: 1,
-    totalCount: 0,
-    itemsPerPage: 12
-  });
+  const [itemsPerPage, setItemsPerPage] = useState(12);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
-  // Build API Parameters
-  const buildApiParams = useCallback((page = 1, customFilters = {}) => {
-    const params = { page, limit: pagination.itemsPerPage };
-    const activeFilters = { ...filters, ...customFilters };
+  // Options State
+  const [cityOptions, setCityOptions] = useState([
+    'Kolkata', 'Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Hyderabad', 'Pune'
+  ]);
 
-    if (activeFilters.searchKeyword) params.search = activeFilters.searchKeyword;
-    if (activeFilters.propertyType) params.propertyType = activeFilters.propertyType;
-    if (activeFilters.city) params.city = activeFilters.city;
-    if (activeFilters.bedrooms) params.bedrooms = activeFilters.bedrooms;
-    if (activeFilters.status) params.status = activeFilters.status;
+  // Modal States
+  const [quickViewProperty, setQuickViewProperty] = useState(null);
+  const [inquiryProperty, setInquiryProperty] = useState(null);
 
-    return params;
-  }, [filters, pagination.itemsPerPage]);
+  // Fetch Cities dynamically
+  useEffect(() => {
+    const fetchFilterData = async () => {
+      try {
+        const response = await axios.get(`${url.API_URL}/public/properties?page=1&limit=100`);
+        if (response.data?.status === "success" && response.data?.data?.properties) {
+          const props = response.data.data.properties;
+          const extractedCities = [...new Set(props.map(p => p.city).filter(Boolean))].sort();
+          if (extractedCities.length > 0) {
+            setCityOptions(extractedCities);
+          }
+        }
+      } catch (err) {
+        console.warn('Filter options fetch notice:', err.message);
+      }
+    };
+    fetchFilterData();
+  }, []);
 
-  // Fetch Properties
-  const fetchProperties = useCallback(async (page = 1, customFilters = {}) => {
+  // Fetch Properties Function
+  const fetchProperties = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const params = buildApiParams(page, customFilters);
+      const params = {
+        page: currentPage,
+        limit: itemsPerPage
+      };
+
+      if (searchKeyword.trim()) params.search = searchKeyword.trim();
+      if (propertyType) params.propertyType = propertyType;
+      if (city) params.city = city;
+      if (bedrooms) params.bedrooms = bedrooms;
+      if (status) params.status = status;
+
+      if (budgetRange) {
+        const selectedPreset = BUDGET_PRESETS.find(p => p.value === budgetRange);
+        if (selectedPreset) {
+          params.minPrice = selectedPreset.minPrice;
+          params.maxPrice = selectedPreset.maxPrice;
+        }
+      }
+
+      // Map Sort Option to Backend API Query Parameters
+      switch (sortBy) {
+        case 'oldest':
+          params.sortBy = 'createdAt';
+          params.order = 'asc';
+          break;
+        case 'price-low':
+          params.sortBy = 'priceRange';
+          params.order = 'asc';
+          break;
+        case 'price-high':
+          params.sortBy = 'priceRange';
+          params.order = 'desc';
+          break;
+        case 'title':
+          params.sortBy = 'title';
+          params.order = 'asc';
+          break;
+        case 'newest':
+        default:
+          params.sortBy = 'createdAt';
+          params.order = 'desc';
+          break;
+      }
+
       const response = await axios.get(`${url.API_URL}/public/properties`, { params });
 
       let fetchedProperties = [];
-      let paginationData = { totalPages: 1, total: 0 };
+      let paginationInfo = { total: 0, totalPages: 1 };
 
       if (response.data?.status === "success" && response.data?.data) {
         fetchedProperties = response.data.data.properties || [];
-        paginationData = response.data.data.pagination || {};
+        paginationInfo = response.data.data.pagination || {};
       } else if (Array.isArray(response.data?.properties)) {
         fetchedProperties = response.data.properties;
       } else if (Array.isArray(response.data)) {
@@ -315,367 +183,746 @@ const PropertyPageSection = () => {
       }
 
       setProperties(fetchedProperties);
-      setPagination({
-        currentPage: page,
-        totalPages: paginationData?.totalPages || 1,
-        totalCount: paginationData?.total || fetchedProperties.length || 0,
-        itemsPerPage: 12
-      });
+      setTotalCount(paginationInfo.total || fetchedProperties.length || 0);
+      setTotalPages(paginationInfo.totalPages || 1);
+
     } catch (err) {
-      console.error('Fetch properties error:', err);
-      setError(err.message || 'Failed to fetch properties');
+      console.error('Error fetching properties:', err);
+      setError(err.message || 'Failed to fetch properties from server');
       setProperties([]);
-      setPagination(prev => ({ ...prev, totalCount: 0, totalPages: 1 }));
+      setTotalCount(0);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
-  }, [buildApiParams]);
+  }, [currentPage, itemsPerPage, searchKeyword, propertyType, city, bedrooms, status, budgetRange, sortBy]);
 
-  // Handle Filter Changes
-  const handleFilterChange = useCallback((newFilters) => {
-    setFilters(newFilters);
-    setPagination(prev => ({ ...prev, currentPage: 1 }));
-  }, []);
-
-  // Handle Page Changes
-  const handlePageChange = useCallback((newPage) => {
-    if (newPage !== pagination.currentPage && !loading) {
-      setPagination(prev => ({ ...prev, currentPage: newPage }));
-      document.querySelector('.property-page-section')?.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
-      });
-    }
-  }, [pagination.currentPage, loading]);
-
-  // Effects
+  // Debounced Auto Fetch on Filter/Sort/Page changes
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      fetchProperties(pagination.currentPage, filters);
-    }, 300);
+    const timer = setTimeout(() => {
+      fetchProperties();
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [fetchProperties]);
 
-    return () => clearTimeout(timeoutId);
-  }, [filters, pagination.currentPage]);
+  // Handle Tab Change
+  const handleTabChange = (key) => {
+    setActiveTab(key);
+    setCurrentPage(1);
+    if (key === 'ALL') {
+      setPropertyType('');
+    } else {
+      setPropertyType(key);
+    }
+  };
+
+  // Reset All Filters
+  const handleClearAllFilters = () => {
+    setSearchKeyword('');
+    setPropertyType('');
+    setCity('');
+    setBedrooms('');
+    setStatus('');
+    setBudgetRange('');
+    setActiveTab('ALL');
+    setSortBy('newest');
+    setCurrentPage(1);
+    message.info('All filters reset');
+  };
+
+  // Count active filters
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (searchKeyword) count++;
+    if (propertyType) count++;
+    if (city) count++;
+    if (bedrooms) count++;
+    if (status) count++;
+    if (budgetRange) count++;
+    return count;
+  }, [searchKeyword, propertyType, city, bedrooms, status, budgetRange]);
+
+  // Scroll to top on page change
+  const handlePageChange = (page, pageSize) => {
+    setCurrentPage(page);
+    if (pageSize && pageSize !== itemsPerPage) {
+      setItemsPerPage(pageSize);
+    }
+    const section = document.querySelector('.property-page-section');
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
     <section className="property-page-section">
       <div className="container container-two">
-        {/* Filter Form */}
-        <PropertyFilterForm 
-          onFilterChange={handleFilterChange}
-          loading={loading}
-        />
+        
+        {/* =========================================================
+            1. Hero Search Header Banner
+           ========================================================= */}
+        <div className="property-hero-search-wrapper">
+          <div className="hero-badge-pill">
+            <FireOutlined style={{ marginRight: 6 }} /> Verified Real Estate Portal
+          </div>
+          <Title level={1} className="hero-main-title">
+            Explore Premium Real Estate & Properties
+          </Title>
+          <Text className="hero-subtitle">
+            Find apartments, luxury villas, commercial plots, and ready-to-move homes with verified details.
+          </Text>
 
-        {/* Results Header */}
-        <Card className="results-header-main" bordered={false}>
-          <Row justify="space-between" align="middle">
-            <Col>
-              <div className="results-info">
-                <Title level={4} className="results-count">
-                  {pagination.totalCount} Properties Found
+          {/* Quick Property Type Category Tabs */}
+          <div className="hero-category-tabs">
+            <button
+              className={`cat-tab-btn ${activeTab === 'ALL' ? 'active' : ''}`}
+              onClick={() => handleTabChange('ALL')}
+            >
+              All Types
+            </button>
+            {PROPERTY_TYPES.map(type => (
+              <button
+                key={type}
+                className={`cat-tab-btn ${activeTab === type ? 'active' : ''}`}
+                onClick={() => handleTabChange(type)}
+              >
+                {type}s
+              </button>
+            ))}
+          </div>
+
+          {/* Glassmorphic Multi-Criteria Search Panel */}
+          <Card className="hero-filter-card" bordered={false}>
+            <Row gutter={[12, 12]} align="middle">
+              {/* Keyword Search */}
+              <Col xs={24} sm={12} md={6}>
+                <Input
+                  size="large"
+                  placeholder="Location, property, landmark..."
+                  prefix={<SearchOutlined style={{ color: '#ea580c' }} />}
+                  value={searchKeyword}
+                  onChange={(e) => {
+                    setSearchKeyword(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  allowClear
+                  className="filter-input-element"
+                />
+              </Col>
+
+              {/* City Select */}
+              <Col xs={12} sm={12} md={4}>
+                <Select
+                  size="large"
+                  placeholder="Select City"
+                  value={city || undefined}
+                  onChange={(val) => {
+                    setCity(val || '');
+                    setCurrentPage(1);
+                  }}
+                  allowClear
+                  className="w-100 filter-select-element"
+                >
+                  {cityOptions.map(c => (
+                    <Option key={c} value={c}>
+                      <EnvironmentOutlined style={{ marginRight: 6, color: '#ea580c' }} />
+                      {c}
+                    </Option>
+                  ))}
+                </Select>
+              </Col>
+
+              {/* BHK Selector */}
+              <Col xs={12} sm={12} md={3}>
+                <Select
+                  size="large"
+                  placeholder="BHK"
+                  value={bedrooms || undefined}
+                  onChange={(val) => {
+                    setBedrooms(val || '');
+                    setCurrentPage(1);
+                  }}
+                  allowClear
+                  className="w-100 filter-select-element"
+                >
+                  <Option value="1">1 BHK</Option>
+                  <Option value="2">2 BHK</Option>
+                  <Option value="3">3 BHK</Option>
+                  <Option value="4">4+ BHK</Option>
+                </Select>
+              </Col>
+
+              {/* Budget Range Selector */}
+              <Col xs={12} sm={12} md={4}>
+                <Select
+                  size="large"
+                  placeholder="Budget Range"
+                  value={budgetRange || undefined}
+                  onChange={(val) => {
+                    setBudgetRange(val || '');
+                    setCurrentPage(1);
+                  }}
+                  allowClear
+                  className="w-100 filter-select-element"
+                >
+                  {BUDGET_PRESETS.filter(p => p.value !== '').map(p => (
+                    <Option key={p.value} value={p.value}>
+                      {p.label}
+                    </Option>
+                  ))}
+                </Select>
+              </Col>
+
+              {/* Construction Status */}
+              <Col xs={12} sm={12} md={4}>
+                <Select
+                  size="large"
+                  placeholder="Status"
+                  value={status || undefined}
+                  onChange={(val) => {
+                    setStatus(val || '');
+                    setCurrentPage(1);
+                  }}
+                  allowClear
+                  className="w-100 filter-select-element"
+                >
+                  {CONSTRUCTION_STATUSES.map(s => (
+                    <Option key={s} value={s}>{s}</Option>
+                  ))}
+                </Select>
+              </Col>
+
+              {/* Search & Reset Buttons */}
+              <Col xs={24} sm={24} md={3}>
+                <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+                  <Button
+                    type="primary"
+                    size="large"
+                    icon={<SearchOutlined />}
+                    onClick={fetchProperties}
+                    loading={loading}
+                    className="filter-search-btn"
+                  >
+                    Search
+                  </Button>
+                  {activeFilterCount > 0 && (
+                    <Button
+                      size="large"
+                      icon={<ClearOutlined />}
+                      onClick={handleClearAllFilters}
+                      className="filter-clear-btn"
+                      title="Reset Filters"
+                    />
+                  )}
+                </Space>
+              </Col>
+            </Row>
+          </Card>
+        </div>
+
+        {/* =========================================================
+            2. Active Filter Chips Tag Bar
+           ========================================================= */}
+        {activeFilterCount > 0 && (
+          <div className="active-filters-chip-bar">
+            <span className="active-filter-label">
+              <FilterOutlined style={{ marginRight: 6 }} /> Active Filters ({activeFilterCount}):
+            </span>
+            <Space wrap size={[6, 6]}>
+              {searchKeyword && (
+                <Tag
+                  closable
+                  color="orange"
+                  onClose={() => { setSearchKeyword(''); setCurrentPage(1); }}
+                >
+                  Keyword: {searchKeyword}
+                </Tag>
+              )}
+              {city && (
+                <Tag
+                  closable
+                  color="volcano"
+                  onClose={() => { setCity(''); setCurrentPage(1); }}
+                >
+                  City: {city}
+                </Tag>
+              )}
+              {propertyType && (
+                <Tag
+                  closable
+                  color="blue"
+                  onClose={() => { setPropertyType(''); setActiveTab('ALL'); setCurrentPage(1); }}
+                >
+                  Type: {propertyType}
+                </Tag>
+              )}
+              {bedrooms && (
+                <Tag
+                  closable
+                  color="cyan"
+                  onClose={() => { setBedrooms(''); setCurrentPage(1); }}
+                >
+                  {bedrooms} BHK
+                </Tag>
+              )}
+              {budgetRange && (
+                <Tag
+                  closable
+                  color="green"
+                  onClose={() => { setBudgetRange(''); setCurrentPage(1); }}
+                >
+                  Budget: {BUDGET_PRESETS.find(p => p.value === budgetRange)?.label}
+                </Tag>
+              )}
+              {status && (
+                <Tag
+                  closable
+                  color="purple"
+                  onClose={() => { setStatus(''); setCurrentPage(1); }}
+                >
+                  Status: {status}
+                </Tag>
+              )}
+              <Button
+                type="link"
+                size="small"
+                onClick={handleClearAllFilters}
+                style={{ color: '#ef4444', fontWeight: 600, padding: '0 4px' }}
+              >
+                Clear All ✕
+              </Button>
+            </Space>
+          </div>
+        )}
+
+        {/* =========================================================
+            3. Results Bar & Sort / View Controls
+           ========================================================= */}
+        <Card className="results-control-bar-card" bordered={false}>
+          <Row justify="space-between" align="middle" gutter={[16, 16]}>
+            {/* Left: Total Properties Count & Live Stats */}
+            <Col xs={24} md={10}>
+              <div className="results-count-wrapper">
+                <Title level={4} style={{ margin: 0, color: '#0f172a' }}>
+                  {totalCount} Properties Found
                 </Title>
-                <Text className="results-desc">
-                  Discover your perfect property investment
+                <Text type="secondary" style={{ fontSize: '13px' }}>
+                  Showing page {currentPage} of {totalPages} • Verified seller listings
                 </Text>
               </div>
             </Col>
-            
-            <Col>
-              <Space size="middle" className="header-controls">
-                <div className="stats-display">
-                  <Statistic 
-                    title="Average Price" 
-                    value="2.5" 
-                    suffix="Cr"
-                    valueStyle={{ color: '#52c41a', fontSize: '18px' }}
-                  />
-                </div>
-                
-                <div className="stats-display">
-                  <Statistic 
-                    title="New This Week" 
-                    value="15" 
-                    valueStyle={{ color: '#1890ff', fontSize: '18px' }}
-                  />
-                </div>
 
-                <Select
-                  value={sortBy}
-                  onChange={setSortBy}
-                  size="large"
-                  style={{ width: 180 }}
-                  className="sort-selector"
-                >
-                  <Option value="newest">🕒 Newest First</Option>
-                  <Option value="oldest">📅 Oldest First</Option>
-                  <Option value="price-low">💰 Price: Low to High</Option>
-                  <Option value="price-high">💎 Price: High to Low</Option>
-                </Select>
+            {/* Right: Sort selector & View Mode Switcher */}
+            <Col xs={24} md={14}>
+              <div className="results-controls-right">
+                <Space wrap align="center" size="middle">
+                  {/* Items per page selector */}
+                  <div className="control-item">
+                    <span className="control-label">Show:</span>
+                    <Select
+                      size="middle"
+                      value={itemsPerPage}
+                      onChange={(val) => { setItemsPerPage(val); setCurrentPage(1); }}
+                      style={{ width: 80 }}
+                    >
+                      <Option value={12}>12</Option>
+                      <Option value={24}>24</Option>
+                      <Option value={48}>48</Option>
+                    </Select>
+                  </div>
 
-                <Button.Group size="large" className="view-toggle-group">
-                  <Button 
-                    type={viewMode === 'grid' ? 'primary' : 'default'}
-                    onClick={() => setViewMode('grid')}
-                    icon={<AppstoreOutlined />}
-                  >
-                    Grid
-                  </Button>
-                  <Button 
-                    type={viewMode === 'list' ? 'primary' : 'default'}
-                    onClick={() => setViewMode('list')}
-                    icon={<UnorderedListOutlined />}
-                  >
-                    List
-                  </Button>
-                </Button.Group>
-              </Space>
+                  {/* Working API Sorting Selector */}
+                  <div className="control-item">
+                    <span className="control-label">Sort by:</span>
+                    <Select
+                      size="middle"
+                      value={sortBy}
+                      onChange={(val) => { setSortBy(val); setCurrentPage(1); }}
+                      style={{ width: 180 }}
+                      className="sort-dropdown-custom"
+                    >
+                      <Option value="newest">🕒 Newest First</Option>
+                      <Option value="oldest">📅 Oldest First</Option>
+                      <Option value="price-low">💰 Price: Low to High</Option>
+                      <Option value="price-high">💎 Price: High to Low</Option>
+                      <Option value="title">🔤 Title: A to Z</Option>
+                    </Select>
+                  </div>
+
+                  {/* View Mode Toggle Group */}
+                  <Button.Group className="view-toggle-buttons">
+                    <Button
+                      type={viewMode === 'grid' ? 'primary' : 'default'}
+                      onClick={() => setViewMode('grid')}
+                      icon={<AppstoreOutlined />}
+                    >
+                      Grid
+                    </Button>
+                    <Button
+                      type={viewMode === 'list' ? 'primary' : 'default'}
+                      onClick={() => setViewMode('list')}
+                      icon={<UnorderedListOutlined />}
+                    >
+                      List
+                    </Button>
+                  </Button.Group>
+
+                  <Button
+                    icon={<ReloadOutlined />}
+                    onClick={fetchProperties}
+                    loading={loading}
+                    title="Refresh Property Listings"
+                  />
+                </Space>
+              </div>
             </Col>
           </Row>
         </Card>
 
-        {/* Loading State */}
-        {loading && properties.length === 0 && (
-          <Card className="loading-state-card">
-            <div className="loading-content">
-              <Spin size="large" />
-              <Title level={4}>Loading Properties...</Title>
-              <Text>Finding the best matches for you</Text>
-            </div>
-          </Card>
-        )}
-
-        {/* Properties Grid with Perfect Alignment */}
-        {properties.length > 0 && (
-          <div className="properties-grid-container">
-            <Row 
-              gutter={[24, 24]}
-              className="properties-main-grid"
-            >
-              {properties.map((property, index) => (
-                <Col 
-                  key={property.id || `property-${index}`}
-                  xs={24} 
-                  sm={viewMode === 'grid' ? 12 : 24} 
+        {/* =========================================================
+            4. Loading Skeleton Placeholders
+           ========================================================= */}
+        {loading && (
+          <div className="properties-skeleton-container" style={{ margin: '24px 0' }}>
+            <Row gutter={[24, 24]}>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map(key => (
+                <Col
+                  key={key}
+                  xs={24}
+                  sm={viewMode === 'grid' ? 12 : 24}
                   md={viewMode === 'grid' ? 12 : 24}
                   lg={viewMode === 'grid' ? 8 : 24}
                   xl={viewMode === 'grid' ? 6 : 24}
-                  className="property-grid-item"
                 >
-                  <PropertyItem 
-                    property={property}
-                    itemClass="property-item-aligned"
-                    btnClass="property-btn-styled"
-                    badgeText={property.status}
-                    badgeClass="property-badge-styled"
-                    iconsClass="property-icons-styled"
-                  />
+                  <Card style={{ borderRadius: 16, overflow: 'hidden' }}>
+                    <Skeleton.Image style={{ width: '100%', height: 180 }} active />
+                    <div style={{ padding: '16px 0 0' }}>
+                      <Skeleton active paragraph={{ rows: 3 }} />
+                    </div>
+                  </Card>
                 </Col>
               ))}
             </Row>
           </div>
         )}
 
-        {/* Empty State */}
-        {!loading && properties.length === 0 && !error && (
-          <Card className="empty-state-card">
+        {/* =========================================================
+            5. Properties List / Grid Rendering
+           ========================================================= */}
+        {!loading && properties.length > 0 && (
+          <div className="properties-grid-container" style={{ margin: '24px 0' }}>
+            {viewMode === 'grid' ? (
+              <Row gutter={[24, 24]} className="properties-main-grid">
+                {properties.map((property, index) => (
+                  <Col
+                    key={property.id || `prop-${index}`}
+                    xs={24}
+                    sm={12}
+                    md={12}
+                    lg={8}
+                    xl={6}
+                    className="property-grid-col"
+                  >
+                    <PropertyCard
+                      property={property}
+                      viewMode="grid"
+                      onOpenQuickView={(prop) => setQuickViewProperty(prop)}
+                      onOpenInquiry={(prop) => setInquiryProperty(prop)}
+                    />
+                  </Col>
+                ))}
+              </Row>
+            ) : (
+              <div className="properties-main-list">
+                {properties.map((property, index) => (
+                  <PropertyCard
+                    key={property.id || `prop-list-${index}`}
+                    property={property}
+                    viewMode="list"
+                    onOpenQuickView={(prop) => setQuickViewProperty(prop)}
+                    onOpenInquiry={(prop) => setInquiryProperty(prop)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* =========================================================
+            6. Empty State Card
+           ========================================================= */}
+        {!loading && properties.length === 0 && (
+          <Card className="empty-properties-card">
             <Empty
-              description="No properties found"
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description={
+                <div>
+                  <Title level={4} style={{ color: '#334155', margin: '0 0 8px' }}>
+                    No Properties Match Your Search Criteria
+                  </Title>
+                  <Text type="secondary">
+                    Try adjusting your filters, expanding your budget range, or clearing active search terms.
+                  </Text>
+                </div>
+              }
             >
-              <Button type="primary" onClick={() => handleFilterChange({})}>
-                Clear Filters
+              <Button
+                type="primary"
+                size="large"
+                icon={<ClearOutlined />}
+                onClick={handleClearAllFilters}
+                style={{
+                  background: 'linear-gradient(135deg, #f97316, #ea580c)',
+                  border: 'none',
+                  borderRadius: 8,
+                  marginTop: 16
+                }}
+              >
+                Reset All Filters
               </Button>
             </Empty>
           </Card>
         )}
 
-        {/* Pagination */}
-        {properties.length > 0 && pagination.totalPages > 1 && (
-          <Card className="pagination-main-card">
-            <Row justify="space-between" align="middle">
-              <Col>
-                <Text strong>
-                  Showing {((pagination.currentPage - 1) * pagination.itemsPerPage) + 1} - {Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalCount)} of {pagination.totalCount} properties
+        {/* =========================================================
+            7. Ant Design Pagination Bar
+           ========================================================= */}
+        {!loading && properties.length > 0 && totalPages > 1 && (
+          <Card className="pagination-card-main">
+            <Row justify="space-between" align="middle" gutter={[16, 16]}>
+              <Col xs={24} sm={12}>
+                <Text strong style={{ color: '#475569' }}>
+                  Showing {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, totalCount)} of {totalCount} properties
                 </Text>
               </Col>
-              
-              <Col>
-                <Space>
-                  <Button 
-                    disabled={pagination.currentPage === 1 || loading}
-                    onClick={() => handlePageChange(pagination.currentPage - 1)}
-                    icon={<LeftOutlined />}
-                    size="large"
-                  >
-                    Previous
-                  </Button>
-                  
-                  <div className="page-indicator">
-                    Page {pagination.currentPage} of {pagination.totalPages}
-                  </div>
-                  
-                  <Button 
-                    disabled={pagination.currentPage >= pagination.totalPages || loading}
-                    onClick={() => handlePageChange(pagination.currentPage + 1)}
-                    size="large"
-                  >
-                    Next
-                    <RightOutlined />
-                  </Button>
-                </Space>
+              <Col xs={24} sm={12} style={{ textAlign: 'right' }}>
+                <Pagination
+                  current={currentPage}
+                  total={totalCount}
+                  pageSize={itemsPerPage}
+                  onChange={handlePageChange}
+                  showSizeChanger={false}
+                  responsive
+                />
               </Col>
             </Row>
           </Card>
         )}
+
       </div>
 
-      {/* Global Styles for Perfect Alignment */}
+      {/* Quick View Interactive Popup Modal */}
+      <PropertyQuickViewModal
+        property={quickViewProperty}
+        open={Boolean(quickViewProperty)}
+        onClose={() => setQuickViewProperty(null)}
+        onOpenInquiry={(prop) => setInquiryProperty(prop)}
+      />
+
+      {/* Direct Lead Inquiry Modal */}
+      <PropertyInquiryModal
+        property={inquiryProperty}
+        open={Boolean(inquiryProperty)}
+        onClose={() => setInquiryProperty(null)}
+      />
+
+      {/* Global CSS Styling for Modern Web Design */}
       <style>{`
         .property-page-section {
-          background: linear-gradient(135deg, #f0f8ff 0%, #f6ffed 100%);
+          background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
           min-height: 100vh;
-          padding: 20px 0;
+          padding: 32px 0 64px;
         }
 
         .container-two {
-          max-width: 1400px;
+          max-width: 1440px;
           margin: 0 auto;
-          padding: 0 20px;
+          padding: 0 24px;
         }
 
-        .results-header-main {
-          background: rgba(255, 255, 255, 0.95) !important;
-          border-radius: 12px !important;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
-          margin-bottom: 24px !important;
-          border: 1px solid #e6f7ff !important;
-        }
-
-        .results-info {
-          text-align: left;
-        }
-
-        .results-count {
-          margin: 0 !important;
-          color: #262626 !important;
-          font-size: 20px !important;
-        }
-
-        .results-desc {
-          color: #8c8c8c !important;
-        }
-
-        .header-controls {
-          flex-wrap: wrap;
-          justify-content: flex-end;
-        }
-
-        .stats-display {
+        /* Hero Header Section */
+        .property-hero-search-wrapper {
           text-align: center;
-          min-width: 80px;
+          margin-bottom: 28px;
         }
 
-        .sort-selector {
-          min-width: 160px;
+        .hero-badge-pill {
+          display: inline-flex;
+          align-items: center;
+          background: #fff7ed;
+          color: #ea580c;
+          border: 1px solid #ffedd5;
+          padding: 6px 16px;
+          border-radius: 30px;
+          font-size: 13px;
+          font-weight: 700;
+          margin-bottom: 12px;
         }
 
-        .view-toggle-group {
-          border-radius: 8px !important;
+        .hero-main-title {
+          font-size: 36px !important;
+          font-weight: 800 !important;
+          color: #0f172a !important;
+          letter-spacing: -0.02em;
+          margin-bottom: 8px !important;
         }
 
-        .properties-grid-container {
-          margin: 24px 0;
+        .hero-subtitle {
+          font-size: 16px !important;
+          color: #64748b !important;
+          max-width: 720px;
+          margin: 0 auto 24px !important;
+          display: block;
         }
 
-        .properties-main-grid {
-          margin: 0 !important;
+        /* Hero Tabs */
+        .hero-category-tabs {
+          display: flex;
+          justify-content: center;
+          gap: 8px;
+          margin-bottom: 20px;
+          flex-wrap: wrap;
         }
 
-        .property-grid-item {
-          display: flex !important;
-          height: 100% !important;
-        }
-
-        .loading-state-card,
-        .empty-state-card {
-          background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
-          border-radius: 12px !important;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-          margin: 40px 0 !important;
-          text-align: center !important;
-        }
-
-        .loading-content {
-          padding: 40px;
-        }
-
-        .pagination-main-card {
-          background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
-          border-radius: 12px !important;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
-          margin-top: 32px !important;
-          border: 1px solid #e6f7ff !important;
-        }
-
-        .page-indicator {
-          background: #f0f8ff;
-          padding: 8px 16px;
-          border-radius: 6px;
-          border: 1px solid #91d5ff;
+        .cat-tab-btn {
+          background: #ffffff;
+          border: 1px solid #cbd5e1;
+          color: #475569;
+          padding: 8px 20px;
+          border-radius: 30px;
+          font-size: 14px;
           font-weight: 600;
-          color: #1890ff;
+          cursor: pointer;
+          transition: all 0.2s ease;
         }
 
-        /* Responsive Grid System */
-        @media (max-width: 576px) {
+        .cat-tab-btn:hover {
+          border-color: #ea580c;
+          color: #ea580c;
+        }
+
+        .cat-tab-btn.active {
+          background: #ea580c;
+          border-color: #ea580c;
+          color: #ffffff;
+          box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
+        }
+
+        /* Glassmorphic Search Card */
+        .hero-filter-card {
+          background: rgba(255, 255, 255, 0.95) !important;
+          backdrop-filter: blur(12px) !important;
+          border-radius: 20px !important;
+          box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08) !important;
+          border: 1px solid #e2e8f0 !important;
+          padding: 8px !important;
+        }
+
+        .filter-input-element,
+        .filter-select-element {
+          border-radius: 10px !important;
+        }
+
+        .filter-search-btn {
+          background: linear-gradient(135deg, #f97316, #ea580c) !important;
+          border: none !important;
+          border-radius: 10px !important;
+          font-weight: 700 !important;
+          box-shadow: 0 4px 14px rgba(234, 88, 12, 0.35) !important;
+        }
+
+        .filter-clear-btn {
+          border-radius: 10px !important;
+        }
+
+        /* Active Filter Chips Bar */
+        .active-filters-chip-bar {
+          background: #ffffff;
+          border: 1px dashed #cbd5e1;
+          border-radius: 12px;
+          padding: 10px 16px;
+          margin-bottom: 20px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+
+        .active-filter-label {
+          font-size: 13px;
+          font-weight: 700;
+          color: #475569;
+        }
+
+        /* Results Control Bar */
+        .results-control-bar-card {
+          background: #ffffff !important;
+          border-radius: 14px !important;
+          box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04) !important;
+          border: 1px solid #e2e8f0 !important;
+          margin-bottom: 24px !important;
+        }
+
+        .results-controls-right {
+          display: flex;
+          justify-content: flex-end;
+          align-items: center;
+        }
+
+        .control-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .control-label {
+          font-size: 13px;
+          font-weight: 600;
+          color: #64748b;
+        }
+
+        .sort-dropdown-custom {
+          font-weight: 600 !important;
+        }
+
+        .view-toggle-buttons {
+          border-radius: 8px !important;
+          overflow: hidden;
+        }
+
+        /* Grid Alignment */
+        .property-grid-col {
+          display: flex !important;
+          flex-direction: column;
+        }
+
+        .empty-properties-card {
+          background: #ffffff !important;
+          border-radius: 16px !important;
+          padding: 48px 24px !important;
+          text-align: center !alignment;
+          margin: 32px 0 !important;
+          border: 1px solid #e2e8f0 !important;
+        }
+
+        .pagination-card-main {
+          background: #ffffff !important;
+          border-radius: 14px !important;
+          border: 1px solid #e2e8f0 !important;
+          margin-top: 32px !important;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 768px) {
+          .hero-main-title {
+            font-size: 26px !important;
+          }
+          .results-controls-right {
+            justify-content: flex-start;
+          }
           .container-two {
             padding: 0 16px;
           }
-          
-          .properties-main-grid .ant-col {
-            margin-bottom: 24px !important;
-          }
-
-          .header-controls {
-            flex-direction: column;
-            gap: 12px !important;
-            width: 100%;
-          }
-
-          .header-controls .ant-space-item {
-            width: 100% !important;
-          }
-        }
-
-        @media (max-width: 768px) {
-          .results-header-main .ant-row {
-            flex-direction: column !important;
-            gap: 16px;
-          }
-
-          .results-info {
-            text-align: center;
-          }
-
-          .pagination-main-card .ant-row {
-            flex-direction: column !important;
-            gap: 16px;
-            text-align: center;
-          }
-        }
-
-        @media (min-width: 1400px) {
-          .container-two {
-            max-width: 1600px;
-          }
-        }
-
-        /* Ensure equal heights for all cards */
-        .properties-main-grid > .ant-col {
-          display: flex !important;
-        }
-
-        .properties-main-grid > .ant-col > div {
-          width: 100% !important;
         }
       `}</style>
     </section>

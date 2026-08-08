@@ -17,9 +17,27 @@ import OffCanvas from '../common/OffCanvas';
 import PageTitle from '../common/PageTitle';
 
 const HomeOne = () => {
+    const homeSchema = {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Promoter Property",
+        "url": "https://promoterproperty.com/",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://promoterproperty.com/property?search={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    };
+
     return (
         <>
-         <PageTitle title="Promoter Property - Home Page" />
+            <PageTitle
+                title="Promoter Property - Buy, Sell & Rent Real Estate, Flats & Luxury Villas"
+                description="Explore top real estate listings, verified apartments, villas, commercial plots, and ready-to-move homes. Connect with top brokers and builders at Promoter Property."
+                keywords="real estate, buy property, luxury villas, verified flats, promoter property, commercial plots"
+                canonicalPath="/"
+                schemaJson={homeSchema}
+            />
             <OffCanvas/>
             <MobileMenu/>
             

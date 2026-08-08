@@ -9,9 +9,34 @@ import PageTitle from '../common/PageTitle';
 
 
 const Contact = () => {
+    const localBusinessSchema = {
+        "@context": "https://schema.org",
+        "@type": "RealEstateAgent",
+        "name": "Promoter Property",
+        "image": "https://promoterproperty.com/assets/images/logo/logo-black.png",
+        "telephone": "+91-8939000065",
+        "email": "contact@promoterproperty.com",
+        "url": "https://promoterproperty.com/contact",
+        "priceRange": "₹₹₹",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Prime Location",
+            "addressLocality": "Kolkata",
+            "addressRegion": "West Bengal",
+            "postalCode": "700001",
+            "addressCountry": "IN"
+        }
+    };
+
     return (
         <>
-            <PageTitle title="Promoter Property - Contact Us" />
+            <PageTitle
+                title="Contact Us - Schedule Property Visits & Expert Advice | Promoter Property"
+                description="Get in touch with Promoter Property's real estate experts. Schedule site visits, inquire about property listings, or get assistance with buying and selling properties."
+                keywords="contact promoter property, real estate contact, schedule site visit, property inquiry, real estate customer support"
+                canonicalPath="/contact"
+                schemaJson={localBusinessSchema}
+            />
 
             <main className="body-bg">
                 

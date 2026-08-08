@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /broker/
+Disallow: /user/
+Disallow: /api/
+
+Sitemap: https://promoterproperty.com/sitemap.xml

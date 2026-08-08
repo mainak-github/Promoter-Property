@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { HelmetProvider } from 'react-helmet-async'
 import App from './App.jsx'
 import './index.css'
 import './index.scss'
@@ -10,15 +11,17 @@ import ScrollHideProvider from './contextApi/ScrollHideContext.jsx'
 import PropertyFilterProvider from './contextApi/PropertyFilterContext.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <PropertyFilterProvider>
-        <ScrollHideProvider>
-          <OffCanvasProvider>
-            <MobileMenuProvider>
-              <React.StrictMode>
-                <App />
-              </React.StrictMode>
-            </MobileMenuProvider>
-          </OffCanvasProvider>
-        </ScrollHideProvider>
-  </PropertyFilterProvider>
+  <HelmetProvider>
+    <PropertyFilterProvider>
+      <ScrollHideProvider>
+        <OffCanvasProvider>
+          <MobileMenuProvider>
+            <React.StrictMode>
+              <App />
+            </React.StrictMode>
+          </MobileMenuProvider>
+        </OffCanvasProvider>
+      </ScrollHideProvider>
+    </PropertyFilterProvider>
+  </HelmetProvider>
 )

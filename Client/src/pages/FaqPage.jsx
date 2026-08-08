@@ -9,9 +9,46 @@ import CounterFour from '../components/CounterFour';
 import PageTitle from '../common/PageTitle';
 
 const FaqPage = () => {
+    const faqSchema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "How do I buy or book a property on Promoter Property?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "You can browse verified properties on our catalog, click 'Book Site Visit' or 'WhatsApp Agent' to connect directly with the broker or developer to schedule a visit."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Are all property listings on Promoter Property verified?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes, our team reviews and verifies property details, documentation, and broker profiles before publishing listings."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Can I list my property for sale or rent as a broker or seller?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes, click on 'Add Listing' or register as a broker to submit your property details for review and listing."
+                }
+            }
+        ]
+    };
+
     return (
         <>
-            <PageTitle title="Promoter Property - Frequently Ask Question" />
+            <PageTitle
+                title="Frequently Asked Questions (FAQ) - Real Estate Assistance | Promoter Property"
+                description="Find answers to common real estate questions regarding property search, site visits, buying, selling, and broker verification at Promoter Property."
+                keywords="real estate FAQ, property buying questions, broker registration FAQ, promoter property help"
+                canonicalPath="/faq"
+                schemaJson={faqSchema}
+            />
 
             {/* Header */}
             <Header

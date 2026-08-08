@@ -18,7 +18,6 @@
   overflow: hidden !important;
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.35s ease !important;
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05) !important;
-  /* Equal height: stretch to fill wrapper */
   height: 100% !important;
   display: flex !important;
   flex-direction: column !important;
@@ -104,6 +103,41 @@
 }
 .status-indigo {
   background: linear-gradient(135deg, #4f46e5, #6366f1);
+}
+
+/* Floating Quick View Button on Hover */
+.custom-quickview-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -40%);
+  z-index: 4;
+  background: rgba(15, 23, 42, 0.85);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.custom-card-image-area:hover .custom-quickview-btn {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+}
+
+.custom-quickview-btn:hover {
+  background: #ea580c;
+  border-color: #ea580c;
+  transform: translate(-50%, -50%) scale(1.05);
 }
 
 /* Top Right Favorite Circle Button */
@@ -338,7 +372,6 @@
   flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 16px;
-  /* Reserve space even when no tags — keeps cards aligned */
   min-height: 32px;
   align-content: flex-start;
 }
@@ -374,7 +407,6 @@
   flex-direction: column;
   gap: 8px;
   margin-bottom: 12px;
-  /* Push actions to bottom when content above is short */
   margin-top: auto;
 }
 
@@ -456,4 +488,122 @@
 .custom-property-id {
   font-weight: 600;
   color: #64748b;
+}
+
+/* =========================================================
+   Horizontal List View Card Styles
+   ========================================================= */
+.custom-property-card-list-wrapper {
+  display: flex;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: 16px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.custom-property-card-list-wrapper:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 24px -6px rgba(15, 23, 42, 0.1);
+  border-color: #ea580c;
+}
+
+.list-card-image-wrap {
+  position: relative;
+  width: 320px;
+  min-width: 320px;
+  height: 230px;
+  overflow: hidden;
+  background: #f1f5f9;
+}
+
+.list-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.custom-property-card-list-wrapper:hover .list-card-img {
+  transform: scale(1.06);
+}
+
+.list-card-content {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.list-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.list-card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 6px 0;
+}
+
+.list-card-price-box {
+  text-align: right;
+  min-width: 140px;
+}
+
+.list-card-specs-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: #f8fafc;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin: 12px 0;
+  border: 1px solid #f1f5f9;
+}
+
+.list-spec-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+.list-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.list-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Responsive adjustments for List View */
+@media (max-width: 768px) {
+  .custom-property-card-list-wrapper {
+    flex-direction: column;
+  }
+  .list-card-image-wrap {
+    width: 100%;
+    min-width: 100%;
+    height: 200px;
+  }
+  .list-card-header {
+    flex-direction: column;
+  }
+  .list-card-price-box {
+    text-align: left;
+  }
 }

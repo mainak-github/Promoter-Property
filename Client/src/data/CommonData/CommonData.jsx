@@ -5,39 +5,34 @@ import React from 'react';
 export const offCanvasInfos = [
     {
         icon: <i className="fas fa-map-marker-alt"></i>,
-        text: 'Burmsille Street, MN 55337, United States',
+        text: 'Phase 1, GREETA TOWERS, Greeta Techpark, No: 99, Rajiv Gandhi Salai, Industrial Estate, Perungudi, Chennai 600096',
         link: ''
     },
     {
         icon: <i className="fas fa-phone"></i>,
-        text: ['+(1) 123 456 7890', '+(1) 098 765 4321'],
-        link: ['tel:', 'tel:']
+        text: ['+91 89390 00065'],
+        link: ['tel:+918939000065']
     },
     {
         icon: <i className="fas fa-envelope"></i>,
-        text: ['info@driller.com', 'info.example@driller.com'],
-        link: ['mailto:', 'mailto:']
+        text: ['ajesh@promoterproperty.com'],
+        link: ['mailto:ajesh@promoterproperty.com']
     }
 ];
-
 
 // Social List
 export const socialLists = [
     {
-        link: 'https://www.facebook.com',
+        link: 'https://www.instagram.com/promoterproperty?utm_source=qr&igsh=MTVtZnJxMjYxcG91eg==',
+        icon: <i className="fab fa-instagram"></i>
+    },
+    {
+        link: 'https://www.facebook.com/share/1BBdx1c4CL/',
         icon: <i className="fab fa-facebook-f"></i>
     },
     {
-        link: 'https://www.twitter.com',
-        icon: <i className="fab fa-twitter"></i>
-    },
-    {
-        link: 'https://www.linkedin.com',
-        icon: <i className="fab fa-linkedin-in"></i>
-    },
-    {
-        link: 'https://www.pinterest.com',
-        icon: <i className="fab fa-instagram"></i>
+        link: 'https://youtube.com/@promoterproperty?si=y9aPCEntj3KRw35z',
+        icon: <i className="fab fa-youtube"></i>
     },
 ]
 
@@ -65,17 +60,17 @@ export const starRatings = [
 export const topHeaderInfos = [
     {
         icon: <i className="fas fa-phone"></i>,
-        text: '(629) 555-0129',
-        link: 'tel:'
+        text: '+91 89390 00065',
+        link: 'tel:+918939000065'
     },
     {
         icon: <i className="fas fa-envelope"></i>,
-        text: 'info@example.com',
-        link: 'mailto:'
+        text: 'ajesh@promoterproperty.com',
+        link: 'mailto:ajesh@promoterproperty.com'
     },
     {
         icon: <i className="fas fa-map-marker-alt"></i>,
-        text: '6391 Elgin St. Celina, 10299',
+        text: 'Phase 1, GREETA TOWERS, Greeta Techpark, Perungudi, Chennai 600096',
         link: ''
     }
 ]
@@ -85,83 +80,32 @@ export const topHeaderInfos = [
 export const navMenus = [
     {
       text: "Home",
-      path: "#",
-      submenus: [
-        {
-            text: "Home One",
-            path: "/",
-        },
-        {
-            text: "Home Two",
-            path: "/home-two",
-        },
-        {
-            text: "Home Three",
-            path: "/home-three",
-        },
-        {
-            text: "Home Four",
-            path: "/home-four",
-        },
-        {
-            text: "Home Five",
-            path: "/home-five",
-        },
-      ],
+      path: "/",
     },
     {
-      text: "Pages",
-      path: "#",
+      text: "Services",
+      path: "/services",
       submenus: [
-        {
-            text: "Property",
-            path: "/property",
-        },
-        {
-            text: "Property Sidebar",
-            path: "/property-sidebar",
-        },
-        {
-            text: "Add New Listing",
-            path: "/add-new-listing",
-        },
-        {
-            text: "Map Location",
-            path: "/map-location",
-        },
-        {
-            text: "About Us",
-            path: "/about-us",
-        },
-        {
-            text: "Faq",
-            path: "/faq",
-        },
-        {
-            text: "Cart",
-            path: "/cart",
-        },
-        {
-            text: "Checkout",
-            path: "/checkout",
-        },
-        {
-            text: "Login",
-            path: "/login",
-        },
-        {
-            text: "Account",
-            path: "/account",
-        }
-      ],
+        { text: "Brand Marketing", path: "/services/brand-marketing" },
+        { text: "Legal Services", path: "/services/legal-services" },
+        { text: "Real Estate Consultancy", path: "/services/real-estate-consultancy" },
+        { text: "Home Loans", path: "/services/home-loans" },
+        { text: "Interior Design", path: "/services/interior-design" },
+        { text: "Construction", path: "/services/construction" },
+        { text: "Commercial Real Estate", path: "/services/commercial-real-estate" }
+      ]
+    },
+    {
+      text: "Properties",
+      path: "/property",
     },
     {
       text: "Project",
       path: "/project",
     },
     {
-      text: "Blog",
-      path: "/blog"
+      text: "About Us",
+      path: "/about-us",
     },
     {
       text: "Contact",
@@ -169,14 +113,12 @@ export const navMenus = [
     },
 ]
 
-
-
 // Footer Content
 export const footerInfos = [ 
     {
         icon: <i className="fas fa-map-marker-alt"></i>,
-        text: 'Address',
-        address: 'Chennai, Tamil Nadu, India'
+        text: 'Office Address',
+        address: 'Phase 1, GREETA TOWERS, Greeta Techpark, No: 99, Rajiv Gandhi Salai, Industrial Estate, Perungudi, Chennai 600096'
     },
     {
         icon: <i className="fas fa-phone"></i>,
@@ -187,24 +129,32 @@ export const footerInfos = [
 
 export const footerServiceLinks = [ 
     {
-        text: 'Reliable Rentals',
-        link: '/property'
+        text: 'Brand Marketing',
+        link: '/services/brand-marketing'
     },
     {
-        text: 'Golden Key Properties',
-        link: '/property'
+        text: 'Legal Services',
+        link: '/services/legal-services'
     },
     {
-        text: 'Swift Home Sales',
-        link: '/property'
+        text: 'Real Estate Consultancy',
+        link: '/services/real-estate-consultancy'
     },
     {
-        text: 'Elite Realty Services',
-        link: '/property'
+        text: 'Home Loans',
+        link: '/services/home-loans'
     },
     {
-        text: 'Dream Property Solutions',
-        link: '/property'
+        text: 'Interior Design',
+        link: '/services/interior-design'
+    },
+    {
+        text: 'Construction',
+        link: '/services/construction'
+    },
+    {
+        text: 'Commercial Real Estate',
+        link: '/services/commercial-real-estate'
     },
 ]
 
@@ -240,32 +190,32 @@ import FooterGallery6 from '../../../public/assets/images/thumbs/gallery6.png';
 export const footerGallery = [ 
     {
         img: FooterGallery1,
-        link: 'https://www.instagram.com',
+        link: 'https://www.instagram.com/promoterproperty?utm_source=qr&igsh=MTVtZnJxMjYxcG91eg==',
         icon: <i className="fab fa-instagram"></i>
     },
     {
         img: FooterGallery2,
-        link: 'https://www.instagram.com',
+        link: 'https://www.instagram.com/promoterproperty?utm_source=qr&igsh=MTVtZnJxMjYxcG91eg==',
         icon: <i className="fab fa-instagram"></i>
     },
     {
         img: FooterGallery3,
-        link: 'https://www.instagram.com',
+        link: 'https://www.instagram.com/promoterproperty?utm_source=qr&igsh=MTVtZnJxMjYxcG91eg==',
         icon: <i className="fab fa-instagram"></i>
     },
     {
         img: FooterGallery4,
-        link: 'https://www.instagram.com',
+        link: 'https://www.instagram.com/promoterproperty?utm_source=qr&igsh=MTVtZnJxMjYxcG91eg==',
         icon: <i className="fab fa-instagram"></i>
     },
     {
         img: FooterGallery5,
-        link: 'https://www.instagram.com',
+        link: 'https://www.instagram.com/promoterproperty?utm_source=qr&igsh=MTVtZnJxMjYxcG91eg==',
         icon: <i className="fab fa-instagram"></i>
     },
     {
         img: FooterGallery6,
-        link: 'https://www.instagram.com',
+        link: 'https://www.instagram.com/promoterproperty?utm_source=qr&igsh=MTVtZnJxMjYxcG91eg==',
         icon: <i className="fab fa-instagram"></i>
     },
 ]

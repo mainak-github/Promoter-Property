@@ -7,9 +7,34 @@ import Cta from '../components/Cta';
 import PageTitle from '../common/PageTitle';
 
 const Property = () => {
+    const breadcrumbSchema = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://promoterproperty.com/"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Properties",
+                "item": "https://promoterproperty.com/property"
+            }
+        ]
+    };
+
     return (
         <>
-            <PageTitle title="Promoter Property - Property" />
+            <PageTitle
+                title="Verified Real Estate & Properties For Sale & Rent | Promoter Property"
+                description="Browse 100+ verified properties, luxury apartments, independent houses, villas, and commercial plots. Filter by location, BHK, budget, and construction status."
+                keywords="properties for sale, buy flat, luxury villa, verified property listings, real estate search, promoter property"
+                canonicalPath="/property"
+                schemaJson={breadcrumbSchema}
+            />
 
             <main className="body-bg">
 

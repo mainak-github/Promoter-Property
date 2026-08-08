@@ -29,6 +29,8 @@ import BlogClassic from './pages/BlogClassic';
 import BlogDetails from './pages/BlogDetails';
 import Contact from './pages/Contact';
 import Register from './pages/Register';
+import ServicesPage from './pages/ServicesPage';
+import ServiceDetails from './pages/ServiceDetails';
 import NotFound from './pages/NotFound';
 import Dashoboard from './components/Dashoboard';
 import BrokerDashboard from './components/BrokerDashboard';
@@ -100,12 +102,17 @@ function App() {
             <Route path="/home-six" element={<HomeSix />} />
             <Route path="/home-seven" element={<HomeSeven />} />
             <Route path="/property" element={<Property />} />
+            <Route path="/properties" element={<Property />} />
             <Route path="/property-sidebar" element={<PropertySidebar />} />
             <Route path="/property/:title" element={<PropertyDetails />} />
+            <Route path="/properties/:id" element={<PropertyDetails />} />
+            <Route path="/property/details/:id" element={<PropertyDetails />} />
             <Route path="/add-new-listing" element={<AddListing />} />
             <Route path="/map-location" element={<MapLocation />} />
             <Route path="/about-us" element={<AboutUs />} />
+            <Route path="/about" element={<AboutUs />} />
             <Route path="/faq" element={<FaqPage />} />
+            <Route path="/faqs" element={<FaqPage />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/login" element={<Login />} />
@@ -114,15 +121,17 @@ function App() {
             <Route path="/broker/registration" element={<BrokerRegistration />} />
             <Route path="/account" element={<Account />} />
             <Route path="/project" element={<Project />} />
+            <Route path="/projects" element={<Project />} />
             <Route path="/project/:title" element={<ProjectDetails />} />
             <Route path="/blog" element={<BlogClassic />} />
+            <Route path="/blogs" element={<BlogClassic />} />
             <Route path="/blog/:title" element={<BlogDetails />} />
             <Route path="/admin/dashboard" element={<Dashoboard />} />
             <Route path="/broker/dashboard" element={<BrokerDashboard />} />
             <Route path="/user/dashboard" element={<ClientDashboard />} />
             <Route path="/admin/brokers" element={<BrokerLists />} />
             <Route path="/admin/broker-details/:id" element={<BrokerDetails />} />
-           <Route path="/broker/profile/:id" element={<BorkerUpdate />} />
+            <Route path="/broker/profile/:id" element={<BorkerUpdate />} />
             <Route path="/admin/clients" element={<ClientLists />} />
             <Route path="/admin/property-listing" element={<PropertyCreation />} />
             <Route path="/broker/property-listing" element={<PropertyCreation />} />
@@ -133,20 +142,24 @@ function App() {
             <Route path="/admin/user-details/:id" element={<UserDetails />} />
             <Route path="/profile/:id" element={<MyClientProfile />} />
             <Route path="/admin/create-landing-page" element={<LandingPageBuilder />} />
-            <Route path="/property/details/:id" element={<PropertyDetails />} />
             <Route path="/admin/cms/faqs" element={<FAQs />} />
             <Route path="/admin/leads" element={<Leads />} />
             <Route path="/admin/cms/privacy-policy" element={<PrivacyPolicyCMS />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicyCMS />} />
+            <Route path="/privacy" element={<PrivacyPolicyCMS />} />
             <Route path="/admin/cms/tnc" element={<TermsConditions />} />
+            <Route path="/terms" element={<TermsConditions />} />
+            <Route path="/terms-conditions" element={<TermsConditions />} />
+            <Route path="/tnc" element={<TermsConditions />} />
             <Route path="/admin/reports/sales" element={<SalesReport />} />
             <Route path="/admin/reports/brokers" element={<BrokerReport />} />
             <Route path="/admin/reports/clients" element={<ClientActivityReport />} />
             <Route path="/admin/profile" element={<AdminProfile />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
-
-           
-            
             <Route path="/contact" element={<Contact />} />
+            <Route path="/contact-us" element={<Contact />} />
+            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/services/:slug" element={<ServiceDetails />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Wrapper>

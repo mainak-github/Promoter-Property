@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Layout, Menu } from 'antd';
 import { HomeOutlined, TeamOutlined, ProfileOutlined, MailOutlined, AppstoreOutlined, BarChartOutlined, FileTextOutlined, ContactsOutlined } from '@ant-design/icons';
 
@@ -156,7 +157,7 @@ const DashboardSidebar = ({ collapsed }) => {
       <div 
         style={{ 
           height: 64, 
-          padding: '0 20px', 
+          padding: '0 16px', 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: collapsed ? 'center' : 'flex-start',
@@ -164,29 +165,13 @@ const DashboardSidebar = ({ collapsed }) => {
           background: '#001529'
         }}
       >
-        <div style={{
-          width: 38,
-          height: 38,
-          borderRadius: 10,
-          background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 4px 10px rgba(234, 88, 12, 0.4)',
-          flexShrink: 0
-        }}>
-          <HomeOutlined style={{ color: '#ffffff', fontSize: 20 }} />
-        </div>
-        {!collapsed && (
-          <div style={{ marginLeft: 12, overflow: 'hidden', whiteSpace: 'nowrap' }}>
-            <div style={{ color: '#ffffff', fontWeight: 800, fontSize: 16, letterSpacing: '0.04em', lineHeight: 1.2 }}>
-              PROMOTER
-            </div>
-            <div style={{ color: '#ea580c', fontWeight: 700, fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-              PROPERTY ADMIN
-            </div>
-          </div>
-        )}
+        <Link to="/" style={{ display: 'flex', alignItems: 'center' }}>
+          <img 
+            src="/assets/images/logo/white-logo.png" 
+            alt="Promoter Property Logo" 
+            style={{ maxHeight: collapsed ? 32 : 40, width: 'auto', objectFit: 'contain' }} 
+          />
+        </Link>
       </div>
       <Menu
         theme="dark"

@@ -23,7 +23,10 @@ import {
   Tooltip,
   Drawer,
   Descriptions,
-  Divider
+  Divider,
+  Tabs,
+  Empty,
+  Badge
 } from 'antd';
 import { 
   EyeOutlined, 
@@ -45,7 +48,16 @@ import {
   FireOutlined,
   SafetyOutlined,
   ClockCircleOutlined,
-  StopOutlined
+  StopOutlined,
+  CompassOutlined,
+  PictureOutlined,
+  FileTextOutlined,
+  UserOutlined,
+  GlobalOutlined,
+  LinkOutlined,
+  CheckOutlined,
+  InfoCircleOutlined,
+  CarOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
 import DashboardSidebar from '../common/Dashboard_Sidebar';
@@ -70,6 +82,22 @@ const PropertiesList = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState(null);
+
+  const getImageUrl = (imgPath) => {
+    if (!imgPath) return null;
+    if (typeof imgPath !== 'string') return null;
+    if (imgPath.startsWith('http://') || imgPath.startsWith('https://')) return imgPath;
+    
+    let cleanPath = imgPath.replace(/\\/g, '/');
+    if (cleanPath.startsWith('../src/')) {
+      cleanPath = cleanPath.replace('../src/', '');
+    } else if (cleanPath.startsWith('src/')) {
+      cleanPath = cleanPath.replace('src/', '');
+    }
+    
+    cleanPath = cleanPath.replace(/^\/+/, '');
+    return `${url.IMAGE_URL}/${cleanPath}`;
+  };
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -706,64 +734,426 @@ const PropertiesList = () => {
             />
           </Card>
 
-          {/* Property Details Drawer */}
+          {/* Enhanced Property Details Drawer */}
           <Drawer
             title={
-              <Space>
-                <Avatar 
-                  src={selectedProperty?.coverPhoto ? `${url.IMAGE_URL}/${selectedProperty.coverPhoto.replace(/\\/g, "/")}` : null}
-                  icon={<HomeOutlined />}
-                  size="large"
-                />
-                <div>
-                  <div style={{ fontSize: '18px', fontWeight: 600 }}>
-                    {selectedProperty?.title || 'Property Details'}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingRight: 12 }}>
+                <Space size="middle">
+                  <Avatar 
+                    src={getImageUrl(selectedProperty?.coverPhoto)}
+                    icon={<HomeOutlined />}
+                    size={48}
+                    style={{ border: '2px solid #ea580c' }}
+                  />
+                  <div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.2 }}>
+                      {selectedProperty?.title || 'Property Details'}
+                    </div>
+                    <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 3, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <EnvironmentOutlined style={{ color: '#ea580c' }} />
+                      <span>{selectedProperty?.city || selectedProperty?.suburb || 'Location N/A'}</span>
+                      <span>•</span>
+                      <span>ID: #{selectedProperty?.id}</span>
+                    </div>
                   </div>
-                  <div style={{ fontSize: '14px', color: '#8c8c8c' }}>
-                    Property Information
-                  </div>
-                </div>
-              </Space>
+                </Space>
+                <Tag 
+                  color={getStatusColor(selectedProperty?.approvalStatus)} 
+                  icon={getStatusIcon(selectedProperty?.approvalStatus)}
+                  style={{ fontSize: '0.82rem', padding: '4px 10px', borderRadius: 6, fontWeight: 700 }}
+                >
+                  {(selectedProperty?.approvalStatus || 'pending').toUpperCase()}
+                </Tag>
+              </div>
             }
             placement="right"
             onClose={() => setDrawerVisible(false)}
             open={drawerVisible}
-            width={600}
+            width={750}
+            bodyStyle={{ padding: '16px 24px 80px 24px', background: '#f8fafc' }}
           >
             {selectedProperty && (
               <div>
-                <Descriptions column={1} bordered>
-                  <Descriptions.Item label="Property Title">
-                    {selectedProperty.title}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Property Type">
-                    {selectedProperty.propertyType || 'Not specified'}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Price Range">
-                    {formatPriceToIndian(selectedProperty.priceRange)}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Location">
-                    {selectedProperty.city || 'Not specified'}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Bedrooms">
-                    {selectedProperty.bedrooms || 'Not specified'} BHK
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Status">
-                    <Tag color={getStatusColor(selectedProperty.approvalStatus)} icon={getStatusIcon(selectedProperty.approvalStatus)}>
-                      {(selectedProperty.approvalStatus || 'pending').toUpperCase()}
-                    </Tag>
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Broker ID">
-                    {selectedProperty.brokerId}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Created Date">
-                    {new Date(selectedProperty.createdAt).toLocaleDateString()}
-                  </Descriptions.Item>
-                </Descriptions>
+                <Tabs
+                  defaultActiveKey="overview"
+                  type="card"
+                  items={[
+                    {
+                      key: 'overview',
+                      label: (
+                        <span>
+                          <HomeOutlined /> Overview & Gallery
+                        </span>
+                      ),
+                      children: (
+                        <div>
+                          {/* Image Gallery */}
+                          <Card title="📷 Property Gallery" size="small" style={{ marginBottom: 16, borderRadius: 12 }}>
+                            {selectedProperty.coverPhoto || (selectedProperty.images && selectedProperty.images.length > 0) ? (
+                              <Image.PreviewGroup>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: 10 }}>
+                                  {selectedProperty.coverPhoto && (
+                                    <div style={{ position: 'relative' }}>
+                                      <Image
+                                        src={getImageUrl(selectedProperty.coverPhoto)}
+                                        alt="Cover"
+                                        style={{ width: '100%', height: 85, objectFit: 'cover', borderRadius: 8, border: '2px solid #ea580c' }}
+                                      />
+                                      <span style={{ position: 'absolute', bottom: 4, left: 4, background: 'rgba(234, 88, 12, 0.85)', color: '#fff', fontSize: '0.65rem', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>Cover</span>
+                                    </div>
+                                  )}
+                                  {selectedProperty.images && selectedProperty.images.map((imgObj, idx) => {
+                                    const imgPath = typeof imgObj === 'string' ? imgObj : imgObj.imageUrl;
+                                    return (
+                                      <Image
+                                        key={idx}
+                                        src={getImageUrl(imgPath)}
+                                        alt={`Image ${idx + 1}`}
+                                        style={{ width: '100%', height: 85, objectFit: 'cover', borderRadius: 8 }}
+                                      />
+                                    );
+                                  })}
+                                </div>
+                              </Image.PreviewGroup>
+                            ) : (
+                              <Empty description="No property photos uploaded" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                            )}
+                          </Card>
 
-                <Divider />
+                          {/* Quick Highlights */}
+                          <Card title="⚡ Key Specifications" size="small" style={{ marginBottom: 16, borderRadius: 12 }}>
+                            <Row gutter={[12, 12]}>
+                              <Col span={8}>
+                                <div style={{ background: '#eff6ff', padding: '10px 12px', borderRadius: 8, border: '1px solid #bfdbfe' }}>
+                                  <Text type="secondary" style={{ fontSize: '0.75rem', fontWeight: 600 }}>PRICE RANGE</Text>
+                                  <div style={{ color: '#1e40af', fontWeight: 800, fontSize: '1.05rem', marginTop: 2 }}>
+                                    {formatPriceToIndian(selectedProperty.priceRange)}
+                                  </div>
+                                </div>
+                              </Col>
+                              <Col span={8}>
+                                <div style={{ background: '#f0fdf4', padding: '10px 12px', borderRadius: 8, border: '1px solid #bbf7d0' }}>
+                                  <Text type="secondary" style={{ fontSize: '0.75rem', fontWeight: 600 }}>PROPERTY TYPE</Text>
+                                  <div style={{ color: '#166534', fontWeight: 800, fontSize: '1rem', marginTop: 2 }}>
+                                    {selectedProperty.propertyType || 'N/A'}
+                                  </div>
+                                </div>
+                              </Col>
+                              <Col span={8}>
+                                <div style={{ background: '#fff7ed', padding: '10px 12px', borderRadius: 8, border: '1px solid #fed7aa' }}>
+                                  <Text type="secondary" style={{ fontSize: '0.75rem', fontWeight: 600 }}>BUDGET CATEGORY</Text>
+                                  <div style={{ color: '#c2410c', fontWeight: 800, fontSize: '0.95rem', marginTop: 2 }}>
+                                    {selectedProperty.budgetType || 'N/A'}
+                                  </div>
+                                </div>
+                              </Col>
+                            </Row>
 
-                <Space style={{ width: '100%', justifyContent: 'center' }}>
+                            <Descriptions column={2} bordered size="small" style={{ marginTop: 14 }}>
+                              <Descriptions.Item label="Bedrooms">{selectedProperty.bedrooms !== null && selectedProperty.bedrooms !== undefined ? `${selectedProperty.bedrooms} BHK` : 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="Bathrooms">{selectedProperty.bathrooms !== null && selectedProperty.bathrooms !== undefined ? `${selectedProperty.bathrooms} Baths` : 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="Furnished Status">{selectedProperty.furnishedStatus || 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="Parking Available">{selectedProperty.parkingAvailable ? 'Yes' : 'No / Unspecified'}</Descriptions.Item>
+                              <Descriptions.Item label="Total Area">{selectedProperty.totalArea || 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="Carpet Area">{selectedProperty.carpetArea || 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="Facing">{selectedProperty.facing || 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="Property Status">{selectedProperty.status || 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="Floor Number">{selectedProperty.floorNumber || 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="Number of Towers">{selectedProperty.numberOfTowers || 'N/A'}</Descriptions.Item>
+                            </Descriptions>
+                          </Card>
+
+                          {/* Descriptions */}
+                          <Card title="📝 Descriptions" size="small" style={{ borderRadius: 12 }}>
+                            {selectedProperty.shortDescription && (
+                              <div style={{ marginBottom: 12, background: '#f1f5f9', padding: 12, borderRadius: 8, borderLeft: '4px solid #0284c7' }}>
+                                <Text strong style={{ color: '#0f172a', display: 'block', marginBottom: 4 }}>Short Summary:</Text>
+                                <Text style={{ color: '#334155', whiteSpace: 'pre-line' }}>{selectedProperty.shortDescription}</Text>
+                              </div>
+                            )}
+                            {selectedProperty.longDescription ? (
+                              <div>
+                                <Text strong style={{ color: '#0f172a', display: 'block', marginBottom: 4 }}>Full Details:</Text>
+                                <div style={{ color: '#475569', fontSize: '0.88rem', lineHeight: 1.6, whiteSpace: 'pre-line', background: '#ffffff', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                                  {selectedProperty.longDescription}
+                                </div>
+                              </div>
+                            ) : (
+                              <Text type="secondary">No long description provided.</Text>
+                            )}
+                          </Card>
+                        </div>
+                      )
+                    },
+                    {
+                      key: 'location',
+                      label: (
+                        <span>
+                          <EnvironmentOutlined /> Location & Address
+                        </span>
+                      ),
+                      children: (
+                        <div>
+                          <Card title="📍 Location Details" size="small" style={{ marginBottom: 16, borderRadius: 12 }}>
+                            <Descriptions column={2} bordered size="small">
+                              <Descriptions.Item label="Address" span={2}>{selectedProperty.address || 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="Road / Landmark">{selectedProperty.road || 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="Suburb / Area">{selectedProperty.suburb || 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="City">{selectedProperty.city || 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="District">{selectedProperty.district || 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="State">{selectedProperty.state || 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="Pincode">{selectedProperty.pincode || 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="Country">{selectedProperty.country || 'India'}</Descriptions.Item>
+                              <Descriptions.Item label="Continent">{selectedProperty.continent || 'Asia'}</Descriptions.Item>
+                              <Descriptions.Item label="Latitude">{selectedProperty.latitude || 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="Longitude">{selectedProperty.longitude || 'N/A'}</Descriptions.Item>
+                            </Descriptions>
+                          </Card>
+
+                          {selectedProperty.googleMapLink && (
+                            <Card size="small" style={{ borderRadius: 12, background: '#f0f9ff', border: '1px solid #bae6fd', textAlign: 'center' }}>
+                              <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                                <Text strong style={{ color: '#0369a1' }}>Google Maps Location</Text>
+                                <Button 
+                                  type="primary" 
+                                  icon={<CompassOutlined />}
+                                  href={selectedProperty.googleMapLink}
+                                  target="_blank"
+                                  style={{ background: '#0284c7', borderColor: '#0284c7', borderRadius: 8, height: 40, fontWeight: 700 }}
+                                >
+                                  Open Property Location in Google Maps
+                                </Button>
+                              </Space>
+                            </Card>
+                          )}
+                        </div>
+                      )
+                    },
+                    {
+                      key: 'developer',
+                      label: (
+                        <span>
+                          <BuildOutlined /> Developer & Dates
+                        </span>
+                      ),
+                      children: (
+                        <div>
+                          <Card title="🏗️ Developer Information" size="small" style={{ marginBottom: 16, borderRadius: 12 }}>
+                            {selectedProperty.developerInfo ? (
+                              <Space align="start" size="middle">
+                                {selectedProperty.developerInfo.developerLogo && (
+                                  <Avatar 
+                                    src={getImageUrl(selectedProperty.developerInfo.developerLogo)} 
+                                    size={64} 
+                                    shape="square"
+                                    style={{ borderRadius: 8, border: '1px solid #cbd5e1' }}
+                                  />
+                                )}
+                                <div>
+                                  <div style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a' }}>
+                                    {selectedProperty.developerInfo.developerName || 'Developer Name N/A'}
+                                  </div>
+                                  <div style={{ color: '#475569', fontSize: '0.85rem', marginTop: 4, whiteSpace: 'pre-line' }}>
+                                    {selectedProperty.developerInfo.developerDescription || selectedProperty.developerInfo.aboutDeveloper || 'No developer description available.'}
+                                  </div>
+                                </div>
+                              </Space>
+                            ) : (
+                              <Text type="secondary">No developer information provided.</Text>
+                            )}
+                          </Card>
+
+                          <Card title="📅 Timeline & Management" size="small" style={{ borderRadius: 12 }}>
+                            <Descriptions column={2} bordered size="small">
+                              <Descriptions.Item label="Launch Date">
+                                {selectedProperty.launchDate ? new Date(selectedProperty.launchDate).toLocaleDateString() : 'N/A'}
+                              </Descriptions.Item>
+                              <Descriptions.Item label="Completion Date">
+                                {selectedProperty.completionDate ? new Date(selectedProperty.completionDate).toLocaleDateString() : 'N/A'}
+                              </Descriptions.Item>
+                              <Descriptions.Item label="Submitted Date">
+                                {selectedProperty.createdAt ? new Date(selectedProperty.createdAt).toLocaleString() : 'N/A'}
+                              </Descriptions.Item>
+                              <Descriptions.Item label="Last Updated">
+                                {selectedProperty.updatedAt ? new Date(selectedProperty.updatedAt).toLocaleString() : 'N/A'}
+                              </Descriptions.Item>
+                              <Descriptions.Item label="Broker ID">
+                                #{selectedProperty.brokerId}
+                              </Descriptions.Item>
+                              <Descriptions.Item label="Approval Status">
+                                <Tag color={getStatusColor(selectedProperty.approvalStatus)}>
+                                  {(selectedProperty.approvalStatus || 'pending').toUpperCase()}
+                                </Tag>
+                              </Descriptions.Item>
+                            </Descriptions>
+                          </Card>
+                        </div>
+                      )
+                    },
+                    {
+                      key: 'amenities',
+                      label: (
+                        <span>
+                          <CheckCircleOutlined /> Amenities & Facilities
+                        </span>
+                      ),
+                      children: (
+                        <div>
+                          <Card title="✨ Amenities" size="small" style={{ marginBottom: 16, borderRadius: 12 }}>
+                            {selectedProperty.amenities && selectedProperty.amenities.length > 0 ? (
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                                {selectedProperty.amenities.map((am, idx) => (
+                                  <Tag key={idx} color="blue" style={{ fontSize: '0.85rem', padding: '4px 12px', borderRadius: 6 }}>
+                                    <CheckOutlined style={{ marginRight: 6 }} />
+                                    {typeof am === 'string' ? am : (am.name || am.amenityName || 'Amenity')}
+                                  </Tag>
+                                ))}
+                              </div>
+                            ) : (
+                              <Text type="secondary">No specific amenities listed.</Text>
+                            )}
+                          </Card>
+
+                          <Card title="🚍 Nearby Facilities" size="small" style={{ borderRadius: 12 }}>
+                            {selectedProperty.nearbyFacilities && selectedProperty.nearbyFacilities.length > 0 ? (
+                              <Row gutter={[12, 12]}>
+                                {selectedProperty.nearbyFacilities.map((fac, idx) => (
+                                  <Col span={12} key={idx}>
+                                    <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                      <Text strong style={{ fontSize: '0.85rem' }}>{fac.facilityName || fac.facilityType}</Text>
+                                      <Tag color="orange">{fac.distance || 'Nearby'}</Tag>
+                                    </div>
+                                  </Col>
+                                ))}
+                              </Row>
+                            ) : (
+                              <Text type="secondary">No nearby facilities listed.</Text>
+                            )}
+                          </Card>
+                        </div>
+                      )
+                    },
+                    {
+                      key: 'floorplans',
+                      label: (
+                        <span>
+                          <PictureOutlined /> Floor Plans & Maps
+                        </span>
+                      ),
+                      children: (
+                        <div>
+                          <Card title="📐 Floor Plans" size="small" style={{ marginBottom: 16, borderRadius: 12 }}>
+                            {selectedProperty.floorPlans && selectedProperty.floorPlans.length > 0 ? (
+                              <Row gutter={[12, 12]}>
+                                {selectedProperty.floorPlans.map((fp, idx) => {
+                                  const photoUrl = getImageUrl(fp.photo || fp.imageUrl);
+                                  return (
+                                    <Col span={12} key={idx}>
+                                      <Card size="small" style={{ borderRadius: 8, overflow: 'hidden' }}>
+                                        {photoUrl && (
+                                          <Image
+                                            src={photoUrl}
+                                            alt={fp.floorName || 'Floor Plan'}
+                                            style={{ width: '100%', height: 140, objectFit: 'cover' }}
+                                          />
+                                        )}
+                                        <div style={{ marginTop: 8 }}>
+                                          <Text strong>{fp.floorName || fp.title || `Floor Plan #${idx + 1}`}</Text>
+                                          {fp.towerName && <div><Text type="secondary" style={{ fontSize: '0.8rem' }}>Tower: {fp.towerName}</Text></div>}
+                                          {fp.shortDescription && <div><Text type="secondary" style={{ fontSize: '0.8rem' }}>{fp.shortDescription}</Text></div>}
+                                        </div>
+                                      </Card>
+                                    </Col>
+                                  );
+                                })}
+                              </Row>
+                            ) : (
+                              <Text type="secondary">No floor plans uploaded.</Text>
+                            )}
+                          </Card>
+
+                          <Card title="🗺️ Layout Maps" size="small" style={{ borderRadius: 12 }}>
+                            {selectedProperty.layoutMaps && selectedProperty.layoutMaps.length > 0 ? (
+                              <Row gutter={[12, 12]}>
+                                {selectedProperty.layoutMaps.map((map, idx) => {
+                                  const mapUrl = getImageUrl(map.imageUrl || map.photo);
+                                  return (
+                                    <Col span={12} key={idx}>
+                                      <Card size="small" style={{ borderRadius: 8, overflow: 'hidden' }}>
+                                        {mapUrl && (
+                                          <Image
+                                            src={mapUrl}
+                                            alt={map.mapType || 'Layout Map'}
+                                            style={{ width: '100%', height: 140, objectFit: 'cover' }}
+                                          />
+                                        )}
+                                        <div style={{ marginTop: 8 }}>
+                                          <Text strong>{map.mapType || `Layout Map #${idx + 1}`}</Text>
+                                        </div>
+                                      </Card>
+                                    </Col>
+                                  );
+                                })}
+                              </Row>
+                            ) : (
+                              <Text type="secondary">No layout maps uploaded.</Text>
+                            )}
+                          </Card>
+                        </div>
+                      )
+                    },
+                    {
+                      key: 'seo',
+                      label: (
+                        <span>
+                          <SearchOutlined /> SEO & Meta
+                        </span>
+                      ),
+                      children: (
+                        <div>
+                          <Card title="🔍 SEO Settings & Meta Information" size="small" style={{ borderRadius: 12 }}>
+                            <Descriptions column={1} bordered size="small">
+                              <Descriptions.Item label="SEO Title">{selectedProperty.seoTitle || 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="Meta Description">{selectedProperty.metaDescription || 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="Meta Keywords">{selectedProperty.metaKeywords || 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="Focus Keyword">{selectedProperty.focusKeyword || 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="Canonical URL">{selectedProperty.canonicalUrl || 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="OG Title">{selectedProperty.ogTitle || 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="OG Type">{selectedProperty.ogType || 'website'}</Descriptions.Item>
+                              <Descriptions.Item label="OG Description">{selectedProperty.ogDescription || 'N/A'}</Descriptions.Item>
+                              <Descriptions.Item label="Twitter Card">{selectedProperty.twitterCard || 'summary_large_image'}</Descriptions.Item>
+                              <Descriptions.Item label="Robots Index">{selectedProperty.robotsIndex || 'index,follow'}</Descriptions.Item>
+                            </Descriptions>
+                          </Card>
+                        </div>
+                      )
+                    }
+                  ]}
+                />
+              </div>
+            )}
+            
+            {/* Sticky Action Footer */}
+            {selectedProperty && (
+              <div style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                padding: '12px 24px',
+                background: '#ffffff',
+                borderTop: '1px solid #e2e8f0',
+                display: 'flex',
+                justify: 'space-between',
+                alignItems: 'center',
+                boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.05)',
+                zIndex: 10
+              }}>
+                <Tag color={getStatusColor(selectedProperty.approvalStatus)} style={{ margin: 0, fontWeight: 700 }}>
+                  {(selectedProperty.approvalStatus || 'pending').toUpperCase()}
+                </Tag>
+
+                <Space size="middle">
                   <Button 
                     type="primary" 
                     icon={<CheckCircleOutlined />}
@@ -771,20 +1161,23 @@ const PropertiesList = () => {
                       setDrawerVisible(false);
                       updateApprovalStatus(selectedProperty.id);
                     }}
+                    style={{ background: '#ea580c', borderColor: '#ea580c', fontWeight: 700, borderRadius: 6 }}
                   >
                     Update Status
                   </Button>
                   <Button 
                     icon={<EditOutlined />}
                     onClick={() => window.location.href = `/admin/edit-property/${selectedProperty.id}`}
+                    style={{ fontWeight: 600, borderRadius: 6 }}
                   >
                     Edit Property
                   </Button>
                   <Button 
                     icon={<EyeOutlined />}
                     onClick={() => window.open(`/property-details/${selectedProperty.id}`, '_blank')}
+                    style={{ fontWeight: 600, borderRadius: 6 }}
                   >
-                    View Live
+                    View Live Page
                   </Button>
                 </Space>
               </div>

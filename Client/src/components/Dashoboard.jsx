@@ -18,6 +18,7 @@ import axios from 'axios';
 import url from '../url';
 import DashboardNavbar from '../common/Dashboard_Navbar';
 import DashboardSidebar from '../common/Dashboard_Sidebar';
+import SEOHead from '../common/SEOHead';
 
 const { Content } = Layout;
 
@@ -224,6 +225,7 @@ const Dashboard = () => {
 
   return (
     <Layout style={{ minHeight: '100vh', background: '#f8fafc' }}>
+      <SEOHead title="Admin Dashboard" robots="noindex, nofollow" />
       <DashboardSidebar collapsed={collapsed} />
       
       <Layout>

@@ -8,6 +8,10 @@ exports.getApprovedProperties = async (req, res) => {
     maxPrice,
     bedrooms,
     propertyType,
+    city,
+    status,
+    furnishedStatus,
+    facing,
     suburb,
     district,
     state,
@@ -56,6 +60,26 @@ exports.getApprovedProperties = async (req, res) => {
   if (propertyType) {
     whereConditions.push('propertyType = ?');
     queryParams.push(propertyType);
+  }
+
+  if (city && city.trim() !== '') {
+    whereConditions.push('city LIKE ?');
+    queryParams.push(`%${city.trim()}%`);
+  }
+
+  if (status && status.trim() !== '') {
+    whereConditions.push('status = ?');
+    queryParams.push(status.trim());
+  }
+
+  if (furnishedStatus && furnishedStatus.trim() !== '') {
+    whereConditions.push('furnishedStatus = ?');
+    queryParams.push(furnishedStatus.trim());
+  }
+
+  if (facing && facing.trim() !== '') {
+    whereConditions.push('facing LIKE ?');
+    queryParams.push(`%${facing.trim()}%`);
   }
 
   if (suburb) {

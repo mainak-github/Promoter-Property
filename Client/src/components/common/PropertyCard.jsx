@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Card, Tag, Button, Rate, Space, Typography, Badge, Spin } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Card, Tag, Button, Rate, Space, Typography, Spin, Tooltip } from 'antd';
 import {
   EnvironmentOutlined,
   HeartOutlined,
@@ -16,33 +16,58 @@ import {
   CalendarOutlined,
   CheckCircleFilled,
   RestOutlined,
-  ArrowRightOutlined
+  ArrowRightOutlined,
+  ExpandOutlined
 } from '@ant-design/icons';
 import url from '../../url';
 import './PropertyCard.css';
 
 const { Text, Title } = Typography;
 
-const PropertyCard = ({ property }) => {
+const PropertyCard = ({ property, viewMode = 'grid', onOpenQuickView, onOpenInquiry }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!property?.id) return;
+    try {
+      const favs = JSON.parse(localStorage.getItem('fav_properties') || '[]');
+      setIsFavorite(favs.includes(property.id));
+    } catch (e) {
+      console.warn('LocalStorage error:', e);
+    }
+  }, [property?.id]);
+
+  const toggleFavorite = (e) => {
+    e.stopPropagation();
+    if (!property?.id) return;
+    try {
+      const favs = JSON.parse(localStorage.getItem('fav_properties') || '[]');
+      let updatedFavs = [];
+      if (favs.includes(property.id)) {
+        updatedFavs = favs.filter(id => id !== property.id);
+        setIsFavorite(false);
+      } else {
+        updatedFavs = [...favs, property.id];
+        setIsFavorite(true);
+      }
+      localStorage.setItem('fav_properties', JSON.stringify(updatedFavs));
+    } catch (err) {
+      console.warn('Favorite toggle error:', err);
+    }
+  };
 
   if (!property) return null;
 
   // Format Price to Indian Currency (Cr / L / K)
   const formatPriceToIndian = (priceString) => {
     if (!priceString) return 'Price on Request';
-    
     const cleanPrice = priceString.toString().toLowerCase().trim();
     const priceMatch = cleanPrice.match(/(\d+(?:\.\d+)?)\s*(cr|crore|l|lakh|k|thousand)?/);
-    
     if (!priceMatch) return `₹${priceString}`;
-    
     const [, numberStr, unit] = priceMatch;
     const number = parseFloat(numberStr);
-    
     if (isNaN(number)) return `₹${priceString}`;
-    
     if (unit) {
       switch (unit) {
         case 'cr':
@@ -58,11 +83,10 @@ const PropertyCard = ({ property }) => {
           return `₹${new Intl.NumberFormat('en-IN').format(number)}`;
       }
     }
-    
     return number >= 100 ? `₹${number} Cr` : `₹${number} L`;
   };
 
-  // Calculate Price Per Sq Ft safely without NaN
+  // Calculate Price Per Sq Ft safely
   const getPricePerSqft = () => {
     const rawArea = property.carpetArea || property.totalArea;
     if (!rawArea || !property.priceRange) return null;
@@ -72,7 +96,6 @@ const PropertyCard = ({ property }) => {
 
     const priceStr = property.priceRange.toString().toLowerCase();
     const priceMatch = priceStr.match(/(\d+(?:\.\d+)?)\s*(cr|crore|l|lakh|k)?/);
-    
     if (priceMatch) {
       const [, numberStr, unit] = priceMatch;
       const number = parseFloat(numberStr);
@@ -97,22 +120,18 @@ const PropertyCard = ({ property }) => {
 
       const pricePerSqft = Math.round(priceInRupees / numArea);
       if (isNaN(pricePerSqft) || pricePerSqft <= 0) return null;
-
       return `₹${new Intl.NumberFormat('en-IN').format(pricePerSqft)}/sq ft`;
     }
     return null;
   };
 
-  // Format Location String
   const getFormattedLocation = () => {
     const parts = [property.suburb, property.city, property.state].filter(Boolean);
     return parts.join(', ') || property.address || 'Prime Location';
   };
 
-  // Developer Name
   const developerName = property.developerInfo?.developerName || 'Promoter Property Partner';
 
-  // Area Value Safe Formatting
   const getFormattedArea = () => {
     const rawArea = property.carpetArea || property.totalArea;
     if (!rawArea) return null;
@@ -125,13 +144,11 @@ const PropertyCard = ({ property }) => {
     window.location.href = `/property/details/${property.id}`;
   };
 
-  // Status Badge Colors & Labels
   const getStatusBadge = () => {
     const status = property.status || 'Ready to Move In';
     let bgClass = 'status-emerald';
     if (status === 'Under Construction') bgClass = 'status-amber';
     if (status === 'Launching Soon') bgClass = 'status-indigo';
-
     return (
       <div className={`property-status-pill ${bgClass}`}>
         {status}
@@ -142,6 +159,109 @@ const PropertyCard = ({ property }) => {
   const photoCount = property.images?.length ? property.images.length + 1 : 1;
   const viewCount = 120 + ((property.id * 37) % 450);
 
+  // Horizontal List View Rendering
+  if (viewMode === 'list') {
+    return (
+      <div className="custom-property-card-list-wrapper" onClick={handleCardClick}>
+        <div className="list-card-image-wrap">
+          {!imageLoaded && (
+            <div className="custom-image-spin-placeholder">
+              <Spin />
+            </div>
+          )}
+          <img
+            alt={property.title}
+            src={property.coverPhoto ? `${url.IMAGE_URL}/${property.coverPhoto}` : 'https://via.placeholder.com/400x250/f1f5f9/64748b?text=Property+Photo'}
+            className="list-card-img"
+            onLoad={() => setImageLoaded(true)}
+            onError={(e) => {
+              e.target.src = 'https://via.placeholder.com/400x250/f1f5f9/64748b?text=Property+Photo';
+            }}
+          />
+          <div className="custom-card-top-left">{getStatusBadge()}</div>
+          <button
+            type="button"
+            className={`custom-favorite-btn ${isFavorite ? 'active' : ''}`}
+            onClick={toggleFavorite}
+          >
+            {isFavorite ? <HeartFilled style={{ color: '#ef4444' }} /> : <HeartOutlined />}
+          </button>
+        </div>
+
+        <div className="list-card-content">
+          <div className="list-card-header">
+            <div>
+              <div className="custom-dev-name-wrap">
+                <BuildOutlined className="custom-dev-icon" />
+                <span className="custom-dev-name">{developerName}</span>
+                <CheckCircleFilled className="custom-verified-icon" />
+              </div>
+              <h3 className="list-card-title">{property.title}</h3>
+              <div className="custom-card-location">
+                <EnvironmentOutlined className="custom-loc-pin" />
+                <span className="custom-loc-text">{getFormattedLocation()}</span>
+              </div>
+            </div>
+            <div className="list-card-price-box">
+              <div className="custom-price-main">{formatPriceToIndian(property.priceRange)}</div>
+              {getPricePerSqft() && <div className="custom-price-sqft">{getPricePerSqft()}</div>}
+            </div>
+          </div>
+
+          <div className="list-card-specs-row">
+            <span className="list-spec-item"><HomeOutlined /> <strong>{property.bedrooms || '2'}</strong> BHK</span>
+            <span className="list-spec-item"><RestOutlined /> <strong>{property.bathrooms || '1'}</strong> Baths</span>
+            <span className="list-spec-item"><AreaChartOutlined /> <strong>{getFormattedArea() || '1,200'}</strong> Sq Ft</span>
+            {property.facing && <span className="list-spec-item"><CompassOutlined /> {property.facing}</span>}
+            {property.furnishedStatus && <span className="list-spec-item tag-blue">{property.furnishedStatus}</span>}
+          </div>
+
+          <div className="list-card-footer">
+            <div className="list-actions">
+              <Button
+                type="primary"
+                className="custom-btn-view-details"
+                icon={<ArrowRightOutlined />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.location.href = `/property/details/${property.id}`;
+                }}
+              >
+                View Details
+              </Button>
+              {onOpenQuickView && (
+                <Button
+                  icon={<ExpandOutlined />}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenQuickView(property);
+                  }}
+                >
+                  Quick View
+                </Button>
+              )}
+              {onOpenInquiry && (
+                <Button
+                  className="btn-call"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenInquiry(property);
+                  }}
+                >
+                  Book Visit
+                </Button>
+              )}
+            </div>
+            <div className="custom-posted-date">
+              ID: #{property.id}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Grid View Rendering
   return (
     <div className="custom-property-card-wrapper" onClick={handleCardClick}>
       <Card
@@ -165,7 +285,7 @@ const PropertyCard = ({ property }) => {
               }}
             />
 
-            {/* Gradient Dark Cover Overlay */}
+            {/* Gradient Overlay */}
             <div className="custom-card-overlay-gradient" />
 
             {/* Top Status Pill */}
@@ -173,20 +293,32 @@ const PropertyCard = ({ property }) => {
               {getStatusBadge()}
             </div>
 
+            {/* Quick View Floating Button on Hover */}
+            {onOpenQuickView && (
+              <button
+                type="button"
+                className="custom-quickview-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenQuickView(property);
+                }}
+                title="Quick Preview"
+              >
+                <ExpandOutlined /> Quick View
+              </button>
+            )}
+
             {/* Favorite Wishlist Button */}
             <button
               type="button"
               className={`custom-favorite-btn ${isFavorite ? 'active' : ''}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsFavorite(!isFavorite);
-              }}
+              onClick={toggleFavorite}
               title={isFavorite ? 'Saved to Favorites' : 'Save to Favorites'}
             >
               {isFavorite ? <HeartFilled style={{ color: '#ef4444' }} /> : <HeartOutlined />}
             </button>
 
-            {/* Bottom Overlay Image Stats (Vector Icons ONLY) */}
+            {/* Bottom Overlay Image Stats */}
             <div className="custom-card-bottom-left">
               <div className="custom-stat-pill">
                 <CameraOutlined style={{ marginRight: 4 }} /> {photoCount}
@@ -235,7 +367,7 @@ const PropertyCard = ({ property }) => {
             </div>
           </div>
 
-          {/* Spec Grid - 3 Equal Equal Columns (No Emojis!) */}
+          {/* Spec Grid - 3 Equal Columns */}
           <div className="custom-spec-grid">
             <div className="custom-spec-box">
               <HomeOutlined className="custom-spec-icon icon-bhk" />
@@ -256,7 +388,7 @@ const PropertyCard = ({ property }) => {
             </div>
           </div>
 
-          {/* Tags (No Emojis - Vector Icons Only!) */}
+          {/* Tags */}
           <div className="custom-card-tags">
             {property.furnishedStatus && (
               <span className="custom-pill-tag tag-blue">
@@ -280,7 +412,6 @@ const PropertyCard = ({ property }) => {
 
           {/* Action Section */}
           <div className="custom-card-actions">
-            {/* Primary View Details Button */}
             <Button
               type="primary"
               block
@@ -295,17 +426,20 @@ const PropertyCard = ({ property }) => {
               View Full Details
             </Button>
 
-            {/* Call & WhatsApp Buttons */}
             <div className="custom-contact-btn-group">
               <button
                 type="button"
                 className="custom-contact-btn btn-call"
                 onClick={(e) => {
                   e.stopPropagation();
-                  window.open('tel:+918939000065');
+                  if (onOpenInquiry) {
+                    onOpenInquiry(property);
+                  } else {
+                    window.open('tel:+918939000065');
+                  }
                 }}
               >
-                <PhoneOutlined style={{ marginRight: 6 }} /> Call
+                <PhoneOutlined style={{ marginRight: 6 }} /> Contact
               </button>
 
               <button
@@ -313,8 +447,8 @@ const PropertyCard = ({ property }) => {
                 className="custom-contact-btn btn-whatsapp"
                 onClick={(e) => {
                   e.stopPropagation();
-                  const message = encodeURIComponent(`Hi, I'm interested in "${property.title}" (ID: #${property.id})`);
-                  window.open(`https://wa.me/918939000065?text=${message}`);
+                  const messageText = encodeURIComponent(`Hi, I'm interested in "${property.title}" (ID: #${property.id})`);
+                  window.open(`https://wa.me/918939000065?text=${messageText}`);
                 }}
               >
                 <WhatsAppOutlined style={{ marginRight: 6 }} /> WhatsApp

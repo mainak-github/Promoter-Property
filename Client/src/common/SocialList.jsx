@@ -9,7 +9,7 @@ const SocialList = () => {
                 socialLists.map((socialList, index) => {
                     return (
                         <li className="social-list__item" key={index}>
-                            <Link to={socialList.link} className="social-list__link flx-center">{socialList.icon}</Link>
+                            <a href={socialList.link} target="_blank" rel="noopener noreferrer" className="social-list__link flx-center">{socialList.icon}</a>
                         </li>
                     )
                 })

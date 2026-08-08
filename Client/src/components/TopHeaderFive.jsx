@@ -17,16 +17,13 @@ const TopHeaderFive = () => {
                     </div>
                     <ul className="social-icon-list flx-align gap-2">
                         <li className="social-icon-list__item">
-                            <a href="https://www.facebook.com" className="social-icon-list__link"><i className="fab fa-facebook-f"></i></a>
+                            <a href="https://www.instagram.com/promoterproperty?utm_source=qr&igsh=MTVtZnJxMjYxcG91eg==" target="_blank" rel="noopener noreferrer" className="social-icon-list__link"><i className="fab fa-instagram"></i></a>
                         </li>
                         <li className="social-icon-list__item">
-                            <a href="https://www.twitter.com" className="social-icon-list__link"><i className="fab fa-twitter"></i></a>
+                            <a href="https://www.facebook.com/share/1BBdx1c4CL/" target="_blank" rel="noopener noreferrer" className="social-icon-list__link"><i className="fab fa-facebook-f"></i></a>
                         </li>
                         <li className="social-icon-list__item">
-                            <a href="https://www.linkedin.com" className="social-icon-list__link"><i className="fab fa-linkedin-in"></i></a>
-                        </li>
-                        <li className="social-icon-list__item">
-                            <a href="https://www.pinterest.com" className="social-icon-list__link"><i className="fab fa-instagram"></i></a>
+                            <a href="https://youtube.com/@promoterproperty?si=y9aPCEntj3KRw35z" target="_blank" rel="noopener noreferrer" className="social-icon-list__link"><i className="fab fa-youtube"></i></a>
                         </li>
                     </ul>
                 </div>

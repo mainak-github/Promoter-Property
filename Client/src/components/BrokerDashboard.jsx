@@ -6,6 +6,7 @@ import {
 } from '@ant-design/icons';
 import DashboardNavbar from '../common/Dashboard_Navbar';
 import Dashboardsidebar2 from "../common/Dashboard_Sidebar2";
+import SEOHead from '../common/SEOHead';
 
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;

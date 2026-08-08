@@ -4,6 +4,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import Slider from "react-slick";
 import apiurl from "../url";
+import SEOHead from "../common/SEOHead";
 
 import houseThumb from "../../public/assets/images/thumbs/house.png";
 
@@ -353,8 +354,52 @@ const PropertyDetailsSection = () => {
             ? `${property.bedrooms} BHK` 
             : 'Residential Unit';
 
+    const propertySchema = property ? {
+        "@context": "https://schema.org",
+        "@type": "RealEstateListing",
+        "name": property.seoTitle || property.title,
+        "description": property.metaDescription || property.shortDescription || property.longDescription || property.title,
+        "url": `https://promoterproperty.com/property/details/${property.id}`,
+        "datePosted": property.createdAt,
+        "image": mainImage ? [mainImage] : [],
+        "offers": {
+            "@type": "AggregateOffer",
+            "priceCurrency": "INR",
+            "price": property.priceRange || "Price on Request"
+        },
+        "itemOffered": {
+            "@type": (property.propertyType || '').toLowerCase().includes('villa') ? "SingleFamilyResidence" : "Apartment",
+            "name": property.title,
+            "numberOfBedrooms": property.bedrooms || 2,
+            "numberOfBathroomsTotal": property.bathrooms || 1,
+            "floorSize": {
+                "@type": "QuantitativeValue",
+                "value": property.carpetArea || property.totalArea || 1000,
+                "unitCode": "FTK"
+            },
+            "address": {
+                "@type": "PostalAddress",
+                "addressLocality": property.city || "Kolkata",
+                "addressRegion": property.state || "West Bengal",
+                "addressCountry": "IN",
+                "postalCode": property.pincode || ""
+            }
+        }
+    } : null;
+
     return (
         <section style={{ backgroundColor: '#f8fafc', padding: '24px 0 60px 0', minHeight: '100vh' }}>
+            {property && (
+                <SEOHead
+                    title={property.seoTitle || property.title}
+                    description={property.metaDescription || property.shortDescription || `View details for ${property.title} in ${property.city || 'Kolkata'}.`}
+                    keywords={property.metaKeywords || `${property.title}, ${property.city || ''} property, buy ${property.propertyType || 'flat'}`}
+                    canonicalPath={`/property/details/${property.id}`}
+                    ogImage={mainImage}
+                    ogType="article"
+                    schemaJson={propertySchema}
+                />
+            )}
             <div className="container" style={{ maxWidth: '1360px', margin: '0 auto', padding: '0 16px' }}>
                 
                 {/* --- NAVIGATION BREADCRUMB & ACTION HEADER --- */}

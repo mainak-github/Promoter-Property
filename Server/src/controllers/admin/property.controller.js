@@ -186,7 +186,7 @@ exports.updateProperty = async (req, res) => {
     if (req.files?.additionalPhotos) {
       for (const file of req.files.additionalPhotos) {
         await connection.query(
-          'INSERT INTO PropertyImages (propertyId, imageUrl) VALUES (?, ?)',
+          'INSERT INTO PropertyImages (propertyId, imageUrl, createdAt, updatedAt) VALUES (?, ?, NOW(), NOW())',
           [id, path.relative('uploads', file.path)]
         );
       }
@@ -202,7 +202,7 @@ exports.updateProperty = async (req, res) => {
         await connection.query('DELETE FROM PropertyAmenities WHERE propertyId = ?', [id]);
         for (const amenityId of amenitiesArray) {
           await connection.query(
-            'INSERT INTO PropertyAmenities (propertyId, amenityId) VALUES (?, ?)',
+            'INSERT INTO PropertyAmenities (propertyId, amenityId, createdAt, updatedAt) VALUES (?, ?, NOW(), NOW())',
             [id, amenityId]
           );
         }
@@ -215,7 +215,7 @@ exports.updateProperty = async (req, res) => {
       const facilitiesArray = typeof nearbyFacilities === 'string' ? JSON.parse(nearbyFacilities) : nearbyFacilities;
       for (const fac of facilitiesArray) {
         await connection.query(
-          'INSERT INTO NearbyFacilities (propertyId, facilityName, distance) VALUES (?, ?, ?)',
+          'INSERT INTO NearbyFacilities (propertyId, facilityName, distance, createdAt, updatedAt) VALUES (?, ?, ?, NOW(), NOW())',
           [id, fac.facilityName || fac.facilityType, fac.distance]
         );
       }
@@ -229,7 +229,7 @@ exports.updateProperty = async (req, res) => {
         const fp = floorPlansArray[i];
         const photo = req.files?.floorPlans?.[i];
         await connection.query(
-          'INSERT INTO FloorPlans (propertyId, title, imageUrl) VALUES (?, ?, ?)',
+          'INSERT INTO FloorPlans (propertyId, floorName, photo, createdAt, updatedAt) VALUES (?, ?, ?, NOW(), NOW())',
           [
             id,
             fp.floorName || fp.title || 'Floor Plan',
@@ -245,7 +245,7 @@ exports.updateProperty = async (req, res) => {
       const devInfo = typeof developerInfo === 'string' ? JSON.parse(developerInfo) : developerInfo;
       const logoUrl = req.files?.developerLogo ? path.relative('uploads', req.files.developerLogo[0].path) : (devInfo.logoUrl || null);
       await connection.query(
-        'INSERT INTO DeveloperInfos (propertyId, developerName, aboutDeveloper, logoUrl) VALUES (?, ?, ?, ?)',
+        'INSERT INTO DeveloperInfos (propertyId, developerName, developerDescription, developerLogo, createdAt, updatedAt) VALUES (?, ?, ?, ?, NOW(), NOW())',
         [id, devInfo.developerName, devInfo.developerDescription || devInfo.aboutDeveloper, logoUrl]
       );
     }
@@ -255,7 +255,7 @@ exports.updateProperty = async (req, res) => {
       await connection.query('DELETE FROM LayoutMaps WHERE propertyId = ?', [id]);
       for (const file of req.files.layoutMaps) {
         await connection.query(
-          'INSERT INTO LayoutMaps (propertyId, title, imageUrl) VALUES (?, ?, ?)',
+          'INSERT INTO LayoutMaps (propertyId, mapType, imageUrl, createdAt, updatedAt) VALUES (?, ?, ?, NOW(), NOW())',
           [id, 'Layout Map', path.relative('uploads', file.path)]
         );
       }

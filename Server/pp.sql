@@ -305,7 +305,7 @@ CREATE TABLE `Properties` (
   `budgetType` enum('Budgeted','Mid-Budget','Premium-Budget') COLLATE utf8mb4_general_ci NOT NULL,
   `city` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `suburb` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `googleMapLink` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `googleMapLink` text COLLATE utf8mb4_general_ci DEFAULT NULL,
   `propertyType` enum('Flat','Apartment','Independent House','Villa','Plots') COLLATE utf8mb4_general_ci DEFAULT NULL,
   `status` enum('Launching Soon','Ready to Move In','Under Construction') COLLATE utf8mb4_general_ci DEFAULT NULL,
   `bathrooms` int DEFAULT NULL,

@@ -78,4 +78,5 @@ app.use('/api/admin', require('./routes/admin/faq.routes'));
 app.use('/api/admin', require('./routes/admin/privacypolicy.routes'));
 app.use('/api/admin', require('./routes/admin/tnc.routes'));
 app.use('/api/admin', require('./controllers/admin/leads.controller'));
+app.use('/', require('./routes/seo.routes'));
 module.exports = app;

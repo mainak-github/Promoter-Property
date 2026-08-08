@@ -11,7 +11,12 @@ import PageTitle from '../common/PageTitle';
 const AboutUs = () => {
     return (
         <>
-            <PageTitle title="Promoter Property - About Us" />
+            <PageTitle
+                title="About Us - Premier Real Estate Partner & Property Advisors | Promoter Property"
+                description="Learn about Promoter Property, your trusted real estate partner connecting buyers, sellers, and verified brokers across premier housing and commercial developments."
+                keywords="about promoter property, real estate agency, trusted property brokers, property advisory"
+                canonicalPath="/about-us"
+            />
             {/* Header */}
             <Header
                 headerClass="dark-header has-border"

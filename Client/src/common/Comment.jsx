@@ -20,16 +20,13 @@ const Comment = () => {
                                 <span className="comment-list__date">December 16, 2023</span>
                                 <ul className="social-list mt-0 p-0 border-0 gap-3">
                                     <li className="social-list__item">
-                                        <Link to="https://www.facebook.com" className="social-list__link text-gradient font-12 flx-center"><i className="fab fa-facebook-f"></i>
-                                        </Link>
+                                        <a href="https://www.instagram.com/promoterproperty?utm_source=qr&igsh=MTVtZnJxMjYxcG91eg==" target="_blank" rel="noopener noreferrer" className="social-list__link text-gradient font-12 flx-center"><i className="fab fa-instagram"></i></a>
                                     </li>
                                     <li className="social-list__item">
-                                        <Link to="https://www.twitter.com" className="social-list__link text-gradient font-12 flx-center"> <i className="fab fa-twitter"></i>
-                                        </Link>
+                                        <a href="https://www.facebook.com/share/1BBdx1c4CL/" target="_blank" rel="noopener noreferrer" className="social-list__link text-gradient font-12 flx-center"><i className="fab fa-facebook-f"></i></a>
                                     </li>
                                     <li className="social-list__item">
-                                        <Link to="https://www.pinterest.com" className="social-list__link text-gradient font-12 flx-center"> <i className="fab fa-instagram"></i>
-                                        </Link>
+                                        <a href="https://youtube.com/@promoterproperty?si=y9aPCEntj3KRw35z" target="_blank" rel="noopener noreferrer" className="social-list__link text-gradient font-12 flx-center"><i className="fab fa-youtube"></i></a>
                                     </li>
                                 </ul>
                             </div>
@@ -47,16 +44,13 @@ const Comment = () => {
                                 <span className="comment-list__date">December 16, 2023</span>
                                 <ul className="social-list mt-0 p-0 border-0 gap-3">
                                     <li className="social-list__item">
-                                        <Link to="https://www.facebook.com" className="social-list__link text-gradient font-12 flx-center"><i className="fab fa-facebook-f"></i>
-                                        </Link>
+                                        <a href="https://www.instagram.com/promoterproperty?utm_source=qr&igsh=MTVtZnJxMjYxcG91eg==" target="_blank" rel="noopener noreferrer" className="social-list__link text-gradient font-12 flx-center"><i className="fab fa-instagram"></i></a>
                                     </li>
                                     <li className="social-list__item">
-                                        <Link to="https://www.twitter.com" className="social-list__link text-gradient font-12 flx-center"> <i className="fab fa-twitter"></i>
-                                        </Link>
+                                        <a href="https://www.facebook.com/share/1BBdx1c4CL/" target="_blank" rel="noopener noreferrer" className="social-list__link text-gradient font-12 flx-center"><i className="fab fa-facebook-f"></i></a>
                                     </li>
                                     <li className="social-list__item">
-                                        <Link to="https://www.pinterest.com" className="social-list__link text-gradient font-12 flx-center"> <i className="fab fa-instagram"></i>
-                                        </Link>
+                                        <a href="https://youtube.com/@promoterproperty?si=y9aPCEntj3KRw35z" target="_blank" rel="noopener noreferrer" className="social-list__link text-gradient font-12 flx-center"><i className="fab fa-youtube"></i></a>
                                     </li>
                                 </ul>
                             </div>
