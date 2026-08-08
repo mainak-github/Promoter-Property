@@ -9,7 +9,7 @@ import PageTitle from '../common/PageTitle';
 const Checkout = () => {
     return (
         <>
-            <PageTitle title="Promoter PropertyProperty - Checkout" />
+            <PageTitle title="Checkout" robots="noindex, nofollow" />
 
             {/* Header */}
             <Header

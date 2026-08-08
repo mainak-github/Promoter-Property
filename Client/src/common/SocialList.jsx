@@ -9,7 +9,15 @@ const SocialList = () => {
                 socialLists.map((socialList, index) => {
                     return (
                         <li className="social-list__item" key={index}>
-                            <a href={socialList.link} target="_blank" rel="noopener noreferrer" className="social-list__link flx-center">{socialList.icon}</a>
+                            <a
+                                href={socialList.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="social-list__link flx-center"
+                                aria-label={socialList.name || socialList.title || "Follow us on social media"}
+                            >
+                                {socialList.icon}
+                            </a>
                         </li>
                     )
                 })

@@ -389,16 +389,19 @@ const PropertyDetailsSection = () => {
 
     return (
         <section style={{ backgroundColor: '#f8fafc', padding: '24px 0 60px 0', minHeight: '100vh' }}>
-            {property && (
+            {property ? (
                 <SEOHead
                     title={property.seoTitle || property.title}
                     description={property.metaDescription || property.shortDescription || `View details for ${property.title} in ${property.city || 'Kolkata'}.`}
                     keywords={property.metaKeywords || `${property.title}, ${property.city || ''} property, buy ${property.propertyType || 'flat'}`}
-                    canonicalPath={`/property/details/${property.id}`}
+                    canonicalPath={property.canonicalUrl || `/property/details/${property.id}`}
                     ogImage={mainImage}
                     ogType="article"
                     schemaJson={propertySchema}
+                    robots={property.robotsIndex || 'index, follow'}
                 />
+            ) : (
+                <SEOHead title="Property Details" robots="noindex, follow" />
             )}
             <div className="container" style={{ maxWidth: '1360px', margin: '0 auto', padding: '0 16px' }}>
                 

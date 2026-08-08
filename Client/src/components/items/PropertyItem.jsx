@@ -38,7 +38,7 @@ const PropertyItem = ({ property, itemClass, iconsClass, btnClass, badgeText, ba
             >
                 <div className="property-item__thumb">
                     <Link to={propertyURL} state={{ thumb, title, desc, price}} className="link">
-                        <img src={thumb} alt="" className="cover-img"/>
+                        <img src={thumb} alt={title || "Property"} className="cover-img" loading="lazy" decoding="async" />
                     </Link> 
                     {
                         renderBadge && (

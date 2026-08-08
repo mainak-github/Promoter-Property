@@ -24,15 +24,24 @@ const ScrollToTop = () => {
         })
     }) 
     
+    const scrollToTopHandler = () => {
+        setPosition({ top: 0, left: 0 });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     return (
         <>
-            <div className="scrollToTop"  
-                onClick={() => setPosition({...position, position: {top: 0, left: 0}})}
-                ref={scrollTop} 
+            <button
+                type="button"
+                className="scrollToTop"  
+                onClick={scrollToTopHandler}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') scrollToTopHandler(); }}
+                ref={scrollTop}
+                aria-label="Scroll to top of page"
+                style={{ border: 'none', background: 'transparent' }}
             >
-                <i className="fas fa-chevron-up text-gradient"></i>
-            </div>
-            
+                <i className="fas fa-chevron-up text-gradient" aria-hidden="true"></i>
+            </button>
         </>
     );
 };

@@ -9,7 +9,7 @@ import PageTitle from '../common/PageTitle';
 const Account = () => {
     return (
         <>
-        <PageTitle title="Promoter Property - Account Page" />
+            <PageTitle title="My Account" robots="noindex, nofollow" />
 
         <main className="body-bg">
             

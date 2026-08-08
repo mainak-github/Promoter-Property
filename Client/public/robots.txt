@@ -4,5 +4,11 @@ Disallow: /admin/
 Disallow: /broker/
 Disallow: /user/
 Disallow: /api/
+Disallow: /cart
+Disallow: /checkout
+Disallow: /account
+Disallow: /login
+Disallow: /register
+Disallow: /add-new-listing
 
 Sitemap: https://promoterproperty.com/sitemap.xml

@@ -9,7 +9,12 @@ import PageTitle from '../common/PageTitle';
 const BlogClassic = () => {
     return (
         <>
-            <PageTitle title="Promoter Property - Blog Classic" />
+            <PageTitle
+                title="Real Estate Insights & News Blog | Promoter Property"
+                description="Read latest real estate trends, home buying advice, investment tips, and market updates."
+                keywords="real estate blog, home buying tips, property investment news, promoter property"
+                canonicalPath="/blog"
+            />
 
             {/* Header */}
             <Header

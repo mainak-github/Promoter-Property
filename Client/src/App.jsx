@@ -1,63 +1,74 @@
-import { useEffect, useRef } from 'react'; 
+import { useEffect, useRef, lazy, Suspense } from 'react'; 
 import { BrowserRouter, Routes, Route, useLocation, useNavigationType } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import "react-image-lightbox/style.css";
 import './App.css';
-
-import HomeOne from './pages/HomeOne';
-import HomeTwo from './pages/HomeTwo';
-import HomeThree from './pages/HomeThree';
-import HomeFour from './pages/HomeFour';
-import HomeFive from './pages/HomeFive';
-import HomeSix from './pages/HomeSix';
-import HomeSeven from './pages/HomeSeven';
 import ScrollToTop from './common/ScrollToTop';
-import Property from './pages/Property';
-import PropertySidebar from './pages/PropertySidebar';
-import PropertyDetails from './pages/PropertyDetails';
-import AddListing from './pages/AddListing';
-import MapLocation from './pages/MapLocation';
-import AboutUs from './pages/AboutUs';
-import FaqPage from './pages/FaqPage';
-import Checkout from './pages/Checkout';
-import Cart from './pages/Cart';
-import Login from './pages/Login';
-import Account from './pages/Account';
-import Project from './pages/Project';
-import ProjectDetails from './pages/ProjectDetails';
-import BlogClassic from './pages/BlogClassic';
-import BlogDetails from './pages/BlogDetails';
-import Contact from './pages/Contact';
-import Register from './pages/Register';
-import ServicesPage from './pages/ServicesPage';
-import ServiceDetails from './pages/ServiceDetails';
-import NotFound from './pages/NotFound';
-import Dashoboard from './components/Dashoboard';
-import BrokerDashboard from './components/BrokerDashboard';
-import ClientDashboard from './components/ClientDashboard';
-import BrokerRegistration from './components/BrokerRegistration';
-import BrokerLists from './components/BrokeLists';
-import BrokerDetails from './components/BrokerDetails';
-import AdminLogin from './components/AdminLogin';
-import PropertyCreation from './components/ProperyCreation';
-import PropertiesList from './components/PropertiesList';
-import ClientLists from './components/ClientLists';
-import BrokerPropertyLists from './components/BrokerPropertyList';
-import PropertyDetailsView from './components/PropertyDetailsView';
-import UserDetails from './components/UserDetails';
-import PropertyUpdation from './components/PropertyUpdation';
-import MyClientProfile from './components/Myprofile';
-import BorkerUpdate from './components/BrokerProfile';
-import LandingPageBuilder from './components/CreateLandingPage';
-import FAQs from './components/Faqs';
-import PrivacyPolicyCMS from './components/Privacypolicy';
-import TermsConditions from './components/Tncs';
-import Leads from './components/PropertyLeads';
-import SalesReport from './components/SalesReport';
-import BrokerReport from './components/BrokerReport';
-import ClientActivityReport from './components/ClientActivityReport';
-import AdminProfile from './components/AdminProfile';
-import AdminSettings from './components/AdminSettings';
+
+// Lazy loaded page components
+const HomeOne = lazy(() => import('./pages/HomeOne'));
+const HomeTwo = lazy(() => import('./pages/HomeTwo'));
+const HomeThree = lazy(() => import('./pages/HomeThree'));
+const HomeFour = lazy(() => import('./pages/HomeFour'));
+const HomeFive = lazy(() => import('./pages/HomeFive'));
+const HomeSix = lazy(() => import('./pages/HomeSix'));
+const HomeSeven = lazy(() => import('./pages/HomeSeven'));
+const Property = lazy(() => import('./pages/Property'));
+const PropertySidebar = lazy(() => import('./pages/PropertySidebar'));
+const PropertyDetails = lazy(() => import('./pages/PropertyDetails'));
+const AddListing = lazy(() => import('./pages/AddListing'));
+const MapLocation = lazy(() => import('./pages/MapLocation'));
+const AboutUs = lazy(() => import('./pages/AboutUs'));
+const FaqPage = lazy(() => import('./pages/FaqPage'));
+const Checkout = lazy(() => import('./pages/Checkout'));
+const Cart = lazy(() => import('./pages/Cart'));
+const Login = lazy(() => import('./pages/Login'));
+const Account = lazy(() => import('./pages/Account'));
+const Project = lazy(() => import('./pages/Project'));
+const ProjectDetails = lazy(() => import('./pages/ProjectDetails'));
+const BlogClassic = lazy(() => import('./pages/BlogClassic'));
+const BlogDetails = lazy(() => import('./pages/BlogDetails'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Register = lazy(() => import('./pages/Register'));
+const ServicesPage = lazy(() => import('./pages/ServicesPage'));
+const ServiceDetails = lazy(() => import('./pages/ServiceDetails'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+
+// Admin / Dashboard components
+const Dashoboard = lazy(() => import('./components/Dashoboard'));
+const BrokerDashboard = lazy(() => import('./components/BrokerDashboard'));
+const ClientDashboard = lazy(() => import('./components/ClientDashboard'));
+const BrokerRegistration = lazy(() => import('./components/BrokerRegistration'));
+const BrokerLists = lazy(() => import('./components/BrokeLists'));
+const BrokerDetails = lazy(() => import('./components/BrokerDetails'));
+const AdminLogin = lazy(() => import('./components/AdminLogin'));
+const PropertyCreation = lazy(() => import('./components/ProperyCreation'));
+const PropertiesList = lazy(() => import('./components/PropertiesList'));
+const ClientLists = lazy(() => import('./components/ClientLists'));
+const BrokerPropertyLists = lazy(() => import('./components/BrokerPropertyList'));
+const PropertyDetailsView = lazy(() => import('./components/PropertyDetailsView'));
+const UserDetails = lazy(() => import('./components/UserDetails'));
+const PropertyUpdation = lazy(() => import('./components/PropertyUpdation'));
+const MyClientProfile = lazy(() => import('./components/Myprofile'));
+const BorkerUpdate = lazy(() => import('./components/BrokerProfile'));
+const LandingPageBuilder = lazy(() => import('./components/CreateLandingPage'));
+const FAQs = lazy(() => import('./components/Faqs'));
+const PrivacyPolicyCMS = lazy(() => import('./components/Privacypolicy'));
+const TermsConditions = lazy(() => import('./components/Tncs'));
+const Leads = lazy(() => import('./components/PropertyLeads'));
+const SalesReport = lazy(() => import('./components/SalesReport'));
+const BrokerReport = lazy(() => import('./components/BrokerReport'));
+const ClientActivityReport = lazy(() => import('./components/ClientActivityReport'));
+const AdminProfile = lazy(() => import('./components/AdminProfile'));
+const AdminSettings = lazy(() => import('./components/AdminSettings'));
+
+const PageLoader = () => (
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+    <div className="spinner-border text-primary" role="status">
+      <span className="visually-hidden">Loading...</span>
+    </div>
+  </div>
+);
 
 function App() {
 
@@ -93,75 +104,77 @@ function App() {
     <>
       <BrowserRouter>
         <Wrapper>
-          <Routes>
-            <Route path="/" element={<HomeOne />} />
-            <Route path="/home-two" element={<HomeTwo />} />
-            <Route path="/home-three" element={<HomeThree />} />
-            <Route path="/home-four" element={<HomeFour />} />
-            <Route path="/home-five" element={<HomeFive />} />
-            <Route path="/home-six" element={<HomeSix />} />
-            <Route path="/home-seven" element={<HomeSeven />} />
-            <Route path="/property" element={<Property />} />
-            <Route path="/properties" element={<Property />} />
-            <Route path="/property-sidebar" element={<PropertySidebar />} />
-            <Route path="/property/:title" element={<PropertyDetails />} />
-            <Route path="/properties/:id" element={<PropertyDetails />} />
-            <Route path="/property/details/:id" element={<PropertyDetails />} />
-            <Route path="/add-new-listing" element={<AddListing />} />
-            <Route path="/map-location" element={<MapLocation />} />
-            <Route path="/about-us" element={<AboutUs />} />
-            <Route path="/about" element={<AboutUs />} />
-            <Route path="/faq" element={<FaqPage />} />
-            <Route path="/faqs" element={<FaqPage />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/broker/registration" element={<BrokerRegistration />} />
-            <Route path="/account" element={<Account />} />
-            <Route path="/project" element={<Project />} />
-            <Route path="/projects" element={<Project />} />
-            <Route path="/project/:title" element={<ProjectDetails />} />
-            <Route path="/blog" element={<BlogClassic />} />
-            <Route path="/blogs" element={<BlogClassic />} />
-            <Route path="/blog/:title" element={<BlogDetails />} />
-            <Route path="/admin/dashboard" element={<Dashoboard />} />
-            <Route path="/broker/dashboard" element={<BrokerDashboard />} />
-            <Route path="/user/dashboard" element={<ClientDashboard />} />
-            <Route path="/admin/brokers" element={<BrokerLists />} />
-            <Route path="/admin/broker-details/:id" element={<BrokerDetails />} />
-            <Route path="/broker/profile/:id" element={<BorkerUpdate />} />
-            <Route path="/admin/clients" element={<ClientLists />} />
-            <Route path="/admin/property-listing" element={<PropertyCreation />} />
-            <Route path="/broker/property-listing" element={<PropertyCreation />} />
-            <Route path="/admin/properties" element={<PropertiesList />} />
-            <Route path="/brokers/properties/:id" element={<BrokerPropertyLists />} />
-            <Route path="/property-details/:id" element={<PropertyDetailsView />} />
-            <Route path="/admin/edit-property/:id" element={<PropertyUpdation />} />
-            <Route path="/admin/user-details/:id" element={<UserDetails />} />
-            <Route path="/profile/:id" element={<MyClientProfile />} />
-            <Route path="/admin/create-landing-page" element={<LandingPageBuilder />} />
-            <Route path="/admin/cms/faqs" element={<FAQs />} />
-            <Route path="/admin/leads" element={<Leads />} />
-            <Route path="/admin/cms/privacy-policy" element={<PrivacyPolicyCMS />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicyCMS />} />
-            <Route path="/privacy" element={<PrivacyPolicyCMS />} />
-            <Route path="/admin/cms/tnc" element={<TermsConditions />} />
-            <Route path="/terms" element={<TermsConditions />} />
-            <Route path="/terms-conditions" element={<TermsConditions />} />
-            <Route path="/tnc" element={<TermsConditions />} />
-            <Route path="/admin/reports/sales" element={<SalesReport />} />
-            <Route path="/admin/reports/brokers" element={<BrokerReport />} />
-            <Route path="/admin/reports/clients" element={<ClientActivityReport />} />
-            <Route path="/admin/profile" element={<AdminProfile />} />
-            <Route path="/admin/settings" element={<AdminSettings />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/contact-us" element={<Contact />} />
-            <Route path="/services" element={<ServicesPage />} />
-            <Route path="/services/:slug" element={<ServiceDetails />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<HomeOne />} />
+              <Route path="/home-two" element={<HomeTwo />} />
+              <Route path="/home-three" element={<HomeThree />} />
+              <Route path="/home-four" element={<HomeFour />} />
+              <Route path="/home-five" element={<HomeFive />} />
+              <Route path="/home-six" element={<HomeSix />} />
+              <Route path="/home-seven" element={<HomeSeven />} />
+              <Route path="/property" element={<Property />} />
+              <Route path="/properties" element={<Property />} />
+              <Route path="/property-sidebar" element={<PropertySidebar />} />
+              <Route path="/property/:title" element={<PropertyDetails />} />
+              <Route path="/properties/:id" element={<PropertyDetails />} />
+              <Route path="/property/details/:id" element={<PropertyDetails />} />
+              <Route path="/add-new-listing" element={<AddListing />} />
+              <Route path="/map-location" element={<MapLocation />} />
+              <Route path="/about-us" element={<AboutUs />} />
+              <Route path="/about" element={<AboutUs />} />
+              <Route path="/faq" element={<FaqPage />} />
+              <Route path="/faqs" element={<FaqPage />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/broker/registration" element={<BrokerRegistration />} />
+              <Route path="/account" element={<Account />} />
+              <Route path="/project" element={<Project />} />
+              <Route path="/projects" element={<Project />} />
+              <Route path="/project/:title" element={<ProjectDetails />} />
+              <Route path="/blog" element={<BlogClassic />} />
+              <Route path="/blogs" element={<BlogClassic />} />
+              <Route path="/blog/:title" element={<BlogDetails />} />
+              <Route path="/admin/dashboard" element={<Dashoboard />} />
+              <Route path="/broker/dashboard" element={<BrokerDashboard />} />
+              <Route path="/user/dashboard" element={<ClientDashboard />} />
+              <Route path="/admin/brokers" element={<BrokerLists />} />
+              <Route path="/admin/broker-details/:id" element={<BrokerDetails />} />
+              <Route path="/broker/profile/:id" element={<BorkerUpdate />} />
+              <Route path="/admin/clients" element={<ClientLists />} />
+              <Route path="/admin/property-listing" element={<PropertyCreation />} />
+              <Route path="/broker/property-listing" element={<PropertyCreation />} />
+              <Route path="/admin/properties" element={<PropertiesList />} />
+              <Route path="/brokers/properties/:id" element={<BrokerPropertyLists />} />
+              <Route path="/property-details/:id" element={<PropertyDetailsView />} />
+              <Route path="/admin/edit-property/:id" element={<PropertyUpdation />} />
+              <Route path="/admin/user-details/:id" element={<UserDetails />} />
+              <Route path="/profile/:id" element={<MyClientProfile />} />
+              <Route path="/admin/create-landing-page" element={<LandingPageBuilder />} />
+              <Route path="/admin/cms/faqs" element={<FAQs />} />
+              <Route path="/admin/leads" element={<Leads />} />
+              <Route path="/admin/cms/privacy-policy" element={<PrivacyPolicyCMS />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyCMS />} />
+              <Route path="/privacy" element={<PrivacyPolicyCMS />} />
+              <Route path="/admin/cms/tnc" element={<TermsConditions />} />
+              <Route path="/terms" element={<TermsConditions />} />
+              <Route path="/terms-conditions" element={<TermsConditions />} />
+              <Route path="/tnc" element={<TermsConditions />} />
+              <Route path="/admin/reports/sales" element={<SalesReport />} />
+              <Route path="/admin/reports/brokers" element={<BrokerReport />} />
+              <Route path="/admin/reports/clients" element={<ClientActivityReport />} />
+              <Route path="/admin/profile" element={<AdminProfile />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/contact-us" element={<Contact />} />
+              <Route path="/services" element={<ServicesPage />} />
+              <Route path="/services/:slug" element={<ServiceDetails />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </Wrapper>
       </BrowserRouter>
 

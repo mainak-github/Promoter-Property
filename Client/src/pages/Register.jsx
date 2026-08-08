@@ -9,7 +9,7 @@ import PageTitle from '../common/PageTitle';
 const Register = () => {
     return (
         <>
-            <PageTitle title="Promoter PropertyProperty - Registration" />
+            <PageTitle title="Register Account" robots="noindex, nofollow" />
 
             <main className="body-bg">
 

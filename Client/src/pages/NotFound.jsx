@@ -16,7 +16,7 @@ const NotFound = () => {
 
     return (
         <>
-            <PageTitle title="Promoter Property - 404 Page Not Found" />
+            <PageTitle title="404 Page Not Found" robots="noindex, nofollow" />
 
             <div className="not-found text-center">
                 <div className="not-found__inner">

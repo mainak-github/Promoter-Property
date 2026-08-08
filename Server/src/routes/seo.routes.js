@@ -8,12 +8,12 @@ router.get('/sitemap.xml', async (req, res) => {
     const baseUrl = process.env.CLIENT_URL || 'https://promoterproperty.com';
     const now = new Date().toISOString().split('T')[0];
 
-    // Static pages
+    // Static pages (only primary canonical URLs)
     const staticPages = [
       { url: '/', priority: '1.0', changefreq: 'daily' },
       { url: '/property', priority: '0.9', changefreq: 'daily' },
-      { url: '/properties', priority: '0.9', changefreq: 'daily' },
       { url: '/project', priority: '0.8', changefreq: 'weekly' },
+      { url: '/blog', priority: '0.7', changefreq: 'weekly' },
       { url: '/about-us', priority: '0.7', changefreq: 'monthly' },
       { url: '/contact', priority: '0.7', changefreq: 'monthly' },
       { url: '/faq', priority: '0.6', changefreq: 'monthly' },
@@ -26,7 +26,7 @@ router.get('/sitemap.xml', async (req, res) => {
     let properties = [];
     try {
       const [rows] = await db.query(
-        "SELECT id, title, updatedAt, createdAt FROM Properties WHERE approvalStatus = 'approved' ORDER BY updatedAt DESC"
+        "SELECT id, title, canonicalUrl, updatedAt, createdAt FROM Properties WHERE approvalStatus = 'approved' ORDER BY updatedAt DESC"
       );
       properties = rows || [];
     } catch (dbErr) {
@@ -46,25 +46,18 @@ router.get('/sitemap.xml', async (req, res) => {
       xml += `  </url>\n`;
     });
 
-    // Dynamic Property URL nodes
+    // Dynamic Property URL nodes (single canonical node per property)
     properties.forEach(prop => {
       const lastModDate = prop.updatedAt || prop.createdAt ? new Date(prop.updatedAt || prop.createdAt).toISOString().split('T')[0] : now;
+      const propPath = prop.canonicalUrl || `/property/details/${prop.id}`;
+      const fullUrl = propPath.startsWith('http') ? propPath : `${baseUrl}${propPath.startsWith('/') ? '' : '/'}${propPath}`;
+
       xml += `  <url>\n`;
-      xml += `    <loc>${baseUrl}/property/details/${prop.id}</loc>\n`;
+      xml += `    <loc>${fullUrl}</loc>\n`;
       xml += `    <lastmod>${lastModDate}</lastmod>\n`;
       xml += `    <changefreq>weekly</changefreq>\n`;
       xml += `    <priority>0.8</priority>\n`;
       xml += `  </url>\n`;
-
-      if (prop.slug || prop.title) {
-        const slugOrTitle = prop.slug || encodeURIComponent(prop.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''));
-        xml += `  <url>\n`;
-        xml += `    <loc>${baseUrl}/property/${slugOrTitle}</loc>\n`;
-        xml += `    <lastmod>${lastModDate}</lastmod>\n`;
-        xml += `    <changefreq>weekly</changefreq>\n`;
-        xml += `    <priority>0.8</priority>\n`;
-        xml += `  </url>\n`;
-      }
     });
 
     xml += `</urlset>`;
@@ -86,6 +79,12 @@ Disallow: /admin/
 Disallow: /broker/
 Disallow: /user/
 Disallow: /api/
+Disallow: /cart
+Disallow: /checkout
+Disallow: /account
+Disallow: /login
+Disallow: /register
+Disallow: /add-new-listing
 
 Sitemap: ${baseUrl}/sitemap.xml
 `;

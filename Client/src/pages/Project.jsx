@@ -9,7 +9,12 @@ import PageTitle from '../common/PageTitle';
 const Project = () => {
     return (
         <>
-            <PageTitle title="Promoter Property - Project" />
+            <PageTitle
+                title="Featured Real Estate Projects & New Developments | Promoter Property"
+                description="Explore top residential and commercial real estate projects, upcoming housing developments, and luxury apartment complexes."
+                keywords="real estate projects, new housing developments, luxury apartments project, promoter property"
+                canonicalPath="/project"
+            />
 
             <main className="body-bg">
 

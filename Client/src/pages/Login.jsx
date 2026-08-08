@@ -10,7 +10,7 @@ import LoginSection from '../components/LoginSection';
 const Login = () => {
     return (
         <>
-            <PageTitle title="Promoter PropertyProperty - Login" />
+            <PageTitle title="Login" robots="noindex, nofollow" />
 
             <main className="body-bg">
 

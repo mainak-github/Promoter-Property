@@ -9,7 +9,7 @@ import PageTitle from '../common/PageTitle';
 const Cart = () => {
     return (
         <>
-            <PageTitle title="Promoter PropertyProperty - Shopping Cart" />
+            <PageTitle title="Shopping Cart" robots="noindex, nofollow" />
 
             <main className="body-bg">
 

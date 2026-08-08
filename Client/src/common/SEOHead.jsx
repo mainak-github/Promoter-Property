@@ -24,10 +24,24 @@ const SEOHead = ({
   const metaDescription = description || DEFAULT_DESCRIPTION;
   const metaKeywords = Array.isArray(keywords) ? keywords.join(', ') : keywords || DEFAULT_KEYWORDS;
   
+  // Determine path: use passed canonicalPath or fallback to window location pathname
+  let targetPath = canonicalPath;
+  if (!targetPath && typeof window !== 'undefined' && window.location) {
+    targetPath = window.location.pathname;
+  }
+  if (!targetPath) {
+    targetPath = '/';
+  }
+
+  // Remove trailing slash if path is longer than 1 character (e.g., /about-us/ -> /about-us)
+  if (targetPath.length > 1 && targetPath.endsWith('/')) {
+    targetPath = targetPath.slice(0, -1);
+  }
+
   // Format canonical URL cleanly
-  const canonicalUrl = canonicalPath.startsWith('http')
-    ? canonicalPath
-    : `${BASE_URL}${canonicalPath.startsWith('/') ? '' : '/'}${canonicalPath}`;
+  const canonicalUrl = targetPath.startsWith('http')
+    ? targetPath
+    : `${BASE_URL}${targetPath.startsWith('/') ? '' : '/'}${targetPath}`;
 
   const metaOgTitle = ogTitle || fullTitle;
   const metaOgDesc = ogDescription || metaDescription;
