@@ -63,8 +63,8 @@ app.use(express.json());
 
 
 
-// Root route
-app.get('/', (req, res) => {
+// API Status route
+app.get('/api', (req, res) => {
   res.send('😁 Promoter Property APIs 😁');
 });
 
@@ -80,6 +80,21 @@ app.use('/api/admin', require('./routes/admin/tnc.routes'));
 app.use('/api/admin', require('./routes/admin/landingPage.routes'));
 app.use('/api/public', require('./routes/public/landingPage.routes'));
 app.use('/api/admin', require('./controllers/admin/leads.controller'));
+const fs = require('fs');
+
 app.use('/', require('./routes/seo.routes'));
+
+// Serve Client Static Build & Handle SPA Routing Fallback (for /admin/login, /property/details, etc.)
+const clientDistPath = path.join(__dirname, '../../Client/dist');
+if (fs.existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath));
+  app.use((req, res, next) => {
+    if (req.method === 'GET' && !req.path.startsWith('/api') && !req.path.startsWith('/uploads') && req.path !== '/sitemap.xml' && req.path !== '/robots.txt') {
+      return res.sendFile(path.join(clientDistPath, 'index.html'));
+    }
+    next();
+  });
+}
+
 module.exports = app;
 
