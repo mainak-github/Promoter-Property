@@ -5,7 +5,11 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   build: {
+    target: 'es2015',
+    sourcemap: false,
+    cssCodeSplit: true,
     chunkSizeWarningLimit: 2000,
+    minify: 'esbuild',
     rollupOptions: {
       output: {
         manualChunks(id) {
