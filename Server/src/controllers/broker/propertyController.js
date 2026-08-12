@@ -26,24 +26,25 @@ exports.createProperty = async (req, res) => {
       bedroomsArray = bedrooms.split(',').map(b => b.trim());
     }
 
-    const slug = slugify(title || 'property', { lower: true });
+    const generatedSlug = slugify(title || 'property', { lower: true, strict: true }) + '-' + Math.floor(1000 + Math.random() * 9000);
     const coverPhotoPath = req.files?.coverPhoto ? path.relative('uploads', req.files.coverPhoto[0].path) : null;
 
     // 1. Create Property
     const [result] = await connection.query(
       `INSERT INTO Properties (
-        brokerId, coverPhoto, title, shortDescription, longDescription,
+        brokerId, coverPhoto, title, slug, shortDescription, longDescription,
         priceRange, budgetType, city, suburb, district, state, pincode, road,
         country, continent, timezone, isoCode, latitude, longitude, googleMapLink,
         propertyType, status, bedrooms, bathrooms, furnishedStatus, parkingAvailable,
         launchDate, completionDate, floorNumber, numberOfTowers, carpetArea, totalArea,
         facing, approvalStatus, seoTitle, metaDescription, metaKeywords, ogTitle,
         ogType, ogDescription, twitterCard, canonicalUrl, focusKeyword, robotsIndex
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         req.user.id,
         coverPhotoPath,
         title,
+        generatedSlug,
         shortDescription || null,
         longDescription || null,
         priceRange || null,

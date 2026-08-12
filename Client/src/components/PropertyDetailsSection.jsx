@@ -5,6 +5,8 @@ import Swal from "sweetalert2";
 import Slider from "react-slick";
 import apiurl from "../url";
 import SEOHead from "../common/SEOHead";
+import PageLoader from "../common/PageLoader";
+import { getPropertyDetailsUrl, getPropertySlug } from "../utils/slugUtils";
 
 import houseThumb from "../../public/assets/images/thumbs/house.png";
 
@@ -133,7 +135,7 @@ const SimilarPropertyItem = ({ property, resolveImage }) => {
                 <span style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ea580c' }}>
                     {formatDisplayPrice(property.priceRange)}
                 </span>
-                <Link to={`/properties/${property.id}`} onClick={() => window.scrollTo(0, 0)}>
+                <Link to={getPropertyDetailsUrl(property)} onClick={() => window.scrollTo(0, 0)}>
                     <Button size="small" type="primary" style={{ background: '#0f172a', borderColor: '#0f172a', fontWeight: 700, borderRadius: 6 }}>
                         View
                     </Button>
@@ -144,7 +146,8 @@ const SimilarPropertyItem = ({ property, resolveImage }) => {
 };
 
 const PropertyDetailsSection = () => {
-    const { id } = useParams();
+    const params = useParams();
+    const identifier = params.identifier || params.id || params.title;
     const [property, setProperty] = useState(null);
     const [similarProperties, setSimilarProperties] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -160,9 +163,9 @@ const PropertyDetailsSection = () => {
         return String(imgUrl).replace(/\\/g, "/").replace("..", `${apiurl.IMAGE_URL}`);
     };
 
-    const getPropertyData = async (propertyId) => {
+    const getPropertyData = async (propIdOrSlug) => {
         try {
-            const res = await axios.get(`${apiurl.API_URL}/public/properties/${propertyId}`);
+            const res = await axios.get(`${apiurl.API_URL}/public/properties/${propIdOrSlug}`);
             const data = res.data.data;
             setProperty(data);
             const allPhotos = [
@@ -170,6 +173,7 @@ const PropertyDetailsSection = () => {
                 ...(data.images?.map(img => resolveImage(img.imageUrl)) || [])
             ].filter(url => url && !url.includes("null"));
             setMainImage(allPhotos[0] || houseThumb);
+            return data;
         } catch (error) {
             console.error("Error fetching property:", error);
             Swal.fire('Error', 'Failed to fetch property details. Please try again later.', 'error');
@@ -178,13 +182,14 @@ const PropertyDetailsSection = () => {
         }
     };
 
-    const getSimilarProperties = async () => {
+    const getSimilarProperties = async (currentProp) => {
         try {
             const res = await axios.get(`${apiurl.API_URL}/public/properties`, {
-                params: { page: 1, limit: 4, sortBy: "createdAt", order: "desc" }
+                params: { page: 1, limit: 10, sortBy: "createdAt", order: "desc" }
             });
             if (res.data.status === "success") {
-                const allProperties = res.data.data.properties.filter(p => p.id !== parseInt(id));
+                const currentId = currentProp?.id;
+                const allProperties = res.data.data.properties.filter(p => p.id !== currentId);
                 const shuffled = allProperties.sort(() => 0.5 - Math.random());
                 setSimilarProperties(shuffled.slice(0, 4));
             }
@@ -196,9 +201,12 @@ const PropertyDetailsSection = () => {
     };
 
     useEffect(() => {
-        getPropertyData(id);
-        getSimilarProperties();
-    }, [id]);
+        if (identifier) {
+            getPropertyData(identifier).then(data => {
+                if (data) getSimilarProperties(data);
+            });
+        }
+    }, [identifier]);
 
     const handleThumbnailClick = (image, index) => {
         setMainImage(image);
@@ -316,10 +324,7 @@ const PropertyDetailsSection = () => {
     };
 
     if (loading) return (
-        <div style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: '#f8fafc' }}>
-            <Spin size="large" />
-            <Text style={{ marginTop: 16, fontWeight: 700, color: '#64748b' }}>Loading property details...</Text>
-        </div>
+        <PageLoader text="Loading property details..." />
     );
 
     if (!property) return (
@@ -359,7 +364,7 @@ const PropertyDetailsSection = () => {
         "@type": "RealEstateListing",
         "name": property.seoTitle || property.title,
         "description": property.metaDescription || property.shortDescription || property.longDescription || property.title,
-        "url": `https://promoterproperty.com/property/details/${property.id}`,
+        "url": `https://promoterproperty.com${getPropertyDetailsUrl(property)}`,
         "datePosted": property.createdAt,
         "image": mainImage ? [mainImage] : [],
         "offers": {
@@ -394,7 +399,7 @@ const PropertyDetailsSection = () => {
                     title={property.seoTitle || property.title}
                     description={property.metaDescription || property.shortDescription || `View details for ${property.title} in ${property.city || 'Kolkata'}.`}
                     keywords={property.metaKeywords || `${property.title}, ${property.city || ''} property, buy ${property.propertyType || 'flat'}`}
-                    canonicalPath={property.canonicalUrl || `/property/details/${property.id}`}
+                    canonicalPath={property.canonicalUrl || getPropertyDetailsUrl(property)}
                     ogImage={mainImage}
                     ogType="article"
                     schemaJson={propertySchema}
@@ -492,10 +497,11 @@ const PropertyDetailsSection = () => {
                                 border: '1px solid #e2e8f0'
                             }}
                         >
-                            <div style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', backgroundColor: '#0f172a' }}>
+                            <div style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', backgroundColor: '#f1f5f9' }}>
                                 <Image
                                     src={mainImage}
                                     alt={property.title}
+                                    wrapperStyle={{ width: '100%', height: 420 }}
                                     style={{ width: '100%', height: 420, objectFit: 'cover' }}
                                     preview={true}
                                 />

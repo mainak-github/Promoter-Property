@@ -177,12 +177,22 @@ exports.getSingleProperty = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [rows] = await db.query(
-      "SELECT * FROM Properties WHERE id = ? AND approvalStatus = 'approved'",
-      [id]
-    );
+    const isNumeric = !isNaN(id) && !isNaN(parseInt(id, 10));
 
-    if (rows.length === 0) {
+    let rows;
+    if (isNumeric) {
+      [rows] = await db.query(
+        "SELECT * FROM Properties WHERE (id = ? OR slug = ?) AND approvalStatus = 'approved'",
+        [parseInt(id, 10), String(id)]
+      );
+    } else {
+      [rows] = await db.query(
+        "SELECT * FROM Properties WHERE slug = ? AND approvalStatus = 'approved'",
+        [id]
+      );
+    }
+
+    if (!rows || rows.length === 0) {
       return res.status(404).json({
         status: 'error',
         message: 'Property not found or not approved'

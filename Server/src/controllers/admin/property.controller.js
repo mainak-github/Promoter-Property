@@ -112,9 +112,14 @@ exports.updateProperty = async (req, res) => {
 
     const updatedApprovalStatus = req.user?.role === 'broker' ? 'pending' : existingProperty.approvalStatus;
 
+    const newTitle = title || existingProperty.title;
+    const propertySlug = (title && title !== existingProperty.title) || !existingProperty.slug
+      ? (slugify(newTitle || 'property', { lower: true, strict: true }) + '-' + existingProperty.id)
+      : existingProperty.slug;
+
     await connection.query(
       `UPDATE Properties SET
-        title = ?, shortDescription = ?, longDescription = ?, priceRange = ?, budgetType = ?,
+        title = ?, slug = ?, shortDescription = ?, longDescription = ?, priceRange = ?, budgetType = ?,
         city = ?, suburb = ?, district = ?, state = ?, pincode = ?, road = ?,
         country = ?, continent = ?, timezone = ?, isoCode = ?,
         latitude = ?, longitude = ?, address = ?, googleMapLink = ?, propertyType = ?, status = ?,
@@ -125,7 +130,8 @@ exports.updateProperty = async (req, res) => {
         ogDescription = ?, twitterCard = ?, canonicalUrl = ?, focusKeyword = ?, robotsIndex = ?
       WHERE id = ?`,
       [
-        title || existingProperty.title,
+        newTitle,
+        propertySlug,
         shortDescription !== undefined ? shortDescription : existingProperty.shortDescription,
         longDescription !== undefined ? longDescription : existingProperty.longDescription,
         priceRange !== undefined ? priceRange : existingProperty.priceRange,

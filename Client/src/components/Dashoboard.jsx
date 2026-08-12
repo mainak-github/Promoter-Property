@@ -19,6 +19,7 @@ import url from '../url';
 import DashboardNavbar from '../common/Dashboard_Navbar';
 import DashboardSidebar from '../common/Dashboard_Sidebar';
 import SEOHead from '../common/SEOHead';
+import { getPropertyDetailsUrl } from '../utils/slugUtils';
 
 const { Content } = Layout;
 
@@ -212,7 +213,7 @@ const Dashboard = () => {
           size="small"
           icon={<EyeOutlined />}
           style={{ color: '#ea580c', fontWeight: 600 }}
-          onClick={() => window.location.href = `/property/details/${record.id}`}
+          onClick={() => window.location.href = getPropertyDetailsUrl(record)}
         >
           View
         </Button>

@@ -64,13 +64,7 @@ const ClientActivityReport = lazy(() => import('./components/ClientActivityRepor
 const AdminProfile = lazy(() => import('./components/AdminProfile'));
 const AdminSettings = lazy(() => import('./components/AdminSettings'));
 
-const PageLoader = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-    <div className="spinner-border text-primary" role="status">
-      <span className="visually-hidden">Loading...</span>
-    </div>
-  </div>
-);
+import PageLoader from './common/PageLoader';
 
 function App() {
 
@@ -118,9 +112,9 @@ function App() {
               <Route path="/property" element={<Property />} />
               <Route path="/properties" element={<Property />} />
               <Route path="/property-sidebar" element={<PropertySidebar />} />
-              <Route path="/property/:title" element={<PropertyDetails />} />
-              <Route path="/properties/:id" element={<PropertyDetails />} />
-              <Route path="/property/details/:id" element={<PropertyDetails />} />
+              <Route path="/property/:identifier" element={<PropertyDetails />} />
+              <Route path="/properties/:identifier" element={<PropertyDetails />} />
+              <Route path="/property/details/:identifier" element={<PropertyDetails />} />
               <Route path="/add-new-listing" element={<AddListing />} />
               <Route path="/map-location" element={<MapLocation />} />
               <Route path="/about-us" element={<AboutUs />} />

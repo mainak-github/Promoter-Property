@@ -16,6 +16,7 @@ import {
   FileTextOutlined
 } from '@ant-design/icons';
 import url from '../../url';
+import { getPropertyDetailsUrl } from '../../utils/slugUtils';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -218,7 +219,7 @@ const PropertyQuickViewModal = ({ property, open, onClose, onOpenInquiry }) => {
                     height: 44
                   }}
                   onClick={() => {
-                    window.location.href = `/property/details/${property.id}`;
+                    window.location.href = getPropertyDetailsUrl(property);
                   }}
                 >
                   View Complete Details

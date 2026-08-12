@@ -26,7 +26,7 @@ router.get('/sitemap.xml', async (req, res) => {
     let properties = [];
     try {
       const [rows] = await db.query(
-        "SELECT id, title, canonicalUrl, updatedAt, createdAt FROM Properties WHERE approvalStatus = 'approved' ORDER BY updatedAt DESC"
+        "SELECT id, title, slug, canonicalUrl, updatedAt, createdAt FROM Properties WHERE approvalStatus = 'approved' ORDER BY updatedAt DESC"
       );
       properties = rows || [];
     } catch (dbErr) {
@@ -49,7 +49,8 @@ router.get('/sitemap.xml', async (req, res) => {
     // Dynamic Property URL nodes (single canonical node per property)
     properties.forEach(prop => {
       const lastModDate = prop.updatedAt || prop.createdAt ? new Date(prop.updatedAt || prop.createdAt).toISOString().split('T')[0] : now;
-      const propPath = prop.canonicalUrl || `/property/details/${prop.id}`;
+      const propIdentifier = prop.slug || prop.id;
+      const propPath = prop.canonicalUrl || `/property/details/${propIdentifier}`;
       const fullUrl = propPath.startsWith('http') ? propPath : `${baseUrl}${propPath.startsWith('/') ? '' : '/'}${propPath}`;
 
       xml += `  <url>\n`;

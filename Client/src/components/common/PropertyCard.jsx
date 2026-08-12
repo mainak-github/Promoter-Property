@@ -20,6 +20,7 @@ import {
   ExpandOutlined
 } from '@ant-design/icons';
 import url from '../../url';
+import { getPropertyDetailsUrl } from '../../utils/slugUtils';
 import './PropertyCard.css';
 
 const { Text, Title } = Typography;
@@ -141,7 +142,7 @@ const PropertyCard = ({ property, viewMode = 'grid', onOpenQuickView, onOpenInqu
   };
 
   const handleCardClick = () => {
-    window.location.href = `/property/details/${property.id}`;
+    window.location.href = getPropertyDetailsUrl(property);
   };
 
   const getStatusBadge = () => {
@@ -224,7 +225,7 @@ const PropertyCard = ({ property, viewMode = 'grid', onOpenQuickView, onOpenInqu
                 icon={<ArrowRightOutlined />}
                 onClick={(e) => {
                   e.stopPropagation();
-                  window.location.href = `/property/details/${property.id}`;
+                  window.location.href = getPropertyDetailsUrl(property);
                 }}
               >
                 View Details
@@ -420,7 +421,7 @@ const PropertyCard = ({ property, viewMode = 'grid', onOpenQuickView, onOpenInqu
               icon={<ArrowRightOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
-                window.location.href = `/property/details/${property.id}`;
+                window.location.href = getPropertyDetailsUrl(property);
               }}
             >
               View Full Details
