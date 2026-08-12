@@ -52,7 +52,9 @@ const PropertyUpdation = lazy(() => import('./components/PropertyUpdation'));
 const MyClientProfile = lazy(() => import('./components/Myprofile'));
 const BorkerUpdate = lazy(() => import('./components/BrokerProfile'));
 const LandingPageBuilder = lazy(() => import('./components/CreateLandingPage'));
+const PublishedLandingPage = lazy(() => import('./pages/PublishedLandingPage'));
 const FAQs = lazy(() => import('./components/Faqs'));
+
 const PrivacyPolicyCMS = lazy(() => import('./components/Privacypolicy'));
 const TermsConditions = lazy(() => import('./components/Tncs'));
 const Leads = lazy(() => import('./components/PropertyLeads'));
@@ -154,7 +156,9 @@ function App() {
               <Route path="/admin/user-details/:id" element={<UserDetails />} />
               <Route path="/profile/:id" element={<MyClientProfile />} />
               <Route path="/admin/create-landing-page" element={<LandingPageBuilder />} />
+              <Route path="/landing/:slug" element={<PublishedLandingPage />} />
               <Route path="/admin/cms/faqs" element={<FAQs />} />
+
               <Route path="/admin/leads" element={<Leads />} />
               <Route path="/admin/cms/privacy-policy" element={<PrivacyPolicyCMS />} />
               <Route path="/privacy-policy" element={<PrivacyPolicyCMS />} />

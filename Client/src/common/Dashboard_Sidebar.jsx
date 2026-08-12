@@ -17,6 +17,7 @@ const DashboardSidebar = ({ collapsed }) => {
     if (pathname.includes('/admin/reports/sales')) return { selected: ['sales-performance'], open: ['reports'] };
     if (pathname.includes('/admin/reports/brokers')) return { selected: ['broker-performance'], open: ['reports'] };
     if (pathname.includes('/admin/reports/clients')) return { selected: ['client-activity'], open: ['reports'] };
+    if (pathname.includes('/admin/create-landing-page')) return { selected: ['build-landing-page'], open: ['cms'] };
     if (pathname.includes('/admin/cms/faqs')) return { selected: ['faqs'], open: ['cms'] };
     if (pathname.includes('/admin/cms/privacy-policy')) return { selected: ['privacy-policy'], open: ['cms'] };
     if (pathname.includes('/admin/cms/tnc')) return { selected: ['tnc'], open: ['cms'] };
@@ -116,8 +117,9 @@ const DashboardSidebar = ({ collapsed }) => {
         {
           key: 'build-landing-page',
           label: 'Build Landing Page',
-          onClick: () => window.open('https://builder.promoterproperty.com/editor.php', '_blank'),
+          onClick: () => window.location.href = '/admin/create-landing-page',
         },
+
         {
           key: 'faqs',
           label: 'FAQs',

@@ -194,3 +194,23 @@ CREATE TABLE IF NOT EXISTS leads (
   FOREIGN KEY (propertyId) REFERENCES Properties(id) ON DELETE CASCADE,
   FOREIGN KEY (brokerId) REFERENCES Users(id) ON DELETE SET NULL
 );
+
+CREATE TABLE IF NOT EXISTS LandingPages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  slug VARCHAR(255) NOT NULL UNIQUE,
+  pageType VARCHAR(50) DEFAULT 'single-page',
+  status VARCHAR(50) DEFAULT 'draft',
+  gjsComponents LONGTEXT,
+  gjsStyles LONGTEXT,
+  gjsProject LONGTEXT,
+  htmlContent LONGTEXT,
+  cssContent LONGTEXT,
+  jsContent LONGTEXT,
+  metaTitle VARCHAR(255),
+  metaDescription TEXT,
+  metaKeywords TEXT,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
