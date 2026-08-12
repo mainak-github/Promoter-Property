@@ -85,14 +85,28 @@ const fs = require('fs');
 app.use('/', require('./routes/seo.routes'));
 
 // Serve Client Static Build & Handle SPA Routing Fallback (for /admin/login, /property/details, etc.)
-const clientDistPath = path.join(__dirname, '../../Client/dist');
-if (fs.existsSync(clientDistPath)) {
-  app.use(express.static(clientDistPath));
+const possibleDistPaths = [
+  path.join(__dirname, '../../Client/dist'),
+  path.join(__dirname, '../../Client/build'),
+  path.join(__dirname, '../public'),
+  path.join(__dirname, '../dist'),
+  path.join(__dirname, '../build')
+];
+
+const foundDistPath = possibleDistPaths.find(p => fs.existsSync(path.join(p, 'index.html')));
+
+if (foundDistPath) {
+  console.log('Serving frontend static files from:', foundDistPath);
+  app.use(express.static(foundDistPath));
   app.use((req, res, next) => {
     if (req.method === 'GET' && !req.path.startsWith('/api') && !req.path.startsWith('/uploads') && req.path !== '/sitemap.xml' && req.path !== '/robots.txt') {
-      return res.sendFile(path.join(clientDistPath, 'index.html'));
+      return res.sendFile(path.join(foundDistPath, 'index.html'));
     }
     next();
+  });
+} else {
+  app.get('/', (req, res) => {
+    res.send('😁 Promoter Property APIs 😁');
   });
 }
 
